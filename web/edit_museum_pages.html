@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Museum Pages</title>
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet"
+    integrity="sha384-ecIckRi4QlKYya/FQUbBUjS4qp65jF/J87Guw5uzTbO1C1Jfa/6kYmd6dXUF6D7i" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    h1 { margin: 0; font-size: 26px; }
+
+    .btn, .action-btn {
+      border: none;
+      border-radius: 10px;
+      min-height: 38px;
+      padding: 0 14px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn {
+      background: #58a6ff;
+      color: #08111b;
+    }
+    .btn:hover:not(:disabled) { background: #79b8ff; }
+    .btn:disabled { opacity: 0.6; cursor: wait; }
+
+    .action-btn {
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+    }
+    .action-btn:hover:not(:disabled) { background: #30363d; }
+    .action-btn.danger { background: #35161a; border-color: #6c2f37; color: #ffccd2; }
+    .action-btn.danger:hover:not(:disabled) { background: #482026; }
+    .action-btn.primary { background: #1f3a5c; border-color: #2c5a8c; color: #cfe8ff; }
+    .action-btn.primary:hover:not(:disabled) { background: #2b4d7a; }
+
+    select, input[type=text], textarea {
+      background: #0d1117;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      width: 100%;
+    }
+    select:focus, input:focus, textarea:focus { outline: 2px solid #58a6ff; outline-offset: -1px; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 6px; }
+    .field label.inline { display: inline-flex; align-items: center; gap: 8px; color: #e6edf3; }
+
+    .museum-picker {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #8b949e;
+    }
+    .breadcrumb button {
+      background: none;
+      border: none;
+      color: #58a6ff;
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+    }
+    .breadcrumb button:hover { background: #161b22; }
+    .breadcrumb .current { color: #e6edf3; padding: 4px 6px; }
+    .breadcrumb .sep { color: #484f58; }
+
+    .page-list { display: grid; gap: 12px; }
+
+    .page-card {
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      background: #161b22;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .page-card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .page-card h3 { margin: 0 0 6px; font-size: 17px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .page-card .description { font-size: 14px; color: #c9d1d9; line-height: 1.55; margin: 0 0 12px; white-space: pre-wrap; }
+    .page-card .faq-badge {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #0f2744;
+      border: 1px solid #245487;
+      color: #cfe8ff;
+    }
+    .page-card .child-count {
+      font-size: 12px;
+      color: #8b949e;
+      font-weight: 500;
+    }
+
+    .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .empty-state {
+      border: 1px dashed #30363d;
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      color: #8b949e;
+    }
+
+    #status {
+      display: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+    #status.show { display: block; }
+    #status.info    { background: #0f2744; border: 1px solid #245487; color: #cfe8ff; }
+    #status.success { background: #0f2d1f; border: 1px solid #2a6b46; color: #d3f4df; }
+    #status.error   { background: #3a1518; border: 1px solid #7d2d33; color: #ffd7d9; }
+
+    #modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 400;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 24px;
+      overflow-y: auto;
+    }
+    #modal-backdrop.open { display: flex; }
+
+    #modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      width: min(100%, 560px);
+      padding: 24px 28px 26px;
+      position: relative;
+    }
+    #modal h2 { margin: 0 0 18px; font-size: 20px; }
+    #modal-close {
+      position: absolute; top: 12px; right: 14px;
+      background: none; border: none; color: #8b949e;
+      cursor: pointer; font-size: 22px; padding: 2px 8px;
+    }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+    #modal.wide { width: min(100%, 720px); }
+    #quill-editor { min-height: 200px; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-top: none; border-radius: 0 0 10px 10px; font-size: 14px; }
+    #quill-editor .ql-editor { min-height: 200px; }
+    #modal .ql-toolbar { background: #161b22; border: 1px solid #30363d; border-radius: 10px 10px 0 0; }
+    #modal .ql-toolbar .ql-stroke { stroke: #8b949e; }
+    #modal .ql-toolbar .ql-fill { fill: #8b949e; }
+    #modal .ql-toolbar .ql-picker-label { color: #8b949e; }
+    #modal .ql-toolbar button:hover .ql-stroke,
+    #modal .ql-toolbar .ql-active .ql-stroke { stroke: #58a6ff; }
+    #modal .ql-toolbar button:hover .ql-fill,
+    #modal .ql-toolbar .ql-active .ql-fill { fill: #58a6ff; }
+    #modal .ql-toolbar .ql-picker-options { background: #161b22; border-color: #30363d; }
+    #modal .ql-toolbar .ql-picker-item:hover { color: #58a6ff; }
+    .drop-hint { font-size: 12px; color: #484f58; margin-top: 6px; }
+
+
+    .page-body-card {
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      background: #0d1117;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+    }
+    .page-body-card h3 { margin: 0 0 8px; font-size: 14px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.06em; }
+    .page-body-card .content-preview {
+      font-size: 14px; color: #c9d1d9; line-height: 1.55;
+      white-space: pre-wrap; max-height: 140px; overflow: auto;
+      margin: 0 0 10px;
+    }
+    .page-body-card .empty-body { color: #8b949e; font-size: 13px; margin: 0 0 10px; }
+    .page-body-card .body-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="topbar">
+      <h1 id="pageHeading">Museum Pages</h1>
+      <button id="btn-new" class="btn" disabled>+ New Page</button>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="museum-picker" id="museumPicker" style="display:none">
+      <div class="field">
+        <label for="museumSelect">Museum</label>
+        <select id="museumSelect"><option value="">Loading…</option></select>
+      </div>
+    </div>
+
+    <nav id="breadcrumb" class="breadcrumb" aria-label="Page hierarchy"></nav>
+
+    <div id="pageBody"></div>
+    <div id="pageList" class="page-list"></div>
+  </main>
+
+  <div id="modal-backdrop">
+    <div id="modal">
+      <button id="modal-close" aria-label="Close">×</button>
+      <h2 id="modal-title">New Page</h2>
+      <div class="field">
+        <label for="fld-title">Title</label>
+        <input type="text" id="fld-title" maxlength="200" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="fld-desc">Description (2-3 lines)</label>
+        <textarea id="fld-desc" rows="3" maxlength="600" autocomplete="off"></textarea>
+      </div>
+      <div class="field">
+        <label class="inline"><input type="checkbox" id="fld-faq"> Contains FAQs</label>
+      </div>
+      <div id="content-section" style="display:none">
+        <div class="field">
+          <label>Content (drag and drop a .txt, .html, or .docx file onto the editor)</label>
+          <div id="quill-editor"></div>
+          <div class="drop-hint">Drag a file onto the editor to import it</div>
+        </div>
+      </div>
+      <div id="autoSaveStatus" style="font-size:13px;color:#8b949e;text-align:right;margin-top:12px;min-height:20px;"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"
+    integrity="sha384-utBUCeG4SYaCm4m7GQZYr8Hy8Fpy3V4KGjBZaf4WTKOcwhCYpt/0PfeEe3HNlwx8" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    const museumSelect = document.getElementById('museumSelect');
+    const pageList = document.getElementById('pageList');
+    const pageBody = document.getElementById('pageBody');
+    const breadcrumbEl = document.getElementById('breadcrumb');
+    const btnNew = document.getElementById('btn-new');
+    const statusEl = document.getElementById('status');
+    const backdrop = document.getElementById('modal-backdrop');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const fldTitle = document.getElementById('fld-title');
+    const fldDesc = document.getElementById('fld-desc');
+    const fldFaq = document.getElementById('fld-faq');
+    const contentSection = document.getElementById('content-section');
+    const autoSaveStatus = document.getElementById('autoSaveStatus');
+    let saveTimer = null;
+
+    const quill = new Quill('#quill-editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'blockquote'],
+          [{ color: [] }, { background: [] }],
+          ['clean'],
+        ],
+      },
+      placeholder: 'Write content here, or drag and drop a file…',
+    });
+
+    let museums = [];
+    let allPages = [];
+    let currentParentId = null;
+    let editingId = null;
+
+    const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    function showStatus(msg, tone = 'info', timeout = 3000) {
+      statusEl.className = `show ${tone}`;
+      statusEl.textContent = msg;
+      if (timeout) setTimeout(() => statusEl.classList.remove('show'), timeout);
+    }
+
+    function currentMuseumId() {
+      const v = museumSelect.value;
+      return v ? parseInt(v, 10) : null;
+    }
+
+    function currentMuseum() {
+      return museums.find(m => m.id === currentMuseumId()) || null;
+    }
+
+    function findPage(id) { return allPages.find(p => p.id === id) || null; }
+
+    function childCount(pageId) {
+      return allPages.filter(p => (p.parent_page_id || null) === pageId).length;
+    }
+
+    function pagesAtLevel() {
+      return allPages.filter(p => (p.parent_page_id || null) === currentParentId);
+    }
+
+    function ancestry(pageId) {
+      const chain = [];
+      let cur = findPage(pageId);
+      while (cur) {
+        chain.unshift(cur);
+        cur = cur.parent_page_id ? findPage(cur.parent_page_id) : null;
+      }
+      return chain;
+    }
+
+    async function loadMuseums() {
+      const r = await fetch('/api/museums');
+      museums = await r.json();
+      museumSelect.innerHTML = museums.length
+        ? museums.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('')
+        : '<option value="">No museums defined</option>';
+      document.getElementById('museumPicker').style.display = museums.length > 1 ? '' : 'none';
+      btnNew.disabled = !museums.length;
+      if (museums.length) await loadPages();
+    }
+
+    async function loadPages() {
+      currentParentId = null;
+      const mid = currentMuseumId();
+      if (!mid) { allPages = []; render(); return; }
+      const r = await fetch(`/api/museums/${mid}/pages`);
+      allPages = r.ok ? await r.json() : [];
+      render();
+    }
+
+    function render() {
+      renderHeadingAndCrumbs();
+      renderBody();
+      const pages = pagesAtLevel();
+      if (!pages.length) {
+        pageList.innerHTML = currentParentId
+          ? ''
+          : '<div class="empty-state">No pages here yet. Click + New Page to add one.</div>';
+        return;
+      }
+      pageList.innerHTML = pages.map(p => {
+        const n = childCount(p.id);
+        const countLabel = n ? `<span class="child-count">${n} sub-page${n === 1 ? '' : 's'}</span>` : '';
+        return `
+          <div class="page-card" data-id="${p.id}">
+            <h3>
+              <span>${esc(p.title)}</span>
+              ${p.is_faq ? '<span class="faq-badge">FAQs</span>' : ''}
+              ${countLabel}
+            </h3>
+            ${p.description ? `<p class="description">${esc(p.description)}</p>` : ''}
+            <div class="card-actions">
+              <button class="action-btn" data-act="edit" data-id="${p.id}">Edit</button>
+              <button class="action-btn danger" data-act="delete" data-id="${p.id}">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderBody() {
+      const parent = currentParentId ? findPage(currentParentId) : null;
+      if (!parent) {
+        pageBody.innerHTML = '';
+        return;
+      }
+      const content = (parent.content || '').trim();
+      if (!content) {
+        pageBody.innerHTML = '';
+        return;
+      }
+      const preview = `<p class="content-preview">${esc(content.replace(/<[^>]*>/g, '').slice(0, 600))}${content.length > 600 ? '…' : ''}</p>`;
+      pageBody.innerHTML = `
+        <div class="page-body-card">
+          <h3>This Page</h3>
+          ${preview}
+        </div>`;
+    }
+
+    function renderHeadingAndCrumbs() {
+      const museum = currentMuseum();
+      const parent = currentParentId ? findPage(currentParentId) : null;
+      document.getElementById('pageHeading').textContent = museum
+        ? (parent ? `${museum.name}: ${parent.title}` : museum.name)
+        : 'Museum Pages';
+
+      if (!museum || !parent) { breadcrumbEl.innerHTML = ''; return; }
+      const crumbs = [`<button data-crumb="root">${esc(museum.name)}</button>`];
+      const chain = ancestry(parent.id);
+      chain.forEach((p, i) => {
+        crumbs.push('<span class="sep">›</span>');
+        if (i === chain.length - 1) {
+          crumbs.push(`<span class="current">${esc(p.title)}</span>`);
+        } else {
+          crumbs.push(`<button data-crumb="${p.id}">${esc(p.title)}</button>`);
+        }
+      });
+      breadcrumbEl.innerHTML = crumbs.join('');
+    }
+
+    async function openModal(page) {
+      if (!page) {
+        try {
+          const r = await fetch('/admin/museum_pages', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              museum_id: currentMuseumId(),
+              parent_page_id: currentParentId,
+              title: 'Untitled',
+            }),
+          });
+          if (!r.ok) throw new Error(await r.text());
+          const result = await r.json();
+          await refreshAfterMutation();
+          page = findPage(result.page.id);
+        } catch (e) {
+          showStatus(`Create failed: ${e.message}`, 'error', 5000);
+          return;
+        }
+      }
+      editingId = page.id;
+      modalTitle.textContent = 'Edit Page';
+      fldTitle.value = page.title ?? '';
+      fldDesc.value = page.description ?? '';
+      fldFaq.checked = !!(page.is_faq);
+      modal.classList.add('wide');
+      contentSection.style.display = '';
+      const content = page.content || '';
+      if (isHtmlContent(content)) {
+        quill.clipboard.dangerouslyPasteHTML(content);
+      } else if (content) {
+        quill.setText(content);
+      } else {
+        quill.setText('');
+      }
+      autoSaveStatus.textContent = '';
+      backdrop.classList.add('open');
+      fldTitle.focus();
+      fldTitle.select();
+    }
+    function closeModal() {
+      if (saveTimer) { clearTimeout(saveTimer); autoSave(); }
+      backdrop.classList.remove('open');
+      editingId = null;
+    }
+
+    function scheduleAutoSave() {
+      if (!editingId) return;
+      if (saveTimer) clearTimeout(saveTimer);
+      autoSaveStatus.textContent = '';
+      saveTimer = setTimeout(() => autoSave(), 800);
+    }
+
+    async function autoSave() {
+      if (!editingId) return;
+      const title = fldTitle.value.trim();
+      if (!title) return;
+      const body = {
+        title,
+        description: fldDesc.value.trim(),
+        is_faq: fldFaq.checked,
+      };
+      const html = quill.getSemanticHTML();
+      body.content = quill.getText().trim() ? html : '';
+      try {
+        const r = await fetch(`/admin/museum_pages/${editingId}`, {
+          method: 'PUT', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        autoSaveStatus.textContent = 'Saved';
+        autoSaveStatus.style.color = '#3fb950';
+        setTimeout(() => { autoSaveStatus.textContent = ''; }, 2000);
+        await refreshAfterMutation();
+      } catch (e) {
+        autoSaveStatus.textContent = 'Save failed';
+        autoSaveStatus.style.color = '#f85149';
+      }
+    }
+
+    async function deletePage(id) {
+      const n = childCount(id);
+      const msg = n
+        ? `Delete this page and its ${n} sub-page${n === 1 ? '' : 's'}? This cannot be undone.`
+        : 'Delete this page? This cannot be undone.';
+      if (!confirm(msg)) return;
+      const r = await fetch(`/admin/museum_pages/${id}`, { method: 'DELETE' });
+      if (r.ok) {
+        await refreshAfterMutation();
+        showStatus('Deleted.', 'success');
+      } else {
+        showStatus('Delete failed.', 'error');
+      }
+    }
+
+    function isHtmlContent(text) {
+      const t = (text || '').trimStart();
+      return /^<!doctype\s+html/i.test(t) || /^<html[\s>]/i.test(t) || /<\/(p|div|h[1-6]|body|table|ul|ol|strong|em)>/i.test(t);
+    }
+
+
+
+    async function refreshAfterMutation() {
+      const savedParent = currentParentId;
+      const mid = currentMuseumId();
+      const r = await fetch(`/api/museums/${mid}/pages`);
+      allPages = r.ok ? await r.json() : [];
+      if (savedParent && !findPage(savedParent)) {
+        currentParentId = null;
+      } else {
+        currentParentId = savedParent;
+      }
+      render();
+    }
+
+    museumSelect.addEventListener('change', loadPages);
+    btnNew.addEventListener('click', () => openModal(null));
+    const quillRoot = quill.root;
+    quillRoot.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      quillRoot.style.borderColor = '#58a6ff';
+    });
+    quillRoot.addEventListener('dragleave', () => {
+      quillRoot.style.borderColor = '';
+    });
+    quillRoot.addEventListener('drop', (e) => {
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!file) return;
+      e.preventDefault();
+      e.stopPropagation();
+      quillRoot.style.borderColor = '';
+      const name = file.name.toLowerCase();
+      const isTextFile = name.endsWith('.txt');
+      const isHtmlFile = name.endsWith('.html') || name.endsWith('.htm');
+      const isDocx = name.endsWith('.docx');
+      if (!isTextFile && !isHtmlFile && !isDocx) {
+        showStatus('Supported formats: .txt, .html, .docx', 'error');
+        return;
+      }
+      const hasContent = quill.getText().trim().length > 0;
+      if (hasContent && !confirm('Replace existing content with the dropped file?')) return;
+      if (isTextFile) {
+        const reader = new FileReader();
+        reader.onload = () => { quill.setText(reader.result); };
+        reader.readAsText(file);
+      } else if (isHtmlFile) {
+        const reader = new FileReader();
+        reader.onload = () => { quill.clipboard.dangerouslyPasteHTML(reader.result); };
+        reader.readAsText(file);
+      } else {
+        extractDocxText(file).then(text => { quill.setText(text); })
+          .catch(() => showStatus('Could not read .docx file.', 'error'));
+      }
+    });
+
+    async function extractDocxText(file) {
+      const zip = await file.arrayBuffer().then(buf => {
+        const entries = [];
+        const view = new DataView(buf);
+        let offset = 0;
+        while (offset < view.byteLength) {
+          if (view.getUint32(offset, true) !== 0x04034b50) break;
+          const nameLen = view.getUint16(offset + 26, true);
+          const extraLen = view.getUint16(offset + 28, true);
+          const compSize = view.getUint32(offset + 18, true);
+          const name = new TextDecoder().decode(new Uint8Array(buf, offset + 30, nameLen));
+          const dataStart = offset + 30 + nameLen + extraLen;
+          entries.push({ name, data: new Uint8Array(buf, dataStart, compSize), compressed: view.getUint16(offset + 8, true) === 8 });
+          offset = dataStart + compSize;
+        }
+        return entries;
+      });
+      const docEntry = zip.find(e => e.name === 'word/document.xml');
+      if (!docEntry) throw new Error('Not a valid docx');
+      let xml;
+      if (docEntry.compressed) {
+        const ds = new DecompressionStream('deflate-raw');
+        const writer = ds.writable.getWriter();
+        writer.write(docEntry.data);
+        writer.close();
+        const reader = ds.readable.getReader();
+        const chunks = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+        xml = new TextDecoder().decode(await new Blob(chunks).arrayBuffer());
+      } else {
+        xml = new TextDecoder().decode(docEntry.data);
+      }
+      const paragraphs = [];
+      xml.replace(/<w:p[\s>][\s\S]*?<\/w:p>/g, (pXml) => {
+        const texts = [];
+        pXml.replace(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g, (_, t) => { texts.push(t); });
+        paragraphs.push(texts.join(''));
+      });
+      return paragraphs.join('\n');
+    }
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
+    fldTitle.addEventListener('input', scheduleAutoSave);
+    fldDesc.addEventListener('input', scheduleAutoSave);
+    fldFaq.addEventListener('change', scheduleAutoSave);
+    quill.on('text-change', scheduleAutoSave);
+
+    pageList.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-act]');
+      if (btn) {
+        e.stopPropagation();
+        const id = parseInt(btn.dataset.id, 10);
+        if (btn.dataset.act === 'edit') openModal(findPage(id));
+        else if (btn.dataset.act === 'delete') deletePage(id);
+        return;
+      }
+      const card = e.target.closest('.page-card[data-id]');
+      if (card) {
+        currentParentId = parseInt(card.dataset.id, 10);
+        render();
+      }
+    });
+
+    breadcrumbEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-crumb]');
+      if (!btn) return;
+      const crumb = btn.dataset.crumb;
+      currentParentId = crumb === 'root' ? null : parseInt(crumb, 10);
+      render();
+    });
+
+    loadMuseums().catch(e => showStatus(`Load failed: ${e.message}`, 'error', 5000));
+  </script>
+  <script src="/web/admin-env-banner.js"></script>
+</body>
+
+</html>

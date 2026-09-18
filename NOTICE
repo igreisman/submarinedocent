@@ -1,0 +1,48 @@
+# Notice
+
+This repository contains both software and content. They are licensed
+separately, and the split is deliberate.
+
+| What | Licence | File |
+|---|---|---|
+| Source code | MIT | [LICENSE](LICENSE) |
+| Text written for this project by Irving Greisman | CC BY 4.0 | [LICENSE-CONTENT](LICENSE-CONTENT) |
+| The glossary, by Dwight Naset | CC BY 4.0, released by him 18 September 2026. Credit him by name | [corpora/README.md](corpora/README.md) |
+| US Government works — the two 1946 Navy publications and the Medal of Honor citations | Public domain. Not ours to license | [corpora/README.md](corpora/README.md) |
+| Photographs | **Not granted.** Mixed provenance, used with credit for non-commercial educational purposes | [LICENSE-CONTENT](LICENSE-CONTENT) |
+| Video | **Not granted.** None is distributed here; the catalogue records are CC BY, the video is not | [LICENSE-CONTENT](LICENSE-CONTENT) |
+
+Copying this repository does not give you rights in the photographs, in the
+glossary, or in any video it links to. `corpora/README.md` states the origin
+and licensing of every corpus file and is the authority where any of these
+files disagree.
+
+## Running it without our content
+
+`sample_data/corpora/` holds a small, redistribution-safe dataset. Start with
+`SAMPLE_CONTENT_MODE=true`, or point `CONTENT_ROOT` at a content directory of
+your own. Neither path needs anything in `corpora/`.
+
+## Settled
+
+Nothing is outstanding. Three questions that were open here have been settled:
+
+- The 204 glossary records are Dwight Naset's work, and he released them under
+  CC BY 4.0 by email on 18 September 2026. They are credited to him by name.
+- The glossary's origin was never unknown — the records simply carry no
+  `source` field, so the gap was in the data, not in the provenance.
+- The FAQ corpus needs no per-record split. dieselsubs.com is Irving
+  Greisman's own site, so records derived from it are his work and the file is
+  CC BY 4.0 in full.
+
+## What is no longer here
+
+- Records generated from the San Francisco Maritime National Park
+  Association's tour and website were removed on 2026-09-17. See
+  `scripts/remove_by_source.py`.
+- The Pampanito audio tour, its corpus and its audio were withdrawn on
+  2026-09-17 pending the Association's permission.
+- Video is not distributed here. `corpora/videos.jsonl` holds pointers to
+  material hosted elsewhere, each with its own `rights_status`.
+- Photographs not referenced by any record were moved out of the repository;
+  only the images the lost-boat pages actually use remain.

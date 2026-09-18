@@ -1,0 +1,37 @@
+{
+  "request": {
+    "required": [
+      "compartment_id",
+      "audio_track_id",
+      "playhead_time_ms",
+      "question_text"
+    ],
+    "optional": [
+      "answer_mode",
+      "user_locale",
+      "visitor_profile",
+      "is_noisy_environment",
+      "last_n_turns"
+    ]
+  },
+  "response": {
+    "answer_mode": "quick|standard|deep",
+    "answer_short": "string",
+    "answer_deep": "string|null",
+    "what_you_are_seeing": "string|null",
+    "citations": [
+      {
+        "source_id": "string",
+        "display_citation": "string",
+        "chunk_id": "string"
+      }
+    ],
+    "followups": [
+      "string"
+    ],
+    "refusal": {
+      "is_refusal": "boolean",
+      "reason": "string"
+    }
+  }
+}

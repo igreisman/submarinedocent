@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>USS Pampanito — War Patrols</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .patrol-card {
+      display: flex;
+      align-items: flex-start;
+      padding: 24px;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      margin-bottom: 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    a.patrol-card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .patrol-card.coming-soon {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .patrol-body { flex: 1; min-width: 0; }
+
+    .patrol-body h2 { margin: 0 0 4px; font-size: 20px; }
+
+    .patrol-body p {
+      margin: 0;
+      font-size: 14px;
+      color: #c9d1d9;
+      line-height: 1.6;
+    }
+
+    .coming-soon-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 10px;
+      border-radius: 12px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      font-size: 12px;
+      color: #8b949e;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <a class="patrol-card" href="/web/pampanito-patrol-1.html">
+      <div class="patrol-body">
+        <h2>First Patrol</h2>
+        <p>Pampanito's first war patrol in the Pacific.</p>
+      </div>
+    </a>
+    <a class="patrol-card" href="/web/pampanito-patrol-2.html">
+      <div class="patrol-body">
+        <h2>Second Patrol</h2>
+        <p>Pampanito's second war patrol in the Pacific.</p>
+      </div>
+    </a>
+    <a class="patrol-card" href="/web/pampanito-patrol-3.html">
+      <div class="patrol-body">
+        <h2>Third Patrol</h2>
+        <p>Pampanito's third war patrol in the Pacific.</p>
+      </div>
+    </a>
+    <div class="patrol-card coming-soon">
+      <div class="patrol-body">
+        <h2>Fourth Patrol</h2>
+        <span class="coming-soon-badge">Coming Soon</span>
+      </div>
+    </div>
+    <div class="patrol-card coming-soon">
+      <div class="patrol-body">
+        <h2>Fifth Patrol</h2>
+        <span class="coming-soon-badge">Coming Soon</span>
+      </div>
+    </div>
+  </main>
+
+  <script src="/web/site-footer.js"></script>
+  <script src="/web/site-header.js"></script>
+  <script>
+    SiteFooter.render();
+    SiteHeader.render({
+      title:    'War Patrols',
+      subtitle: 'USS Pampanito (SS-383) conducted five war patrols in the Pacific during World War II.',
+      feedback: 'Have a correction or additional information about these patrols?',
+    });
+  </script>
+</body>
+
+</html>

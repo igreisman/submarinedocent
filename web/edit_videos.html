@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Videos</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f7fb;
+      color: #1d2734;
+    }
+
+    header {
+      background: #1a1f2e;
+      color: #e6edf3;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    header a {
+      color: #9ec5f5;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 64px;
+    }
+
+    .note {
+      background: #fff8e6;
+      border: 1px solid #f0dca8;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #5c4a1a;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e1e7ef;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      color: #14213d;
+    }
+
+    .video-edit-toggle {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .video-edit-toggle h2 {
+      margin: 0;
+    }
+
+    .video-edit-chevron {
+      color: #607090;
+      font-size: 16px;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .video-edit-body {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .card.is-open .video-edit-body {
+      display: block;
+    }
+
+    .card.is-open .video-edit-chevron {
+      transform: rotate(90deg);
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #44506a;
+      margin: 10px 0 4px;
+    }
+
+    .hint {
+      font-weight: 400;
+      color: #7a8698;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 14px;
+      border: 1px solid #cfd8e3;
+      border-radius: 6px;
+      background: #fff;
+      color: #1d2734;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .row>div {
+      flex: 1 1 200px;
+    }
+
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font: inherit;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #cfd8e3;
+      background: #fff;
+      color: #1d2734;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: #2f6fd0;
+      border-color: #2f6fd0;
+      color: #fff;
+    }
+
+    button.danger {
+      color: #a12a1f;
+      border-color: #e6c3bf;
+    }
+
+    button:hover {
+      filter: brightness(0.97);
+    }
+
+    .status {
+      font-size: 13px;
+      color: #5a6a80;
+    }
+
+    .status.error {
+      color: #a12a1f;
+    }
+
+    .status.ok {
+      color: #1f7a3d;
+    }
+
+    .preview {
+      margin-top: 12px;
+    }
+
+    .preview iframe {
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 6px;
+      background: #000;
+    }
+
+    .empty {
+      background: #fff;
+      border: 1px dashed #cfd8e3;
+      border-radius: 10px;
+      padding: 28px;
+      text-align: center;
+      color: #5a6a80;
+    }
+
+    .section-heading {
+      margin: 32px 0 4px;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #44506a;
+    }
+
+    .section-note {
+      margin: 0 0 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #5a6a80;
+    }
+
+    .attached-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #14213d;
+      margin-bottom: 4px;
+    }
+
+    .attached-meta {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #5a6a80;
+      word-break: break-all;
+    }
+
+    .order-card {
+      background: #fff;
+      border: 1px solid #e1e7ef;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+
+    .order-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid #d8e0eb;
+      border-radius: 8px;
+      background: #f8fbff;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .order-item:active {
+      cursor: grabbing;
+    }
+
+    .order-item.drag-over {
+      border-color: #2f6fd0;
+      background: #eaf2ff;
+    }
+
+    .order-handle {
+      color: #607090;
+      font-size: 16px;
+      letter-spacing: 0.05em;
+      width: 16px;
+      text-align: center;
+      flex: 0 0 16px;
+    }
+
+    .order-title {
+      color: #14213d;
+      font-size: 14px;
+      line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .order-item-actions {
+      margin-left: auto;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .order-mini-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Edit Videos</h1>
+    <div>
+      <a href="/web/edit.html">&larr; Admin</a>
+      &nbsp;·&nbsp;
+      <a href="/web/videos.html" target="_blank" rel="noopener">View public page</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="note">
+      <strong>Only add video we have the right to show.</strong>
+      Embeddable is not the same as permitted. Record the basis in
+      <em>Rights note</em> — it is shown on the public page. Library of Congress
+      oral histories are <em>not</em> free to use: link to them from a question
+      instead.
+    </div>
+
+    <datalist id="video-categories"></datalist>
+
+    <h2 class="section-heading">Videos on the Videos page</h2>
+    <div class="actions" style="margin: 0 0 12px;">
+      <button id="show-add-video" class="primary" type="button">Add a Video</button>
+    </div>
+    <div class="order-card">
+      <h2 style="margin:0 0 8px;font-size:15px;color:#14213d;">Video Order</h2>
+      <p class="section-note" style="margin:0 0 12px;">Drag titles to reorder. Changes save automatically after each
+        move.</p>
+      <div id="order">
+        <div class="empty">Loading&hellip;</div>
+      </div>
+    </div>
+
+    <div class="card" id="edit-video-card" hidden>
+      <h2>Edit video</h2>
+      <div id="edit-form"></div>
+    </div>
+
+    <div class="card" id="add-video-card" hidden>
+      <h2>Add a video</h2>
+      <div id="new-form"></div>
+    </div>
+
+    <h2 class="section-heading">Videos attached to a question</h2>
+    <p class="section-note">
+      These play underneath an answer in the FAQ and on the tour. They are
+      separate from the list above — if you need to take a video down
+      completely, remove it in <em>both</em> places.
+    </p>
+    <div id="attached">
+      <div class="empty">Loading&hellip;</div>
+    </div>
+
+    <h2 class="section-heading">Links to recordings on other sites</h2>
+    <p class="section-note">
+      These appear under an answer as &ldquo;Hear it firsthand&rdquo;. We do not
+      show these recordings — we only point at the archive that holds them — but
+      if an archive or a family asks us to stop linking, remove them here.
+    </p>
+    <div id="links">
+      <div class="empty">Loading&hellip;</div>
+    </div>
+  </main>
+
+  <script>
+    const esc = s => String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    const newFormEl = document.getElementById('new-form');
+    const addVideoCardEl = document.getElementById('add-video-card');
+    const showAddVideoBtn = document.getElementById('show-add-video');
+    const editVideoCardEl = document.getElementById('edit-video-card');
+    const editFormEl = document.getElementById('edit-form');
+    const orderEl = document.getElementById('order');
+    let currentVideos = [];
+    let editingVideoId = null;
+    let youtubeMetadataStrategies = null;
+
+    showAddVideoBtn.addEventListener('click', () => {
+      addVideoCardEl.hidden = false;
+      const firstInput = addVideoCardEl.querySelector('input, textarea, button');
+      if (firstInput) firstInput.focus();
+      addVideoCardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function looksLikeYouTubeUrl(url) {
+      return /(?:youtube\.com|youtu\.be)/i.test(String(url || ''));
+    }
+
+    const YOUTUBE_RIGHTS_NOTE = 'Embeddable under YouTube Terms of Service';
+
+    function prefillYouTubeRightsNote(prefix) {
+      const urlEl = document.getElementById(`${prefix}-url`);
+      const rightsEl = document.getElementById(`${prefix}-rights`);
+      if (!urlEl || !rightsEl) return;
+      if (!looksLikeYouTubeUrl(urlEl.value.trim())) return;
+      if (rightsEl.value.trim()) return;
+      rightsEl.value = YOUTUBE_RIGHTS_NOTE;
+    }
+
+    async function resolveYoutubeMetadataStrategies() {
+      if (youtubeMetadataStrategies) return youtubeMetadataStrategies;
+      const strategies = [];
+      try {
+        const res = await fetch('/openapi.json', { method: 'GET' });
+        if (res.ok) {
+          const spec = await res.json();
+          const paths = spec && spec.paths ? spec.paths : {};
+          const hasPath = p => Object.prototype.hasOwnProperty.call(paths, p);
+          const hasMethod = (p, m) => hasPath(p) && paths[p] && paths[p][m];
+
+          if (hasMethod('/api/youtube-metadata', 'get')) {
+            strategies.push(url => send('GET', `/api/youtube-metadata?video_url=${encodeURIComponent(url)}`));
+          }
+          if (hasMethod('/api/youtube-metadata', 'post')) {
+            strategies.push(url => send('POST', '/api/youtube-metadata', { video_url: url }));
+          }
+          if (hasMethod('/admin/videos/youtube-metadata', 'get')) {
+            strategies.push(url => send('GET', `/admin/videos/youtube-metadata?video_url=${encodeURIComponent(url)}`));
+          }
+          if (hasMethod('/admin/videos/youtube-metadata', 'post')) {
+            strategies.push(url => send('POST', '/admin/videos/youtube-metadata', { video_url: url }));
+          }
+        }
+      } catch (e) {
+        // Keep a fallback strategy order when OpenAPI cannot be read.
+      }
+
+      if (!strategies.length) {
+        strategies.push(url => send('GET', `/api/youtube-metadata?video_url=${encodeURIComponent(url)}`));
+        strategies.push(url => send('POST', '/api/youtube-metadata', { video_url: url }));
+        strategies.push(url => send('GET', `/admin/videos/youtube-metadata?video_url=${encodeURIComponent(url)}`));
+        strategies.push(url => send('POST', '/admin/videos/youtube-metadata', { video_url: url }));
+      }
+      youtubeMetadataStrategies = strategies;
+      return strategies;
+    }
+
+    async function autofillFromYoutube(prefix, statusEl, { silent = false } = {}) {
+      const urlEl = document.getElementById(`${prefix}-url`);
+      if (!urlEl) return;
+      const url = urlEl.value.trim();
+      if (!url) {
+        if (!silent) setStatus(statusEl, 'Paste a YouTube URL first.', 'error');
+        return;
+      }
+      if (!looksLikeYouTubeUrl(url)) {
+        if (!silent) setStatus(statusEl, 'This auto-fill works for YouTube URLs.', 'error');
+        return;
+      }
+
+      prefillYouTubeRightsNote(prefix);
+
+      try {
+        if (!silent) setStatus(statusEl, 'Fetching YouTube metadata…');
+        const strategies = await resolveYoutubeMetadataStrategies();
+        let meta = null;
+        let lastErr = null;
+        for (const strategy of strategies) {
+          try {
+            meta = await strategy(url);
+            break;
+          } catch (err) {
+            lastErr = err;
+            const message = String(err && err.message || '');
+            if (!/method not allowed|not found|authentication required/i.test(message)) {
+              throw err;
+            }
+          }
+        }
+        if (!meta) {
+          throw lastErr || new Error('Could not fetch metadata for this YouTube URL.');
+        }
+        const titleEl = document.getElementById(`${prefix}-title`);
+        const descEl = document.getElementById(`${prefix}-desc`);
+        const channelEl = document.getElementById(`${prefix}-channel`);
+        const channelUrlEl = document.getElementById(`${prefix}-channelurl`);
+        const thumbEl = document.getElementById(`${prefix}-thumb`);
+        if (titleEl && meta.title) titleEl.value = meta.title;
+        if (descEl && meta.description) descEl.value = meta.description;
+        if (channelEl && meta.channel_name) channelEl.value = meta.channel_name;
+        if (channelUrlEl && meta.channel_url) channelUrlEl.value = meta.channel_url;
+        if (thumbEl && !thumbEl.value.trim() && meta.thumbnail_url) thumbEl.value = meta.thumbnail_url;
+
+        if (!silent) {
+          const hasDesc = Boolean(meta.description);
+          setStatus(statusEl, hasDesc ? 'Filled title and description from YouTube.' : 'Filled title from YouTube.', 'ok');
+        }
+      } catch (err) {
+        if (!silent) setStatus(statusEl, err.message, 'error');
+      }
+    }
+
+    function fieldsHtml(v, idPrefix) {
+      const p = idPrefix;
+      return `
+        <label for="${p}-url">Video URL <span class="hint">required — paste the ordinary YouTube watch link</span></label>
+        <input type="text" id="${p}-url" value="${esc(v.video_url || '')}" placeholder="https://www.youtube.com/watch?v=...">
+
+        <label for="${p}-title">Title</label>
+        <input type="text" id="${p}-title" value="${esc(v.title || '')}">
+
+        <label for="${p}-desc">Description <span class="hint">shown under the player</span></label>
+        <textarea id="${p}-desc">${esc(v.description || '')}</textarea>
+
+        <label for="${p}-channel">Channel name <span class="hint">optional; e.g. YouTube channel or publisher</span></label>
+        <input type="text" id="${p}-channel" value="${esc(v.channel_name || '')}">
+
+        <label for="${p}-channelurl">Channel URL <span class="hint">optional; makes the channel name clickable on the public page</span></label>
+        <input type="text" id="${p}-channelurl" value="${esc(v.channel_url || '')}" placeholder="https://...">
+
+        <label for="${p}-thumb">Thumbnail URL <span class="hint">optional — shown on the first column card</span></label>
+        <input type="text" id="${p}-thumb" value="${esc(v.thumbnail_url || '')}" placeholder="https://.../thumbnail.jpg">
+
+        <label for="${p}-category">Category <span class="hint">comma-separated; one video can appear in multiple categories — blank means General</span></label>
+        <input type="text" id="${p}-category" list="video-categories" value="${esc(v.category || '')}">
+
+        <label for="${p}-tags">Tags <span class="hint">comma-separated keywords for this video</span></label>
+        <input type="text" id="${p}-tags" value="${esc(v.tags || '')}" placeholder="e.g. WWII, USS Pampanito, oral history">
+
+        <div class="row">
+          <div>
+            <label for="${p}-start">Start at (seconds) <span class="hint">optional</span></label>
+            <input type="number" id="${p}-start" min="0" value="${v.video_start ?? ''}">
+          </div>
+          <div>
+            <label for="${p}-order">Display order <span class="hint">also orders the categories</span></label>
+            <input type="number" id="${p}-order" value="${v.display_order ?? ''}">
+          </div>
+          <div>
+            <label for="${p}-duration">Duration <span class="hint">e.g. 26:00 or 1:25:00</span></label>
+            <input type="text" id="${p}-duration" value="${esc(v.duration || '')}" placeholder="mm:ss">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="${p}-credit">Credit <span class="hint">rendered as "Courtesy of …"</span></label>
+            <input type="text" id="${p}-credit" value="${esc(v.video_credit || '')}">
+          </div>
+          <div>
+            <label for="${p}-crediturl">Credit link</label>
+            <input type="text" id="${p}-crediturl" value="${esc(v.video_credit_url || '')}">
+          </div>
+        </div>
+
+        <label for="${p}-rights">Rights note <span class="hint">why we may show this — appears on the public page</span></label>
+        <input type="text" id="${p}-rights" value="${esc(v.rights_note || '')}"
+               placeholder="e.g. Embedded with the uploader's written permission, 4 August 2026">`;
+    }
+
+    function readFields(p) {
+      const val = id => document.getElementById(`${p}-${id}`).value.trim();
+      return {
+        video_url: val('url'),
+        title: val('title'),
+        description: document.getElementById(`${p}-desc`).value.trim(),
+        channel_name: val('channel'),
+        channel_url: val('channelurl'),
+        category: val('category'),
+        tags: val('tags'),
+        video_start: val('start'),
+        display_order: val('order'),
+        duration: val('duration'),
+        video_credit: val('credit'),
+        video_credit_url: val('crediturl'),
+        thumbnail_url: val('thumb'),
+        rights_note: val('rights'),
+      };
+    }
+
+    // Suggest categories already in use, so "Oral Histories" and "Oral
+    // histories" don't quietly become two sections on the public page.
+    function renderCategoryOptions(videos) {
+      const split = raw => {
+        if (Array.isArray(raw)) return raw.map(v => String(v || '').trim()).filter(Boolean);
+        return String(raw || '').split(/[,;\n]/).map(v => v.trim()).filter(Boolean);
+      };
+      const names = [...new Set((videos || []).flatMap(v => split(v.category)))].sort();
+      document.getElementById('video-categories').innerHTML =
+        names.map(n => `<option value="${esc(n)}"></option>`).join('');
+    }
+
+    function setStatus(el, message, kind) {
+      el.className = 'status' + (kind ? ' ' + kind : '');
+      el.textContent = message;
+    }
+
+    async function send(method, path, body) {
+      const res = await fetch(path, {
+        method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const text = await res.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (e) { /* non-JSON error body */ }
+      if (!res.ok) {
+        throw new Error((data && data.detail) || text || `HTTP ${res.status}`);
+      }
+      return data;
+    }
+
+    function sortVideos(videos) {
+      const ranked = (videos || []).map((v, index) => {
+        const n = Number(v.display_order);
+        return {
+          video: v,
+          hasOrder: Number.isFinite(n),
+          order: Number.isFinite(n) ? n : 0,
+          index,
+        };
+      });
+
+      ranked.sort((a, b) => {
+        if (a.hasOrder !== b.hasOrder) return a.hasOrder ? -1 : 1;
+        if (a.order !== b.order) return a.order - b.order;
+        const at = String(a.video.title || a.video.id || '').toLowerCase();
+        const bt = String(b.video.title || b.video.id || '').toLowerCase();
+        if (at < bt) return -1;
+        if (at > bt) return 1;
+        return a.index - b.index;
+      });
+
+      return ranked.map(x => x.video);
+    }
+
+    async function saveOrderAfterMove() {
+      const statusEl = document.getElementById('order-status');
+      try {
+        setStatus(statusEl, 'Saving order…');
+        for (let i = 0; i < currentVideos.length; i += 1) {
+          const v = currentVideos[i];
+          await send('PUT', `/admin/videos/${encodeURIComponent(v.id)}`, {
+            video_url: v.video_url,
+            display_order: i + 1,
+          });
+          v.display_order = i + 1;
+        }
+        setStatus(statusEl, 'Order saved', 'ok');
+      } catch (err) {
+        setStatus(statusEl, err.message, 'error');
+      }
+    }
+
+    function renderOrderList(videos) {
+      if (!videos.length) {
+        orderEl.innerHTML = `<div class="empty">No videos yet.</div>`;
+        return;
+      }
+
+      orderEl.innerHTML = `
+        <ol id="order-list" class="order-list">
+          ${videos.map((v, i) => `
+            <li class="order-item" draggable="true" data-id="${esc(v.id)}">
+              <span class="order-handle" aria-hidden="true">::</span>
+              <span class="order-title">${esc(v.title || v.id || 'Untitled')}</span>
+              <span class="order-item-actions">
+                <button type="button" class="order-mini-btn" data-edit-id="${esc(v.id)}">Edit</button>
+                <button type="button" class="order-mini-btn danger" data-del-id="${esc(v.id)}">Delete</button>
+              </span>
+            </li>
+          `).join('')}
+        </ol>
+        <div class="actions">
+          <span class="status" id="order-status"></span>
+        </div>`;
+
+      const orderList = document.getElementById('order-list');
+      let dragId = null;
+
+      orderList.querySelectorAll('.order-item').forEach(item => {
+        item.addEventListener('dragstart', () => {
+          dragId = item.dataset.id;
+          item.classList.add('dragging');
+        });
+        item.addEventListener('dragend', () => {
+          dragId = null;
+          orderList.querySelectorAll('.order-item').forEach(el => el.classList.remove('drag-over', 'dragging'));
+        });
+        item.addEventListener('dragover', e => {
+          e.preventDefault();
+          item.classList.add('drag-over');
+        });
+        item.addEventListener('dragleave', () => {
+          item.classList.remove('drag-over');
+        });
+        item.addEventListener('drop', async e => {
+          e.preventDefault();
+          item.classList.remove('drag-over');
+          const targetId = item.dataset.id;
+          if (!dragId || !targetId || dragId === targetId) return;
+
+          const from = currentVideos.findIndex(v => String(v.id) === String(dragId));
+          const to = currentVideos.findIndex(v => String(v.id) === String(targetId));
+          if (from < 0 || to < 0) return;
+          const [moved] = currentVideos.splice(from, 1);
+          currentVideos.splice(to, 0, moved);
+          renderOrderList(currentVideos);
+          await saveOrderAfterMove();
+        });
+      });
+
+      orderList.querySelectorAll('button[data-edit-id]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          openEditVideo(btn.dataset.editId);
+        });
+      });
+
+      orderList.querySelectorAll('button[data-del-id]').forEach(btn => {
+        btn.addEventListener('click', async e => {
+          e.preventDefault();
+          e.stopPropagation();
+          const id = btn.dataset.delId;
+          if (!id) return;
+          if (!confirm('Delete this video? This removes it from the public page.')) return;
+
+          const statusEl = document.getElementById('order-status');
+          try {
+            setStatus(statusEl, 'Deleting…');
+            await send('DELETE', `/admin/videos/${encodeURIComponent(id)}`);
+            if (editingVideoId === id) {
+              editingVideoId = null;
+              editVideoCardEl.hidden = true;
+              editFormEl.innerHTML = '';
+            }
+            await load();
+            setStatus(statusEl, 'Deleted', 'ok');
+          } catch (err) {
+            setStatus(statusEl, err.message, 'error');
+          }
+        });
+      });
+    }
+
+    function renderEditForm(video) {
+      editFormEl.innerHTML = `
+        ${fieldsHtml(video, 'edit')}
+        <div class="actions">
+          <button class="primary" id="edit-save" type="button">Save changes</button>
+          <button class="danger" id="edit-delete" type="button">Delete</button>
+          <button id="edit-cancel" type="button">Close</button>
+          <span class="status" id="edit-status"></span>
+        </div>`;
+
+      document.getElementById('edit-save').addEventListener('click', async () => {
+        const statusEl = document.getElementById('edit-status');
+        if (!editingVideoId) return;
+        try {
+          setStatus(statusEl, 'Saving…');
+          await send('PUT', `/admin/videos/${encodeURIComponent(editingVideoId)}`, readFields('edit'));
+          setStatus(statusEl, 'Saved', 'ok');
+          await load();
+        } catch (err) {
+          setStatus(statusEl, err.message, 'error');
+        }
+      });
+
+      document.getElementById('edit-delete').addEventListener('click', async () => {
+        const statusEl = document.getElementById('edit-status');
+        if (!editingVideoId) return;
+        if (!confirm('Delete this video? This removes it from the public page.')) return;
+        try {
+          setStatus(statusEl, 'Deleting…');
+          await send('DELETE', `/admin/videos/${encodeURIComponent(editingVideoId)}`);
+          editingVideoId = null;
+          editVideoCardEl.hidden = true;
+          editFormEl.innerHTML = '';
+          await load();
+        } catch (err) {
+          setStatus(statusEl, err.message, 'error');
+        }
+      });
+
+      document.getElementById('edit-cancel').addEventListener('click', () => {
+        editVideoCardEl.hidden = true;
+      });
+    }
+
+    function openEditVideo(id) {
+      const video = currentVideos.find(v => String(v.id) === String(id));
+      if (!video) return;
+      editingVideoId = String(video.id);
+      renderEditForm(video);
+      editVideoCardEl.hidden = false;
+      const firstInput = editVideoCardEl.querySelector('input, textarea, button');
+      if (firstInput) firstInput.focus();
+      editVideoCardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderNewForm(statusMessage = '', statusKind = '') {
+      newFormEl.innerHTML = `
+        ${fieldsHtml({}, 'new')}
+        <div class="actions">
+          <button class="primary" id="new-save">Add video</button>
+          <button id="new-fetch" type="button">Fetch title + description</button>
+          <span class="status" id="new-status"></span>
+        </div>`;
+      const statusEl = document.getElementById('new-status');
+      if (statusMessage) setStatus(statusEl, statusMessage, statusKind);
+      document.getElementById('new-fetch').addEventListener('click', async () => {
+        await autofillFromYoutube('new', statusEl);
+      });
+      document.getElementById('new-url').addEventListener('blur', async () => {
+        prefillYouTubeRightsNote('new');
+        const title = document.getElementById('new-title').value.trim();
+        const desc = document.getElementById('new-desc').value.trim();
+        if (title || desc) return;
+        await autofillFromYoutube('new', statusEl, { silent: true });
+      });
+      document.getElementById('new-save').addEventListener('click', async () => {
+        try {
+          setStatus(statusEl, 'Adding…');
+          await send('POST', '/admin/videos', readFields('new'));
+          await load();
+          renderNewForm('Video added.', 'ok');
+        } catch (err) {
+          setStatus(statusEl, err.message, 'error');
+        }
+      });
+    }
+
+    // ── Videos attached to a question ──────────────────────────────────────
+    // A rights holder can ask for a video to come down at any time, so removal
+    // has to be one obvious button and no technical knowledge. Clearing
+    // video_url on the record clears the whole attachment server-side.
+    const attachedEl = document.getElementById('attached');
+
+    function renderAttached(faqs) {
+      const withVideo = (faqs || []).filter(f => (f.video_url || '').trim());
+      if (!withVideo.length) {
+        attachedEl.innerHTML = `<div class="empty">No videos are attached to a question.</div>`;
+        return;
+      }
+      attachedEl.innerHTML = withVideo.map(f => `
+        <div class="card">
+          <div class="attached-title">${esc(f.title || f.chunk_id)}</div>
+          <div class="attached-meta">
+            ${f.video_caption ? esc(f.video_caption) + '<br>' : ''}
+            ${esc(f.video_url)}
+            ${f.video_credit ? '<br>' + esc(f.video_credit) : ''}
+          </div>
+          <div class="actions">
+            <button class="danger" data-remove="${esc(f.chunk_id)}">Remove this video</button>
+            <span class="status" id="att-${esc(f.chunk_id)}-status"></span>
+          </div>
+        </div>`).join('');
+
+      attachedEl.querySelectorAll('button[data-remove]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.remove;
+          const statusEl = document.getElementById(`att-${id}-status`);
+          if (!confirm('Remove this video from that question?\n\nThe written answer stays exactly as it is — only the video goes away.')) return;
+          try {
+            setStatus(statusEl, 'Removing…');
+            // Empty video_url clears the caption and credit too, so nothing is
+            // left orphaned on the record.
+            await send('PUT', `/admin/faq/${encodeURIComponent(id)}`, { video_url: '' });
+            setStatus(statusEl, 'Removed', 'ok');
+            await loadAttached();
+          } catch (err) {
+            setStatus(statusEl, err.message, 'error');
+          }
+        });
+      });
+    }
+
+    // ── Links out to recordings held elsewhere ─────────────────────────────
+    // Removed one at a time rather than all at once: a single family may object
+    // to their relative's interview being pointed at while the others stand.
+    const linksEl = document.getElementById('links');
+
+    function renderLinks(faqs) {
+      const withLinks = (faqs || []).filter(f => (f.related_links || []).length);
+      if (!withLinks.length) {
+        linksEl.innerHTML = `<div class="empty">No questions link to outside recordings.</div>`;
+        return;
+      }
+      linksEl.innerHTML = withLinks.map(f => `
+        <div class="card">
+          <div class="attached-title">${esc(f.title || f.chunk_id)}</div>
+          ${f.related_links.map((l, i) => `
+            <div class="attached-meta" style="margin-top:10px">
+              ${esc(l.label || l.url)}<br>${esc(l.url)}
+              <div class="actions">
+                <button class="danger" data-faq="${esc(f.chunk_id)}" data-idx="${i}">Remove this link</button>
+                <span class="status" id="lnk-${esc(f.chunk_id)}-${i}-status"></span>
+              </div>
+            </div>`).join('')}
+        </div>`).join('');
+
+      linksEl.querySelectorAll('button[data-faq]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const faqId = btn.dataset.faq;
+          const idx = Number(btn.dataset.idx);
+          const statusEl = document.getElementById(`lnk-${faqId}-${idx}-status`);
+          const record = withLinks.find(f => f.chunk_id === faqId);
+          if (!record) return;
+          if (!confirm('Remove this link from that question?\n\nThe written answer stays exactly as it is.')) return;
+          try {
+            setStatus(statusEl, 'Removing…');
+            // Send the links that remain; the server stores exactly what it is
+            // given, so omitting one removes it.
+            const remaining = record.related_links.filter((_, i) => i !== idx);
+            await send('PUT', `/admin/faq/${encodeURIComponent(faqId)}`, { related_links: remaining });
+            setStatus(statusEl, 'Removed', 'ok');
+            await loadAttached();
+          } catch (err) {
+            setStatus(statusEl, err.message, 'error');
+          }
+        });
+      });
+    }
+
+    async function loadAttached() {
+      try {
+        const faqs = await send('GET', '/admin/faqs');
+        renderAttached(faqs);
+        renderLinks(faqs);
+      } catch (err) {
+        const msg = `<div class="empty">Unable to load: ${esc(err.message)}</div>`;
+        attachedEl.innerHTML = msg;
+        linksEl.innerHTML = msg;
+      }
+    }
+
+    async function load() {
+      try {
+        const videos = await send('GET', '/admin/videos');
+        currentVideos = sortVideos(videos || []);
+        renderCategoryOptions(currentVideos);
+        renderOrderList(currentVideos);
+      } catch (err) {
+        orderEl.innerHTML = `<div class="empty">Unable to load videos: ${esc(err.message)}</div>`;
+      }
+    }
+
+    renderNewForm();
+    load();
+    loadAttached();
+  </script>
+</body>
+
+</html>

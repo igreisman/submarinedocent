@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Incidents</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      margin: 0 0 20px;
+      font-size: 26px;
+      font-weight: 800;
+      color: #e6edf3;
+    }
+
+    .toplink,
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    .toplink {
+      border: 1px solid #30363d;
+      color: #e6edf3;
+    }
+
+    .btn {
+      background: #58a6ff;
+      color: #08111b;
+      border: none;
+      cursor: pointer;
+    }
+
+    #btn-help {
+      margin-left: auto;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 13px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    #btn-help:hover {
+      background: #30363d;
+      color: #c9d1d9;
+    }
+
+    #help-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #help-backdrop.open { display: flex; }
+
+    #help-modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      max-width: 680px;
+      width: min(100%, 680px);
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    #help-modal h1 { margin: 0 0 12px; font-size: 28px; }
+    #help-modal p, #help-modal li { color: #8b949e; line-height: 1.7; }
+    #help-modal ul { padding-left: 18px; margin: 14px 0 0; }
+    #help-modal li + li { margin-top: 6px; }
+
+    #help-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    #help-close:hover { color: #e6edf3; }
+
+    .btn.secondary {
+      background: #1a2332;
+      color: #d8e8fb;
+      border: 1px solid #30435f;
+    }
+
+    .btn.secondary:hover {
+      background: #213149;
+    }
+
+    .btn.danger {
+      background: #8f2d36;
+      color: #fff7f8;
+    }
+
+    .btn.danger:hover {
+      background: #a73741;
+    }
+
+    .btn:hover {
+      background: #79b8ff;
+    }
+
+    .btn:disabled {
+      background: #2a3442;
+      color: #7f8a98;
+      border-color: #3a4655;
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .btn.secondary:disabled,
+    .btn.danger:disabled {
+      background: #2a3442;
+      color: #7f8a98;
+    }
+
+    .btn:disabled:hover,
+    .btn.secondary:disabled:hover,
+    .btn.danger:disabled:hover {
+      background: #2a3442;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      padding: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 36px;
+    }
+
+    h2 {
+      font-size: 30px;
+    }
+
+    #status {
+      display: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    #status.show {
+      display: block;
+    }
+
+    #status.info {
+      background: #0f2744;
+      border: 1px solid #245487;
+      color: #cfe8ff;
+    }
+
+    #status.success {
+      background: #0f2d1f;
+      border: 1px solid #2a6b46;
+      color: #d3f4df;
+    }
+
+    #status.error {
+      background: #3a1518;
+      border: 1px solid #7d2d33;
+      color: #ffd7d9;
+    }
+
+    .list-search,
+    .field-input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+      font-size: 15px;
+      font-family: inherit;
+    }
+
+    .list-search,
+    .field-input {
+      min-height: 44px;
+      padding: 10px 14px;
+    }
+
+    textarea.field-input {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .list-search:focus,
+    .field-input:focus {
+      outline: none;
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+    }
+
+    #entries-list {
+      display: grid;
+      gap: 10px;
+      max-height: calc(100vh - 220px);
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 14px;
+    }
+
+    .entry-item {
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #0d1117;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    }
+
+    .entry-item:hover {
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .entry-item.active {
+      border-color: #58a6ff;
+      background: #111f33;
+      box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.2) inset;
+    }
+
+    .entry-item-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .entry-item-meta {
+      color: #8b949e;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .editor-empty {
+      min-height: 240px;
+      border: 1px dashed #30363d;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: #8b949e;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .editor-shell {
+      display: none;
+    }
+
+    .editor-shell.open {
+      display: block;
+    }
+
+    .editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #c9d1d9;
+    }
+
+    .field-help,
+    .muted {
+      color: #8b949e;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      #entries-list {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="topbar">
+      <a class="toplink" href="/web/edit.html">&#8592; Editor Hub</a>
+      <a class="toplink" href="/web/faqs.html">Open FAQ Dashboard</a>
+      <button id="btn-help" type="button">Help</button>
+    </div>
+
+    <h1 class="page-title">Incidents</h1>
+
+    <div id="status" aria-live="polite"></div>
+
+    <div class="layout">
+      <section class="panel">
+        <input id="entry-search" class="list-search" type="search" placeholder="Search incidents" autocomplete="off">
+        <div id="entries-list" class="loading">Loading incidents…</div>
+      </section>
+
+      <section class="panel">
+        <div id="editor-empty" class="editor-empty">Select an incident from the list or click New to add one.</div>
+
+        <div id="editor-shell" class="editor-shell">
+          <div class="section-head">
+            <h2 id="editor-title">Incident</h2>
+            <div class="editor-actions">
+              <button id="new-entry-btn" class="btn secondary" type="button">New</button>
+              <button id="delete-entry-btn" class="btn danger" type="button">Delete</button>
+              <button id="save-entry-btn" class="btn" type="button">Save</button>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="field-submarine_name">Submarine Name</label>
+              <input id="field-submarine_name" class="field-input" type="text">
+            </div>
+            <div class="field">
+              <label for="field-date">Date</label>
+              <input id="field-date" class="field-input" type="text" placeholder="YYYY-MM-DD">
+              <div class="field-help">Use ISO format so the public incidents timeline sorts correctly.</div>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="field-hull_number">Hull Number</label>
+              <input id="field-hull_number" class="field-input" type="text">
+            </div>
+            <div class="field">
+              <label for="field-incident_type">Incident Type</label>
+              <input id="field-incident_type" class="field-input" type="text"
+                placeholder="Collision, grounding, fire...">
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="field-status">Status</label>
+              <input id="field-status" class="field-input" type="text" placeholder="Lost, damaged, recovered...">
+            </div>
+            <div class="field">
+              <label for="field-era">Era</label>
+              <input id="field-era" class="field-input" type="text" placeholder="Pre-WW2, WW2, Post-WW2">
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="field-casualties">Casualties</label>
+              <input id="field-casualties" class="field-input" type="text" placeholder="None, 6, 129...">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="field-description">Description</label>
+            <textarea id="field-description" class="field-input" rows="8"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="field-notes">Notes</label>
+            <textarea id="field-notes" class="field-input" rows="6"></textarea>
+          </div>
+
+          <p class="muted">New incidents stay local in the editor until you click Save.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const API = '';
+    const FIELDS = ['submarine_name', 'date', 'hull_number', 'incident_type', 'status', 'era', 'casualties', 'description', 'notes'];
+
+    let entries = [];
+    let activeEntryId = null;
+    let busy = false;
+    let lastSavedPayload = null;
+    let nextDraftEntryId = -1;
+
+    function setStatus(message, type = 'info') {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `show ${type}`;
+    }
+
+    function clearStatus() {
+      const status = document.getElementById('status');
+      status.textContent = '';
+      status.className = '';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getActiveEntry() {
+      return entries.find(entry => Number(entry.id) === Number(activeEntryId)) || null;
+    }
+
+    function isDraftEntry(entry) {
+      return Boolean(entry && entry.__isNew);
+    }
+
+    function buildDraftEntry() {
+      return {
+        id: nextDraftEntryId--,
+        submarine_name: '',
+        date: '',
+        hull_number: '',
+        incident_type: '',
+        status: '',
+        era: '',
+        casualties: '',
+        description: '',
+        notes: '',
+        __isNew: true,
+      };
+    }
+
+    function collectEditorPayload() {
+      const payload = {};
+      FIELDS.forEach(field => {
+        const node = document.getElementById(`field-${field}`);
+        if (node) {
+          payload[field] = node.value.trim();
+        }
+      });
+      return payload;
+    }
+
+    function syncActiveEntryFromEditor() {
+      const entry = getActiveEntry();
+      if (!entry) {
+        return;
+      }
+      Object.assign(entry, collectEditorPayload());
+      document.getElementById('editor-title').textContent = entry.submarine_name || 'New Incident';
+      renderEntryList();
+    }
+
+    function hasUnsavedChanges() {
+      const entry = getActiveEntry();
+      if (!entry) {
+        return false;
+      }
+      if (isDraftEntry(entry)) {
+        return true;
+      }
+      if (!lastSavedPayload) {
+        return false;
+      }
+      return JSON.stringify(collectEditorPayload()) !== JSON.stringify(lastSavedPayload);
+    }
+
+    function updateActionButtons() {
+      const entry = getActiveEntry();
+      const hasActiveEntry = Boolean(entry);
+      const newButton = document.getElementById('new-entry-btn');
+      const saveButton = document.getElementById('save-entry-btn');
+      const deleteButton = document.getElementById('delete-entry-btn');
+      newButton.disabled = busy;
+      saveButton.disabled = busy || !hasActiveEntry || !hasUnsavedChanges();
+      deleteButton.hidden = !hasActiveEntry || isDraftEntry(entry);
+      deleteButton.disabled = busy || !hasActiveEntry || isDraftEntry(entry);
+    }
+
+    function setBusy(nextBusy) {
+      busy = nextBusy;
+      document.querySelectorAll('#editor-shell input, #editor-shell textarea').forEach(field => {
+        field.disabled = nextBusy;
+      });
+      document.querySelectorAll('.entry-item').forEach(item => {
+        item.style.pointerEvents = nextBusy ? 'none' : '';
+      });
+      document.getElementById('entry-search').disabled = nextBusy;
+      updateActionButtons();
+    }
+
+    function renderEntryList() {
+      const list = document.getElementById('entries-list');
+      const query = document.getElementById('entry-search').value.trim().toLowerCase();
+      const filtered = entries.filter(entry => {
+        const haystack = [
+          entry.submarine_name,
+          entry.date,
+          entry.hull_number,
+          entry.incident_type,
+          entry.status,
+          entry.era,
+          entry.casualties,
+          entry.description,
+          entry.notes,
+        ].join(' ').toLowerCase();
+        return !query || haystack.includes(query);
+      });
+
+      if (!filtered.length) {
+        list.className = '';
+        list.innerHTML = '<div class="editor-empty">No incidents match the current search.</div>';
+        return;
+      }
+
+      list.className = '';
+      list.innerHTML = filtered.map(entry => {
+        const bits = [entry.date, entry.hull_number, entry.incident_type].filter(Boolean);
+        return `
+          <article class="entry-item${Number(entry.id) === Number(activeEntryId) ? ' active' : ''}" data-id="${entry.id}">
+            <div class="entry-item-name">${escapeHtml(entry.submarine_name || 'Untitled incident')}</div>
+            <div class="entry-item-meta">${escapeHtml(bits.join(' · ') || 'No date or type yet')}</div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function populateEditor(entry) {
+      const empty = document.getElementById('editor-empty');
+      const editor = document.getElementById('editor-shell');
+      if (!entry) {
+        empty.style.display = 'grid';
+        editor.classList.remove('open');
+        lastSavedPayload = null;
+        updateActionButtons();
+        return;
+      }
+
+      empty.style.display = 'none';
+      editor.classList.add('open');
+      document.getElementById('editor-title').textContent = entry.submarine_name || 'New Incident';
+      FIELDS.forEach(field => {
+        const node = document.getElementById(`field-${field}`);
+        if (node) {
+          node.value = entry[field] ?? '';
+        }
+      });
+      lastSavedPayload = isDraftEntry(entry) ? null : collectEditorPayload();
+      updateActionButtons();
+    }
+
+    async function loadEntries(preferredEntryId = activeEntryId) {
+      const response = await fetch(`${API}/admin/incidents`);
+      if (!response.ok) {
+        throw new Error('Failed to load incidents');
+      }
+      entries = await response.json();
+      activeEntryId = preferredEntryId && entries.some(entry => Number(entry.id) === Number(preferredEntryId))
+        ? Number(preferredEntryId)
+        : (entries[0] ? Number(entries[0].id) : null);
+      renderEntryList();
+      populateEditor(getActiveEntry());
+    }
+
+    function createEntry() {
+      clearStatus();
+      const draftEntry = buildDraftEntry();
+      entries = [draftEntry, ...entries];
+      activeEntryId = draftEntry.id;
+      renderEntryList();
+      populateEditor(draftEntry);
+      setStatus('Added a new draft incident. Nothing is saved until you click Save.', 'success');
+    }
+
+    async function saveEntry() {
+      const entry = getActiveEntry();
+      if (!entry) {
+        return;
+      }
+
+      const payload = collectEditorPayload();
+
+      setBusy(true);
+      setStatus('Saving incident…', 'info');
+      try {
+        const isDraft = isDraftEntry(entry);
+        const response = await fetch(isDraft ? `${API}/admin/incidents` : `${API}/admin/incidents/${entry.id}`, {
+          method: isDraft ? 'POST' : 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          let detail = 'Failed to save incident';
+          try {
+            const errorPayload = await response.json();
+            detail = errorPayload.detail || detail;
+          } catch {
+          }
+          throw new Error(detail);
+        }
+        const result = await response.json();
+        await loadEntries(result.incident.id);
+        setStatus(`Saved ${payload.submarine_name || 'incident'}.`, 'success');
+      } catch (error) {
+        setStatus(error.message, 'error');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function deleteEntry() {
+      const entry = getActiveEntry();
+      if (!entry) {
+        return;
+      }
+
+      const label = entry.submarine_name || `Incident ${entry.id}`;
+
+      if (isDraftEntry(entry)) {
+        entries = entries.filter(item => Number(item.id) !== Number(entry.id));
+        activeEntryId = entries[0] ? Number(entries[0].id) : null;
+        renderEntryList();
+        populateEditor(getActiveEntry());
+        setStatus(`Discarded unsaved draft for ${label}.`, 'success');
+        return;
+      }
+
+      if (!window.confirm(`Delete ${label}?`)) {
+        return;
+      }
+
+      setBusy(true);
+      setStatus('Deleting incident…', 'info');
+      try {
+        const response = await fetch(`${API}/admin/incidents/${entry.id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          let detail = 'Failed to delete incident';
+          try {
+            const errorPayload = await response.json();
+            detail = errorPayload.detail || detail;
+          } catch {
+          }
+          throw new Error(detail);
+        }
+        entries = entries.filter(item => Number(item.id) !== Number(entry.id));
+        activeEntryId = entries[0] ? Number(entries[0].id) : null;
+        renderEntryList();
+        populateEditor(getActiveEntry());
+        setStatus(`Deleted ${label}.`, 'success');
+      } catch (error) {
+        setStatus(error.message, 'error');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    document.getElementById('entry-search').addEventListener('input', renderEntryList);
+
+    document.getElementById('entries-list').addEventListener('click', event => {
+      const card = event.target.closest('.entry-item');
+      if (!card || busy) {
+        return;
+      }
+      activeEntryId = Number(card.dataset.id);
+      renderEntryList();
+      populateEditor(getActiveEntry());
+      clearStatus();
+    });
+
+    document.getElementById('new-entry-btn').addEventListener('click', createEntry);
+    document.getElementById('save-entry-btn').addEventListener('click', saveEntry);
+    document.getElementById('delete-entry-btn').addEventListener('click', deleteEntry);
+
+    document.querySelectorAll('#editor-shell input, #editor-shell textarea').forEach(field => {
+      field.addEventListener('input', () => {
+        syncActiveEntryFromEditor();
+        updateActionButtons();
+      });
+      field.addEventListener('change', () => {
+        syncActiveEntryFromEditor();
+        updateActionButtons();
+      });
+    });
+
+    updateActionButtons();
+
+    loadEntries().catch(error => {
+      setStatus(error.message, 'error');
+      document.getElementById('entries-list').className = '';
+      document.getElementById('entries-list').innerHTML = '<div class="editor-empty">Unable to load incidents right now.</div>';
+      populateEditor(null);
+    });
+  </script>
+
+  <div id="help-backdrop" aria-hidden="true">
+    <div id="help-modal" role="dialog" aria-modal="true">
+      <button id="help-close" type="button" aria-label="Close help">&times;</button>
+      <h1>Incidents</h1>
+      <p>Manage the historical submarine incidents database. Each record describes a notable incident — accidents, losses, collisions, and other events — and is displayed on the public Incidents view.</p>
+      <ul>
+        <li>Search the list on the left to filter incidents by keyword.</li>
+        <li>Select an incident to open its edit form on the right.</li>
+        <li>Click <strong>New</strong> to create a new incident record.</li>
+        <li>Click <strong>Save</strong> to update the selected record, or <strong>Delete</strong> to remove it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('btn-help').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.add('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'false');
+    });
+    document.getElementById('help-close').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.remove('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+    });
+    document.getElementById('help-backdrop').addEventListener('click', e => {
+      if (e.target.id === 'help-backdrop') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+  </script>
+  <script src="/web/admin-env-banner.js"></script>
+</body>
+
+</html>

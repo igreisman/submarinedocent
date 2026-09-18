@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Glossary</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .toplink,
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    .toplink {
+      border: 1px solid #30363d;
+      color: #e6edf3;
+    }
+
+    .btn {
+      background: #58a6ff;
+      color: #08111b;
+      border: none;
+      cursor: pointer;
+    }
+
+    #btn-help {
+      margin-left: auto;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 13px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    #btn-help:hover {
+      background: #30363d;
+      color: #c9d1d9;
+    }
+
+    #help-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #help-backdrop.open { display: flex; }
+
+    #help-modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      max-width: 680px;
+      width: min(100%, 680px);
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    #help-modal h1 { margin: 0 0 12px; font-size: 28px; }
+    #help-modal p, #help-modal li { color: #8b949e; line-height: 1.7; }
+    #help-modal ul { padding-left: 18px; margin: 14px 0 0; }
+    #help-modal li + li { margin-top: 6px; }
+
+    #help-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    #help-close:hover { color: #e6edf3; }
+
+    .btn.secondary {
+      background: #1a2332;
+      color: #d8e8fb;
+      border: 1px solid #30435f;
+    }
+
+    .btn.secondary:hover {
+      background: #213149;
+    }
+
+    .btn.danger {
+      background: #8f2d36;
+      color: #fff7f8;
+    }
+
+    .btn.danger:hover {
+      background: #a73741;
+    }
+
+    .btn:hover {
+      background: #79b8ff;
+    }
+
+    .btn:disabled {
+      background: #2a3442;
+      color: #7f8a98;
+      border-color: #3a4655;
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .btn.secondary:disabled,
+    .btn.danger:disabled {
+      background: #2a3442;
+      color: #7f8a98;
+    }
+
+    .btn:disabled:hover,
+    .btn.secondary:disabled:hover,
+    .btn.danger:disabled:hover {
+      background: #2a3442;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      padding: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 36px;
+    }
+
+    h2 {
+      font-size: 30px;
+    }
+
+    #status {
+      display: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    #status.show {
+      display: block;
+    }
+
+    #status.info {
+      background: #0f2744;
+      border: 1px solid #245487;
+      color: #cfe8ff;
+    }
+
+    #status.success {
+      background: #0f2d1f;
+      border: 1px solid #2a6b46;
+      color: #d3f4df;
+    }
+
+    #status.error {
+      background: #3a1518;
+      border: 1px solid #7d2d33;
+      color: #ffd7d9;
+    }
+
+    .list-search,
+    .field-input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+      font-size: 15px;
+      font-family: inherit;
+    }
+
+    .list-search,
+    .field-input {
+      min-height: 44px;
+      padding: 10px 14px;
+    }
+
+    .list-search:focus,
+    .field-input:focus,
+    #field-definition-source:focus,
+    #field-definition-editor:focus {
+      outline: none;
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+    }
+
+    #entries-list {
+      display: grid;
+      gap: 10px;
+      max-height: calc(100vh - 220px);
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 14px;
+    }
+
+    .entry-item {
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #0d1117;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    }
+
+    .entry-item:hover {
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .entry-item.active {
+      border-color: #58a6ff;
+      background: #111927;
+      box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.22);
+    }
+
+    .entry-item-name {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #e6edf3;
+    }
+
+    .entry-item-meta {
+      margin-top: 8px;
+      color: #8b949e;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .editor-empty {
+      border: 1px dashed #30363d;
+      border-radius: 16px;
+      padding: 28px;
+      color: #8b949e;
+      text-align: center;
+      background: #0d1117;
+      line-height: 1.7;
+    }
+
+    .editor-shell {
+      display: none;
+    }
+
+    .editor-shell.open {
+      display: block;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .field label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8b949e;
+    }
+
+    .field-help {
+      color: #8b949e;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .rich-editor-shell {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 460px;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #30363d;
+      background: #161b22;
+      flex-shrink: 0;
+    }
+
+    .editor-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #c9d1d9;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 6px 10px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .editor-btn:hover {
+      background: #30363d;
+    }
+
+    .editor-btn.active {
+      color: #58a6ff;
+      border-color: #58a6ff;
+    }
+
+    .editor-btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .editor-divider {
+      width: 1px;
+      height: 24px;
+      background: #30363d;
+      margin: 0 2px;
+    }
+
+    #field-definition-editor,
+    #field-definition-source {
+      width: 100%;
+      min-height: 0;
+      flex: 1 1 auto;
+      background: #0d1117;
+      color: #e6edf3;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 14px;
+      overflow-y: auto;
+      border: none;
+      font-family: inherit;
+    }
+
+    #field-definition-editor {
+      outline: none;
+    }
+
+    #field-definition-editor:empty::before {
+      content: attr(data-placeholder);
+      color: #6e7681;
+    }
+
+    #field-definition-editor p,
+    #field-definition-editor ul,
+    #field-definition-editor ol,
+    #field-definition-editor blockquote {
+      margin-top: 12px;
+    }
+
+    #field-definition-editor>*:first-child {
+      margin-top: 0;
+    }
+
+    #field-definition-editor ul,
+    #field-definition-editor ol {
+      padding-left: 22px;
+    }
+
+    #field-definition-editor a {
+      color: #58a6ff;
+    }
+
+    #field-definition-source {
+      display: none;
+      resize: vertical;
+      min-height: 340px;
+      border-top: 1px solid #30363d;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      outline: none;
+    }
+
+    .rich-editor-shell.source-mode #field-definition-editor {
+      display: none;
+    }
+
+    .rich-editor-shell.source-mode #field-definition-source {
+      display: block;
+    }
+
+    .muted {
+      color: #8b949e;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-top: 14px;
+    }
+
+    .editor-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .loading {
+      color: #8b949e;
+      text-align: center;
+      padding: 18px 0;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      #entries-list {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      main {
+        padding: 28px 16px 48px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="topbar">
+      <a class="toplink" href="/web/edit.html">&#8592; Editor Hub</a>
+      <a class="toplink" href="/web/glossary.html">Open Public Glossary</a>
+      <button id="btn-help" type="button">Help</button>
+    </div>
+
+    <div id="status" aria-live="polite"></div>
+
+    <div class="layout">
+      <section class="panel">
+        <input id="entry-search" class="list-search" type="search" placeholder="Search glossary terms"
+          autocomplete="off">
+        <div id="entries-list" class="loading">Loading glossary entries…</div>
+      </section>
+
+      <section class="panel">
+        <div id="editor-empty" class="editor-empty">Select a glossary term from the list or click New to add one.</div>
+
+        <div id="editor-shell" class="editor-shell">
+          <div class="section-head">
+            <h2 id="editor-title">Glossary Term</h2>
+            <div class="editor-actions">
+              <button id="new-entry-btn" class="btn secondary" type="button">New</button>
+              <button id="delete-entry-btn" class="btn danger" type="button">Delete</button>
+              <button id="save-entry-btn" class="btn" type="button">Save</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="field-term">Term</label>
+            <input id="field-term" class="field-input" type="text">
+          </div>
+
+          <div class="field">
+            <label for="field-definition">Definition</label>
+            <div class="field-help">Use the toolbar for WYSIWYG editing or switch to Source mode to edit raw HTML
+              directly.</div>
+            <div id="definition-editor-shell" class="rich-editor-shell">
+              <div class="editor-toolbar">
+                <button type="button" class="editor-btn" data-cmd="bold"><strong>B</strong></button>
+                <button type="button" class="editor-btn" data-cmd="italic"><em>I</em></button>
+                <button type="button" class="editor-btn" data-cmd="underline"><u>U</u></button>
+                <span class="editor-divider"></span>
+                <button type="button" class="editor-btn" data-block="p">P</button>
+                <button type="button" class="editor-btn" data-block="h3">H3</button>
+                <button type="button" class="editor-btn" data-cmd="insertUnorderedList">• List</button>
+                <button type="button" class="editor-btn" data-cmd="insertOrderedList">1. List</button>
+                <button type="button" class="editor-btn" data-cmd="formatBlock" data-value="blockquote">Quote</button>
+                <span class="editor-divider"></span>
+                <button type="button" class="editor-btn" data-action="link">Link</button>
+                <button type="button" class="editor-btn" data-action="source"
+                  id="btn-definition-source-toggle">Source</button>
+              </div>
+              <div id="field-definition-editor" contenteditable="true"
+                data-placeholder="Write the glossary definition here…"></div>
+              <textarea id="field-definition-source" placeholder="Write the raw HTML here…"></textarea>
+            </div>
+          </div>
+
+          <p class="muted">Definitions can include plain text or HTML such as paragraph tags, emphasis, lists, and
+            links.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const API = '';
+    const FIELDS = ['term', 'definition'];
+
+    let entries = [];
+    let activeEntryId = null;
+    let busy = false;
+    let lastSavedPayload = null;
+    let nextDraftEntryId = -1;
+
+    function setStatus(message, type = 'info') {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `show ${type}`;
+    }
+
+    function clearStatus() {
+      const status = document.getElementById('status');
+      status.textContent = '';
+      status.className = '';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function stripHtml(value) {
+      return String(value ?? '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function summarizeDefinition(value) {
+      const plain = stripHtml(value);
+      if (!plain) {
+        return 'No definition yet';
+      }
+      return plain.length > 140 ? `${plain.slice(0, 137)}...` : plain;
+    }
+
+    function getActiveEntry() {
+      return entries.find(entry => Number(entry.id) === Number(activeEntryId)) || null;
+    }
+
+    function isDraftEntry(entry) {
+      return Boolean(entry && entry.__isNew);
+    }
+
+    function buildDraftEntry() {
+      return {
+        id: nextDraftEntryId--,
+        term: '',
+        definition: '',
+        __isNew: true,
+      };
+    }
+
+    function collectEditorPayload() {
+      const payload = {};
+      FIELDS.forEach(field => {
+        if (field === 'definition') {
+          payload[field] = getDefinitionHtml();
+          return;
+        }
+        const node = document.getElementById(`field-${field}`);
+        if (node) {
+          payload[field] = node.value;
+        }
+      });
+      return payload;
+    }
+
+    function decodeStoredHtml(value) {
+      const text = String(value || '');
+      if (!/[&](?:lt|gt|amp|quot|nbsp|#39);/i.test(text)) {
+        return text;
+      }
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = text;
+      return textarea.value;
+    }
+
+    function normalizeRichHtml(html) {
+      const value = decodeStoredHtml(String(html || '').trim());
+      if (!value) {
+        return '';
+      }
+
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = value;
+
+      wrapper.querySelectorAll('span.ql-ui').forEach(node => node.remove());
+      wrapper.querySelectorAll('[data-row]').forEach(node => node.removeAttribute('data-row'));
+      wrapper.querySelectorAll('[style="color: black;"]').forEach(node => node.removeAttribute('style'));
+
+      wrapper.querySelectorAll('[class]').forEach(node => {
+        const classes = Array.from(node.classList);
+        let indentLevel = 0;
+        classes.forEach(cls => {
+          if (cls === 'ql-align-right') node.style.textAlign = 'right';
+          if (cls === 'ql-align-center') node.style.textAlign = 'center';
+          if (cls === 'ql-align-justify') node.style.textAlign = 'justify';
+          if (cls.startsWith('ql-indent-')) {
+            indentLevel = Number.parseInt(cls.slice('ql-indent-'.length), 10) || 0;
+          }
+        });
+        if (indentLevel > 0) node.style.marginLeft = `${indentLevel * 3}em`;
+        node.className = classes.filter(cls => !cls.startsWith('ql-')).join(' ');
+        if (!node.className) node.removeAttribute('class');
+      });
+
+      wrapper.querySelectorAll('ol').forEach(list => {
+        const items = Array.from(list.children).filter(node => node.tagName === 'LI');
+        const allBullets = items.length > 0 && items.every(item => item.getAttribute('data-list') === 'bullet');
+        if (allBullets) {
+          const ul = document.createElement('ul');
+          while (list.firstChild) {
+            const child = list.firstChild;
+            if (child.nodeType === Node.ELEMENT_NODE && child.hasAttribute('data-list')) {
+              child.removeAttribute('data-list');
+            }
+            ul.appendChild(child);
+          }
+          list.replaceWith(ul);
+          return;
+        }
+        items.forEach(item => item.removeAttribute('data-list'));
+      });
+
+      wrapper.querySelectorAll('ul > li[data-list], ol > li[data-list]').forEach(item => item.removeAttribute('data-list'));
+
+      while (wrapper.firstElementChild && wrapper.firstElementChild.matches('p') && !wrapper.firstElementChild.textContent.trim() && !wrapper.firstElementChild.querySelector('img,video,table,iframe')) {
+        wrapper.firstElementChild.remove();
+      }
+      while (wrapper.lastElementChild && wrapper.lastElementChild.matches('p') && !wrapper.lastElementChild.textContent.trim() && !wrapper.lastElementChild.querySelector('img,video,table,iframe')) {
+        wrapper.lastElementChild.remove();
+      }
+
+      return wrapper.innerHTML.trim();
+    }
+
+    function getDefinitionNodes() {
+      return {
+        shell: document.getElementById('definition-editor-shell'),
+        editor: document.getElementById('field-definition-editor'),
+        source: document.getElementById('field-definition-source'),
+        sourceBtn: document.getElementById('btn-definition-source-toggle'),
+      };
+    }
+
+    function syncDefinitionSourceFromEditor() {
+      const { editor, source } = getDefinitionNodes();
+      if (!editor || !source) {
+        return;
+      }
+      source.value = normalizeRichHtml(editor.innerHTML);
+    }
+
+    function syncDefinitionEditorFromSource() {
+      const { editor, source } = getDefinitionNodes();
+      if (!editor || !source) {
+        return;
+      }
+      editor.innerHTML = normalizeRichHtml(source.value);
+    }
+
+    function isDefinitionSourceMode() {
+      const { shell } = getDefinitionNodes();
+      return shell ? shell.classList.contains('source-mode') : false;
+    }
+
+    function toggleDefinitionSourceMode() {
+      const { shell, source, editor, sourceBtn } = getDefinitionNodes();
+      if (!shell || !source || !editor || !sourceBtn) {
+        return;
+      }
+      const nextIsSource = !shell.classList.contains('source-mode');
+      if (nextIsSource) {
+        syncDefinitionSourceFromEditor();
+        shell.classList.add('source-mode');
+        sourceBtn.classList.add('active');
+        source.focus();
+      } else {
+        syncDefinitionEditorFromSource();
+        shell.classList.remove('source-mode');
+        sourceBtn.classList.remove('active');
+        editor.focus();
+      }
+    }
+
+    function focusDefinitionEditor() {
+      const { editor } = getDefinitionNodes();
+      if (!editor) {
+        return false;
+      }
+      if (isDefinitionSourceMode()) {
+        toggleDefinitionSourceMode();
+      }
+      editor.focus();
+      return true;
+    }
+
+    function runDefinitionCommand(button) {
+      if (!focusDefinitionEditor()) {
+        return;
+      }
+      document.execCommand(button.dataset.cmd, false, button.dataset.value || null);
+      syncDefinitionSourceFromEditor();
+      syncActiveEntryFromEditor();
+      updateActionButtons();
+    }
+
+    function applyDefinitionBlockFormat(tagName) {
+      if (!focusDefinitionEditor()) {
+        return;
+      }
+      document.execCommand('formatBlock', false, tagName);
+      syncDefinitionSourceFromEditor();
+      syncActiveEntryFromEditor();
+      updateActionButtons();
+    }
+
+    function handleDefinitionAction(action) {
+      if (action === 'source') {
+        toggleDefinitionSourceMode();
+        return;
+      }
+      if (action === 'link') {
+        if (!focusDefinitionEditor()) {
+          return;
+        }
+        const url = window.prompt('Enter link URL:');
+        if (!url) {
+          return;
+        }
+        document.execCommand('createLink', false, url.trim());
+        syncDefinitionSourceFromEditor();
+        syncActiveEntryFromEditor();
+        updateActionButtons();
+      }
+    }
+
+    function getDefinitionHtml() {
+      const { source, editor } = getDefinitionNodes();
+      if (!source || !editor) {
+        return '';
+      }
+      if (isDefinitionSourceMode()) {
+        return normalizeRichHtml(source.value);
+      }
+      return normalizeRichHtml(editor.innerHTML);
+    }
+
+    function setDefinitionHtml(html) {
+      const { shell, editor, source, sourceBtn } = getDefinitionNodes();
+      const normalized = normalizeRichHtml(html || '');
+      if (!shell || !editor || !source || !sourceBtn) {
+        return;
+      }
+      shell.classList.remove('source-mode');
+      sourceBtn.classList.remove('active');
+      editor.innerHTML = normalized;
+      source.value = normalized;
+    }
+
+    function syncActiveEntryFromEditor() {
+      const entry = getActiveEntry();
+      if (!entry) {
+        return;
+      }
+      Object.assign(entry, collectEditorPayload());
+      document.getElementById('editor-title').textContent = entry.term || 'New Glossary Term';
+      renderEntryList();
+    }
+
+    function hasUnsavedChanges() {
+      const entry = getActiveEntry();
+      if (!entry) {
+        return false;
+      }
+      if (isDraftEntry(entry)) {
+        return true;
+      }
+      if (!lastSavedPayload) {
+        return false;
+      }
+      return JSON.stringify(collectEditorPayload()) !== JSON.stringify(lastSavedPayload);
+    }
+
+    function updateActionButtons() {
+      const entry = getActiveEntry();
+      const hasActiveEntry = Boolean(entry);
+      const newButton = document.getElementById('new-entry-btn');
+      const saveButton = document.getElementById('save-entry-btn');
+      const deleteButton = document.getElementById('delete-entry-btn');
+      newButton.disabled = busy;
+      saveButton.disabled = busy || !hasActiveEntry || !hasUnsavedChanges();
+      deleteButton.hidden = !hasActiveEntry || isDraftEntry(entry);
+      deleteButton.disabled = busy || !hasActiveEntry || isDraftEntry(entry);
+    }
+
+    function setBusy(nextBusy) {
+      busy = nextBusy;
+      document.querySelectorAll('#editor-shell input, #editor-shell textarea').forEach(field => {
+        field.disabled = nextBusy;
+      });
+      const { editor } = getDefinitionNodes();
+      if (editor) {
+        editor.contentEditable = nextBusy ? 'false' : 'true';
+      }
+      document.querySelectorAll('#definition-editor-shell .editor-btn').forEach(button => {
+        button.disabled = nextBusy;
+      });
+      document.querySelectorAll('.entry-item').forEach(item => {
+        item.style.pointerEvents = nextBusy ? 'none' : '';
+      });
+      document.getElementById('entry-search').disabled = nextBusy;
+      updateActionButtons();
+    }
+
+    function renderEntryList() {
+      const list = document.getElementById('entries-list');
+      const query = document.getElementById('entry-search').value.trim().toLowerCase();
+      const filtered = entries.filter(entry => {
+        const haystack = [entry.term, stripHtml(entry.definition)].join(' ').toLowerCase();
+        return !query || haystack.includes(query);
+      });
+
+      if (!filtered.length) {
+        list.className = '';
+        list.innerHTML = '<div class="editor-empty">No glossary terms match the current search.</div>';
+        return;
+      }
+
+      list.className = '';
+      list.innerHTML = filtered.map(entry => `
+        <article class="entry-item${Number(entry.id) === Number(activeEntryId) ? ' active' : ''}" data-id="${entry.id}">
+          <div class="entry-item-name">${escapeHtml(entry.term || 'Untitled term')}</div>
+        </article>
+      `).join('');
+    }
+
+    function populateEditor(entry) {
+      const empty = document.getElementById('editor-empty');
+      const editor = document.getElementById('editor-shell');
+      if (!entry) {
+        empty.style.display = 'block';
+        editor.classList.remove('open');
+        lastSavedPayload = null;
+        updateActionButtons();
+        return;
+      }
+
+      empty.style.display = 'none';
+      editor.classList.add('open');
+      document.getElementById('editor-title').textContent = entry.term || 'New Glossary Term';
+      document.getElementById('field-term').value = entry.term ?? '';
+      setDefinitionHtml(entry.definition ?? '');
+      lastSavedPayload = isDraftEntry(entry) ? null : collectEditorPayload();
+      updateActionButtons();
+    }
+
+    async function loadEntries(preferredEntryId = activeEntryId) {
+      const response = await fetch(`${API}/admin/glossary`);
+      if (!response.ok) {
+        throw new Error('Failed to load glossary entries');
+      }
+      entries = await response.json();
+      activeEntryId = preferredEntryId && entries.some(entry => Number(entry.id) === Number(preferredEntryId))
+        ? Number(preferredEntryId)
+        : (entries[0] ? Number(entries[0].id) : null);
+      renderEntryList();
+      populateEditor(getActiveEntry());
+    }
+
+    function createEntry() {
+      clearStatus();
+      const draftEntry = buildDraftEntry();
+      entries = [draftEntry, ...entries];
+      activeEntryId = draftEntry.id;
+      renderEntryList();
+      populateEditor(draftEntry);
+      setStatus('Added a new draft glossary term. Nothing is saved until you click Save.', 'success');
+    }
+
+    async function saveEntry() {
+      const entry = getActiveEntry();
+      if (!entry) {
+        return;
+      }
+
+      const payload = collectEditorPayload();
+
+      setBusy(true);
+      setStatus('Saving glossary entry…', 'info');
+      try {
+        const isDraft = isDraftEntry(entry);
+        const response = await fetch(isDraft ? `${API}/admin/glossary` : `${API}/admin/glossary/${entry.id}`, {
+          method: isDraft ? 'POST' : 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          let detail = 'Failed to save glossary entry';
+          try {
+            const errorPayload = await response.json();
+            detail = errorPayload.detail || detail;
+          } catch {
+          }
+          throw new Error(detail);
+        }
+        const result = await response.json();
+        await loadEntries(result.entry.id);
+        setStatus(`Saved ${payload.term || 'glossary entry'}.`, 'success');
+      } catch (error) {
+        setStatus(error.message, 'error');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function deleteEntry() {
+      const entry = getActiveEntry();
+      if (!entry) {
+        return;
+      }
+
+      const label = entry.term || `Term ${entry.id}`;
+
+      if (isDraftEntry(entry)) {
+        entries = entries.filter(item => Number(item.id) !== Number(entry.id));
+        activeEntryId = entries[0] ? Number(entries[0].id) : null;
+        renderEntryList();
+        populateEditor(getActiveEntry());
+        setStatus(`Discarded unsaved draft for ${label}.`, 'success');
+        return;
+      }
+
+      if (!window.confirm(`Delete ${label}?`)) {
+        return;
+      }
+
+      setBusy(true);
+      setStatus('Deleting glossary entry…', 'info');
+      try {
+        const response = await fetch(`${API}/admin/glossary/${entry.id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          let detail = 'Failed to delete glossary entry';
+          try {
+            const errorPayload = await response.json();
+            detail = errorPayload.detail || detail;
+          } catch {
+          }
+          throw new Error(detail);
+        }
+        entries = entries.filter(item => Number(item.id) !== Number(entry.id));
+        activeEntryId = entries[0] ? Number(entries[0].id) : null;
+        renderEntryList();
+        populateEditor(getActiveEntry());
+        setStatus(`Deleted ${label}.`, 'success');
+      } catch (error) {
+        setStatus(error.message, 'error');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    document.getElementById('entry-search').addEventListener('input', renderEntryList);
+
+    document.getElementById('entries-list').addEventListener('click', event => {
+      const card = event.target.closest('.entry-item');
+      if (!card || busy) {
+        return;
+      }
+      activeEntryId = Number(card.dataset.id);
+      renderEntryList();
+      populateEditor(getActiveEntry());
+      clearStatus();
+    });
+
+    document.getElementById('new-entry-btn').addEventListener('click', createEntry);
+    document.getElementById('save-entry-btn').addEventListener('click', saveEntry);
+    document.getElementById('delete-entry-btn').addEventListener('click', deleteEntry);
+
+    document.querySelectorAll('#editor-shell input').forEach(field => {
+      field.addEventListener('input', () => {
+        syncActiveEntryFromEditor();
+        updateActionButtons();
+      });
+      field.addEventListener('change', () => {
+        syncActiveEntryFromEditor();
+        updateActionButtons();
+      });
+    });
+
+    document.getElementById('field-definition-editor').addEventListener('input', () => {
+      syncDefinitionSourceFromEditor();
+      syncActiveEntryFromEditor();
+      updateActionButtons();
+    });
+
+    document.getElementById('field-definition-source').addEventListener('input', () => {
+      syncActiveEntryFromEditor();
+      updateActionButtons();
+    });
+
+    document.querySelectorAll('#definition-editor-shell .editor-btn[data-cmd]').forEach(button => {
+      button.addEventListener('click', () => runDefinitionCommand(button));
+    });
+
+    document.querySelectorAll('#definition-editor-shell .editor-btn[data-block]').forEach(button => {
+      button.addEventListener('click', () => applyDefinitionBlockFormat(button.dataset.block));
+    });
+
+    document.querySelectorAll('#definition-editor-shell .editor-btn[data-action]').forEach(button => {
+      button.addEventListener('click', () => handleDefinitionAction(button.dataset.action));
+    });
+
+    updateActionButtons();
+
+    loadEntries().catch(error => {
+      setStatus(error.message, 'error');
+      document.getElementById('entries-list').className = '';
+      document.getElementById('entries-list').innerHTML = '<div class="editor-empty">Unable to load glossary entries right now.</div>';
+      populateEditor(null);
+    });
+  </script>
+
+  <div id="help-backdrop" aria-hidden="true">
+    <div id="help-modal" role="dialog" aria-modal="true">
+      <button id="help-close" type="button" aria-label="Close help">&times;</button>
+      <h1>Glossary</h1>
+      <p>Manage the submarine terminology glossary. Glossary terms appear as tooltips on the public site when visitors hover over highlighted words.</p>
+      <ul>
+        <li>Search the list on the left to filter terms by keyword.</li>
+        <li>Select a term to open its edit form on the right.</li>
+        <li>Click <strong>New</strong> to add a term not yet in the glossary.</li>
+        <li>Click <strong>Save</strong> to update the selected term, or <strong>Delete</strong> to remove it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('btn-help').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.add('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'false');
+    });
+    document.getElementById('help-close').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.remove('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+    });
+    document.getElementById('help-backdrop').addEventListener('click', e => {
+      if (e.target.id === 'help-backdrop') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+  </script>
+  <script src="/web/admin-env-banner.js"></script>
+</body>
+
+</html>

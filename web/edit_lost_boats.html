@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Lost Boats</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .toplink,
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    .toplink {
+      border: 1px solid #30363d;
+      color: #e6edf3;
+    }
+
+    .btn {
+      background: #58a6ff;
+      color: #08111b;
+      border: none;
+      cursor: pointer;
+    }
+
+    #btn-help {
+      margin-left: auto;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 13px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    #btn-help:hover {
+      background: #30363d;
+      color: #c9d1d9;
+    }
+
+    #help-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #help-backdrop.open { display: flex; }
+
+    #help-modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      max-width: 680px;
+      width: min(100%, 680px);
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    #help-modal h1 { margin: 0 0 12px; font-size: 28px; }
+    #help-modal p, #help-modal li { color: #8b949e; line-height: 1.7; }
+    #help-modal ul { padding-left: 18px; margin: 14px 0 0; }
+    #help-modal li + li { margin-top: 6px; }
+
+    #help-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    #help-close:hover { color: #e6edf3; }
+
+    .btn.secondary {
+      background: #1a2332;
+      color: #d8e8fb;
+      border: 1px solid #30435f;
+    }
+
+    .btn.secondary:hover {
+      background: #213149;
+    }
+
+    .btn.danger {
+      background: #8f2d36;
+      color: #fff7f8;
+    }
+
+    .btn.danger:hover {
+      background: #a73741;
+    }
+
+    .btn:hover {
+      background: #79b8ff;
+    }
+
+    .btn:disabled {
+      background: #2a3442;
+      color: #7f8a98;
+      border-color: #3a4655;
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .btn.secondary:disabled,
+    .btn.danger:disabled {
+      background: #2a3442;
+      color: #7f8a98;
+    }
+
+    .btn:disabled:hover {
+      background: #2a3442;
+    }
+
+    .btn.secondary:disabled:hover,
+    .btn.danger:disabled:hover {
+      background: #2a3442;
+    }
+
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      padding: 24px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 40px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    p {
+      color: #8b949e;
+      line-height: 1.7;
+    }
+
+    .lede {
+      max-width: 60ch;
+      margin: 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    #status {
+      display: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    #status.show {
+      display: block;
+    }
+
+    #status.info {
+      background: #0f2744;
+      border: 1px solid #245487;
+      color: #cfe8ff;
+    }
+
+    #status.success {
+      background: #0f2d1f;
+      border: 1px solid #2a6b46;
+      color: #d3f4df;
+    }
+
+    #status.error {
+      background: #3a1518;
+      border: 1px solid #7d2d33;
+      color: #ffd7d9;
+    }
+
+    .list-search {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    .list-search:focus,
+    .field-input:focus,
+    .field-textarea:focus,
+    .field-select:focus {
+      outline: none;
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+    }
+
+    #boats-list {
+      display: grid;
+      gap: 10px;
+      max-height: calc(100vh - 230px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .boat-item {
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #0d1117;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    }
+
+    .boat-item:hover {
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .boat-item.active {
+      border-color: #58a6ff;
+      background: #111927;
+      box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.22);
+    }
+
+    .boat-item-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e6edf3;
+      line-height: 1.3;
+    }
+
+    .boat-item-meta {
+      margin-top: 8px;
+      color: #8b949e;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .editor-empty {
+      border: 1px dashed #30363d;
+      border-radius: 16px;
+      padding: 28px;
+      color: #8b949e;
+      text-align: center;
+      background: #0d1117;
+    }
+
+    .editor-shell {
+      display: none;
+    }
+
+    .editor-shell.open {
+      display: block;
+    }
+
+    .editor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field-wide {
+      grid-column: 1 / -1;
+    }
+
+    .field-pair {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .photo-pair {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .gallery-grid {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .photo-card {
+      display: grid;
+      gap: 8px;
+    }
+
+    .photo-label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8b949e;
+    }
+
+    .photo-frame {
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      background: #0d1117;
+      min-height: 220px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-frame.upload-target {
+      position: relative;
+      cursor: copy;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+
+    .photo-frame.drag-over {
+      border-color: #58a6ff;
+      background: #111927;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.18);
+    }
+
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-empty {
+      padding: 20px;
+      text-align: center;
+      color: #8b949e;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .gallery-subtitle {
+      min-height: 88px;
+    }
+
+    .field label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8b949e;
+    }
+
+    .field-input,
+    .field-textarea,
+    .field-select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+      font-size: 15px;
+      font-family: inherit;
+    }
+
+    .field-textarea {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .field-textarea.compact {
+      min-height: 72px;
+    }
+
+    .editor-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .muted {
+      color: #8b949e;
+      font-size: 14px;
+    }
+
+    .loading {
+      color: #8b949e;
+      text-align: center;
+      padding: 18px 0;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      #boats-list {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .editor-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field-pair {
+        grid-template-columns: 1fr;
+      }
+
+      .photo-pair {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      main {
+        padding: 28px 16px 48px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="topbar">
+      <a class="toplink" href="/web/edit.html">&#8592; Editor Hub</a>
+      <button id="btn-help" type="button">Help</button>
+    </div>
+
+    <div id="status" aria-live="polite"></div>
+
+    <div class="layout">
+      <section class="panel">
+        <input id="boat-search" class="list-search" type="search"
+          placeholder="Search by hull number, name, or designation" autocomplete="off">
+        <div id="boats-list" class="loading">Loading lost boats…</div>
+      </section>
+
+      <section class="panel">
+        <div id="editor-empty" class="editor-empty">Select a boat from the list to open its edit box.</div>
+
+        <div id="editor-shell" class="editor-shell">
+          <div class="section-head">
+            <h2 id="editor-title">Boat</h2>
+            <div class="editor-actions">
+              <button id="new-boat-btn" class="btn secondary" type="button">New</button>
+              <button id="delete-boat-btn" class="btn danger" type="button">Delete</button>
+              <button id="save-boat-btn" class="btn" type="button">Save</button>
+            </div>
+          </div>
+
+          <div class="editor-grid">
+            <div class="field">
+              <label for="field-boat_number">Hull Number</label>
+              <input id="field-boat_number" class="field-input" type="text">
+            </div>
+            <div class="field">
+              <label for="field-name">Boat Name</label>
+              <input id="field-name" class="field-input" type="text">
+            </div>
+            <div class="field field-wide">
+              <label for="field-designation">Designation</label>
+              <input id="field-designation" class="field-input" type="text">
+            </div>
+            <div class="field">
+              <label for="field-date_lost">Date Lost</label>
+              <input id="field-date_lost" class="field-input" type="text">
+            </div>
+            <div class="field">
+              <label for="field-date_lost_sort">Date Lost Sort</label>
+              <input id="field-date_lost_sort" class="field-input" type="text" placeholder="YYYY-MM-DD">
+            </div>
+            <div class="field-pair">
+              <div class="field">
+                <label for="field-fatalities_num">Fatalities Number</label>
+                <input id="field-fatalities_num" class="field-input" type="number" step="1">
+              </div>
+              <div class="field">
+                <label for="field-fatalities_text">Fatalities Text</label>
+                <textarea id="field-fatalities_text" class="field-textarea compact"></textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label for="field-last_captain">Last Captain</label>
+              <input id="field-last_captain" class="field-input" type="text">
+            </div>
+            <div class="field">
+              <label for="field-cause">Cause</label>
+              <input id="field-cause" class="field-input" type="text">
+            </div>
+            <div class="field field-wide">
+              <label for="field-location">Location</label>
+              <input id="field-location" class="field-input" type="text">
+            </div>
+            <div class="field field-wide">
+              <label for="field-construction">Construction</label>
+              <textarea id="field-construction" class="field-textarea"></textarea>
+            </div>
+            <div class="field field-wide">
+              <label for="field-loss_narrative">Loss Narrative</label>
+              <textarea id="field-loss_narrative" class="field-textarea" style="min-height: 240px;"></textarea>
+            </div>
+            <div class="photo-pair">
+              <div class="photo-card">
+                <div class="photo-label">Boat Photo</div>
+                <div id="photo-boat-frame" class="photo-frame">
+                  <div class="photo-empty">No boat photo</div>
+                </div>
+                <input id="field-photo_boat" type="hidden">
+              </div>
+              <div class="photo-card">
+                <div class="photo-label">Captain Photo</div>
+                <div id="photo-captain-frame" class="photo-frame">
+                  <div class="photo-empty">No captain photo</div>
+                </div>
+                <input id="field-photo_captain" type="hidden">
+              </div>
+            </div>
+            <div class="gallery-grid">
+              <div class="photo-card">
+                <div class="photo-label">Image 1</div>
+                <div id="gallery-image1-frame" class="photo-frame">
+                  <div class="photo-empty">No image 1</div>
+                </div>
+                <input id="field-image1" type="hidden" data-frame-id="gallery-image1-frame" data-empty-text="No image 1"
+                  data-alt-prefix="Image 1">
+                <div class="field">
+                  <label for="field-image1_subtitle">Image 1 Subtitle</label>
+                  <textarea id="field-image1_subtitle" class="field-textarea compact gallery-subtitle"></textarea>
+                </div>
+              </div>
+              <div class="photo-card">
+                <div class="photo-label">Image 2</div>
+                <div id="gallery-image2-frame" class="photo-frame">
+                  <div class="photo-empty">No image 2</div>
+                </div>
+                <input id="field-image2" type="hidden" data-frame-id="gallery-image2-frame" data-empty-text="No image 2"
+                  data-alt-prefix="Image 2">
+                <div class="field">
+                  <label for="field-image2_subtitle">Image 2 Subtitle</label>
+                  <textarea id="field-image2_subtitle" class="field-textarea compact gallery-subtitle"></textarea>
+                </div>
+              </div>
+              <div class="photo-card">
+                <div class="photo-label">Image 3</div>
+                <div id="gallery-image3-frame" class="photo-frame">
+                  <div class="photo-empty">No image 3</div>
+                </div>
+                <input id="field-image3" type="hidden" data-frame-id="gallery-image3-frame" data-empty-text="No image 3"
+                  data-alt-prefix="Image 3">
+                <div class="field">
+                  <label for="field-image3_subtitle">Image 3 Subtitle</label>
+                  <textarea id="field-image3_subtitle" class="field-textarea compact gallery-subtitle"></textarea>
+                </div>
+              </div>
+              <div class="photo-card">
+                <div class="photo-label">Image 4</div>
+                <div id="gallery-image4-frame" class="photo-frame">
+                  <div class="photo-empty">No image 4</div>
+                </div>
+                <input id="field-image4" type="hidden" data-frame-id="gallery-image4-frame" data-empty-text="No image 4"
+                  data-alt-prefix="Image 4">
+                <div class="field">
+                  <label for="field-image4_subtitle">Image 4 Subtitle</label>
+                  <textarea id="field-image4_subtitle" class="field-textarea compact gallery-subtitle"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const API = '';
+    const IMAGE_UPLOAD_FIELDS = ['photo_boat', 'photo_captain', 'image1', 'image2', 'image3', 'image4'];
+    const FIELDS = [
+      'boat_number',
+      'name',
+      'designation',
+      'date_lost',
+      'date_lost_sort',
+      'fatalities_num',
+      'fatalities_text',
+      'last_captain',
+      'location',
+      'cause',
+      'photo_boat',
+      'photo_captain',
+      'construction',
+      'loss_narrative',
+      'image1',
+      'image1_subtitle',
+      'image2',
+      'image2_subtitle',
+      'image3',
+      'image3_subtitle',
+      'image4',
+      'image4_subtitle',
+    ];
+
+    let boats = [];
+    let activeBoatId = null;
+    let busy = false;
+    let lastSavedPayload = null;
+    let nextDraftBoatId = -1;
+
+    function setStatus(message, type = 'info') {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `show ${type}`;
+    }
+
+    function clearStatus() {
+      const status = document.getElementById('status');
+      status.textContent = '';
+      status.className = '';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getActiveBoat() {
+      return boats.find(boat => Number(boat.id) === Number(activeBoatId)) || null;
+    }
+
+    function isDraftBoat(boat) {
+      return Boolean(boat && boat.__isNew);
+    }
+
+    function buildDraftBoat() {
+      const draftBoat = { id: nextDraftBoatId--, __isNew: true };
+      FIELDS.forEach(field => {
+        draftBoat[field] = '';
+      });
+      return draftBoat;
+    }
+
+    function collectEditorPayload() {
+      const payload = {};
+      FIELDS.forEach(field => {
+        const node = document.getElementById(`field-${field}`);
+        if (!node) {
+          return;
+        }
+        payload[field] = node.value;
+      });
+      return payload;
+    }
+
+    function syncActiveBoatFromEditor() {
+      const boat = getActiveBoat();
+      if (!boat) {
+        return;
+      }
+      Object.assign(boat, collectEditorPayload());
+      document.getElementById('editor-title').textContent = boat.designation || boat.name || 'Boat';
+      renderBoatList();
+    }
+
+    function hasUnsavedChanges() {
+      const boat = getActiveBoat();
+      if (!boat) {
+        return false;
+      }
+      if (isDraftBoat(boat)) {
+        return true;
+      }
+      if (!lastSavedPayload) {
+        return false;
+      }
+      return JSON.stringify(collectEditorPayload()) !== JSON.stringify(lastSavedPayload);
+    }
+
+    function updateActionButtons() {
+      const boat = getActiveBoat();
+      const hasActiveBoat = Boolean(boat);
+      const newButton = document.getElementById('new-boat-btn');
+      const deleteButton = document.getElementById('delete-boat-btn');
+      newButton.disabled = busy;
+      document.getElementById('save-boat-btn').disabled = busy || !hasActiveBoat || !hasUnsavedChanges();
+      deleteButton.hidden = !hasActiveBoat || isDraftBoat(boat);
+      deleteButton.disabled = busy || !hasActiveBoat || isDraftBoat(boat);
+    }
+
+    function normalizePhotoSrc(path) {
+      const value = (path || '').trim();
+      if (!value) {
+        return '';
+      }
+      if (value.startsWith('/web/') || value.startsWith('http://') || value.startsWith('https://')) {
+        return value;
+      }
+      if (value.startsWith('images/')) {
+        return `/web/${value}`;
+      }
+      return value;
+    }
+
+    function updatePhotoPreview(frameId, path, altText, emptyText) {
+      const frame = document.getElementById(frameId);
+      const src = normalizePhotoSrc(path);
+      if (!frame) {
+        return;
+      }
+      if (!src) {
+        frame.innerHTML = `<div class="photo-empty">${emptyText}</div>`;
+        return;
+      }
+      frame.innerHTML = `<img src="${escapeHtml(src)}" alt="${escapeHtml(altText)}">`;
+    }
+
+    function attachUploadTarget(frameId, fieldName, emptyText, altPrefix) {
+      const frame = document.getElementById(frameId);
+      if (!frame) {
+        return;
+      }
+      frame.classList.add('upload-target');
+      frame.dataset.fieldName = fieldName;
+      frame.dataset.emptyText = emptyText;
+      frame.dataset.altPrefix = altPrefix;
+    }
+
+    async function uploadImage(fieldName, file) {
+      const boat = getActiveBoat();
+      if (!boat) {
+        throw new Error('Select a boat before uploading an image');
+      }
+      if (isDraftBoat(boat)) {
+        throw new Error('Save the boat before uploading images');
+      }
+      if (!file || !file.type.startsWith('image/')) {
+        throw new Error('Please drop an image file');
+      }
+
+      const formData = new FormData();
+      formData.append('field_name', fieldName);
+      formData.append('image', file, file.name);
+
+      setBusy(true);
+      setStatus(`Uploading ${fieldName}…`, 'info');
+      try {
+        const response = await fetch(`${API}/admin/eternal-patrol/${boat.id}/upload-image`, {
+          method: 'POST',
+          body: formData,
+        });
+        if (!response.ok) {
+          let detail = 'Failed to upload image';
+          try {
+            const errorPayload = await response.json();
+            detail = errorPayload.detail || detail;
+          } catch {
+            // ignore
+          }
+          throw new Error(detail);
+        }
+        const result = await response.json();
+        const pathField = document.getElementById(`field-${fieldName}`);
+        if (pathField) {
+          pathField.value = result.path || '';
+        }
+        boats = boats.map(entry => Number(entry.id) === Number(boat.id) ? result.boat : entry);
+        populateEditor(result.boat);
+        renderBoatList();
+        setStatus(`Uploaded ${fieldName.replace('_', ' ')}.`, 'success');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function bindUploadTargets() {
+      document.querySelectorAll('.photo-frame.upload-target').forEach(frame => {
+        frame.addEventListener('dragover', event => {
+          if (busy) {
+            return;
+          }
+          event.preventDefault();
+          event.dataTransfer.dropEffect = 'copy';
+          frame.classList.add('drag-over');
+        });
+        frame.addEventListener('dragleave', () => {
+          frame.classList.remove('drag-over');
+        });
+        frame.addEventListener('drop', async event => {
+          event.preventDefault();
+          frame.classList.remove('drag-over');
+          if (busy) {
+            return;
+          }
+          const file = event.dataTransfer?.files?.[0];
+          if (!file) {
+            setStatus('Drop a single image file.', 'error');
+            return;
+          }
+          try {
+            await uploadImage(frame.dataset.fieldName, file);
+          } catch (error) {
+            setStatus(error.message, 'error');
+          }
+        });
+      });
+    }
+
+    function updateGalleryPreview(fieldName) {
+      const input = document.getElementById(`field-${fieldName}`);
+      if (!input) {
+        return;
+      }
+      const boat = getActiveBoat();
+      const boatName = boat?.designation || boat?.name || 'Boat';
+      const altPrefix = input.dataset.altPrefix || fieldName;
+      updatePhotoPreview(
+        input.dataset.frameId,
+        input.value,
+        `${boatName} ${altPrefix}`,
+        input.dataset.emptyText || 'No image',
+      );
+    }
+
+    function setBusy(nextBusy) {
+      busy = nextBusy;
+      document.querySelectorAll('#editor-shell input, #editor-shell textarea, #editor-shell select').forEach(field => {
+        field.disabled = nextBusy;
+      });
+      document.querySelectorAll('.boat-item').forEach(item => {
+        item.style.pointerEvents = nextBusy ? 'none' : '';
+      });
+      document.getElementById('boat-search').disabled = nextBusy;
+      updateActionButtons();
+    }
+
+    function renderBoatList() {
+      const list = document.getElementById('boats-list');
+      const query = document.getElementById('boat-search').value.trim().toLowerCase();
+      const filtered = boats.filter(boat => {
+        const haystack = [boat.boat_number, boat.name, boat.designation, boat.date_lost].join(' ').toLowerCase();
+        return !query || haystack.includes(query);
+      });
+
+      if (!filtered.length) {
+        list.className = '';
+        list.innerHTML = '<div class="editor-empty">No boats match the current search.</div>';
+        return;
+      }
+
+      list.className = '';
+      list.innerHTML = filtered.map(boat => `
+        <article class="boat-item${Number(boat.id) === Number(activeBoatId) ? ' active' : ''}" data-id="${boat.id}">
+          <div class="boat-item-name">${escapeHtml(boat.designation || boat.name || 'Unnamed boat')}</div>
+        </article>
+      `).join('');
+    }
+
+    function populateEditor(boat) {
+      const empty = document.getElementById('editor-empty');
+      const editor = document.getElementById('editor-shell');
+      if (!boat) {
+        empty.style.display = 'block';
+        editor.classList.remove('open');
+        lastSavedPayload = null;
+        updateActionButtons();
+        return;
+      }
+
+      empty.style.display = 'none';
+      editor.classList.add('open');
+      document.getElementById('editor-title').textContent = boat.designation || boat.name || 'Boat';
+
+      FIELDS.forEach(field => {
+        const node = document.getElementById(`field-${field}`);
+        if (!node) return;
+        node.value = boat[field] ?? '';
+      });
+      lastSavedPayload = isDraftBoat(boat) ? null : collectEditorPayload();
+      updatePhotoPreview('photo-boat-frame', boat.photo_boat, `${boat.designation || boat.name || 'Boat'} photo`, 'No boat photo');
+      updatePhotoPreview('photo-captain-frame', boat.photo_captain, `${boat.designation || boat.name || 'Boat'} captain photo`, 'No captain photo');
+      ['image1', 'image2', 'image3', 'image4'].forEach(updateGalleryPreview);
+      updateActionButtons();
+    }
+
+    async function loadBoats(preferredBoatId = activeBoatId) {
+      const response = await fetch(`${API}/admin/eternal-patrol`);
+      if (!response.ok) {
+        throw new Error('Failed to load lost boats');
+      }
+      boats = await response.json();
+      activeBoatId = preferredBoatId && boats.some(boat => Number(boat.id) === Number(preferredBoatId))
+        ? Number(preferredBoatId)
+        : (boats[0] ? Number(boats[0].id) : null);
+      renderBoatList();
+      populateEditor(getActiveBoat());
+    }
+
+    function createBoat() {
+      clearStatus();
+      const draftBoat = buildDraftBoat();
+      boats = [draftBoat, ...boats];
+      activeBoatId = draftBoat.id;
+      renderBoatList();
+      populateEditor(draftBoat);
+      setStatus('Added a new draft boat. Nothing is saved until you click Save.', 'success');
+    }
+
+    async function saveBoat() {
+      const boat = getActiveBoat();
+      if (!boat) {
+        return;
+      }
+
+      const payload = collectEditorPayload();
+
+      setBusy(true);
+      setStatus('Saving lost boat…', 'info');
+      try {
+        const isDraft = isDraftBoat(boat);
+        const response = await fetch(isDraft ? `${API}/admin/eternal-patrol` : `${API}/admin/eternal-patrol/${boat.id}`, {
+          method: isDraft ? 'POST' : 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          let detail = 'Failed to save boat';
+          try {
+            const errorPayload = await response.json();
+            detail = errorPayload.detail || detail;
+          } catch {
+            // ignore
+          }
+          throw new Error(detail);
+        }
+        const result = await response.json();
+        await loadBoats(result.boat.id);
+        setStatus(`Saved ${payload.designation || payload.name || boat.designation || boat.name || 'boat'}.`, 'success');
+      } catch (error) {
+        setStatus(error.message, 'error');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function deleteBoat() {
+      const boat = getActiveBoat();
+      if (!boat) {
+        return;
+      }
+
+      const label = boat.designation || boat.name || boat.boat_number || `Boat ${boat.id}`;
+      if (!window.confirm(`Delete ${label}?`)) {
+        return;
+      }
+
+      setBusy(true);
+      setStatus('Deleting lost boat…', 'info');
+      try {
+        if (isDraftBoat(boat)) {
+          boats = boats.filter(entry => Number(entry.id) !== Number(boat.id));
+          activeBoatId = boats[0] ? Number(boats[0].id) : null;
+          renderBoatList();
+          populateEditor(getActiveBoat());
+          setStatus(`Discarded unsaved draft for ${label}.`, 'success');
+          return;
+        }
+        const response = await fetch(`${API}/admin/eternal-patrol/${boat.id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          let detail = 'Failed to delete boat';
+          try {
+            const errorPayload = await response.json();
+            detail = errorPayload.detail || detail;
+          } catch {
+            // ignore
+          }
+          throw new Error(detail);
+        }
+        boats = boats.filter(entry => Number(entry.id) !== Number(boat.id));
+        activeBoatId = boats[0] ? Number(boats[0].id) : null;
+        renderBoatList();
+        populateEditor(getActiveBoat());
+        setStatus(`Deleted ${label}.`, 'success');
+      } catch (error) {
+        setStatus(error.message, 'error');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    document.getElementById('boat-search').addEventListener('input', () => {
+      renderBoatList();
+    });
+
+    document.getElementById('boats-list').addEventListener('click', event => {
+      const card = event.target.closest('.boat-item');
+      if (!card || busy) {
+        return;
+      }
+      activeBoatId = Number(card.dataset.id);
+      renderBoatList();
+      populateEditor(getActiveBoat());
+      clearStatus();
+    });
+
+    document.getElementById('save-boat-btn').addEventListener('click', saveBoat);
+    document.getElementById('delete-boat-btn').addEventListener('click', deleteBoat);
+    document.getElementById('new-boat-btn').addEventListener('click', createBoat);
+
+    document.querySelectorAll('#editor-shell input, #editor-shell textarea, #editor-shell select').forEach(field => {
+      field.addEventListener('input', () => {
+        syncActiveBoatFromEditor();
+        updateActionButtons();
+      });
+      field.addEventListener('change', () => {
+        syncActiveBoatFromEditor();
+        updateActionButtons();
+      });
+    });
+
+    attachUploadTarget('photo-boat-frame', 'photo_boat', 'No boat photo', 'Boat Photo');
+    attachUploadTarget('photo-captain-frame', 'photo_captain', 'No captain photo', 'Captain Photo');
+    attachUploadTarget('gallery-image1-frame', 'image1', 'No image 1', 'Image 1');
+    attachUploadTarget('gallery-image2-frame', 'image2', 'No image 2', 'Image 2');
+    attachUploadTarget('gallery-image3-frame', 'image3', 'No image 3', 'Image 3');
+    attachUploadTarget('gallery-image4-frame', 'image4', 'No image 4', 'Image 4');
+    bindUploadTargets();
+    updateActionButtons();
+
+    loadBoats().catch(error => {
+      setStatus(error.message, 'error');
+      document.getElementById('boats-list').className = '';
+      document.getElementById('boats-list').innerHTML = '<div class="editor-empty">Unable to load lost boats right now.</div>';
+      populateEditor(null);
+    });
+
+  </script>
+
+  <div id="help-backdrop" aria-hidden="true">
+    <div id="help-modal" role="dialog" aria-modal="true">
+      <button id="help-close" type="button" aria-label="Close help">&times;</button>
+      <h1>Lost Boats (Eternal Patrol)</h1>
+      <p>Manage the database of US submarines lost on eternal patrol. Search the list on the left by hull number, name, or designation. Select a boat to open its edit form on the right.</p>
+      <ul>
+        <li>Click <strong>New</strong> to add a submarine not yet in the list.</li>
+        <li>Edit the fields and click <strong>Save</strong> to update the record.</li>
+        <li>Click <strong>Delete</strong> to permanently remove a record.</li>
+        <li>You can upload a photo for the boat or its commanding officer.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('btn-help').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.add('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'false');
+    });
+    document.getElementById('help-close').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.remove('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+    });
+    document.getElementById('help-backdrop').addEventListener('click', e => {
+      if (e.target.id === 'help-backdrop') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+  </script>
+  <script src="/web/admin-env-banner.js"></script>
+</body>
+
+</html>

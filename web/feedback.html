@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback — SubmarineDocent</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, system-ui, sans-serif;
+      background: #0a0f1a;
+      color: #e8e8e8;
+      min-height: 100dvh;
+    }
+
+    header {
+      padding: 18px 24px;
+      background: #0d1525;
+      border-bottom: 1px solid #1e2d4a;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .header-spacer {
+      flex: 1 1 auto;
+    }
+
+    #copyPageLinkBtn {
+      background: none;
+      border: 1px solid #2a3a5a;
+      border-radius: 6px;
+      color: #607090;
+      font-size: 13px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    #copyPageLinkBtn:hover {
+      color: #c9d8f0;
+      border-color: #405981;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    #copyPageLinkBtn.is-copied {
+      color: #fff;
+      border-color: #1f7a3e;
+      background: #1f7a3e;
+    }
+
+    header h1 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #c9d8f0;
+    }
+
+    header .sub {
+      font-size: 12px;
+      color: #607090;
+    }
+
+    .site-warning {
+      background: #3b2f12;
+      border-bottom: 1px solid #6f5b28;
+      color: #f4e6b8;
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .site-warning strong {
+      color: #fff3cd;
+    }
+
+    /* ── Toolbar ── */
+    #toolbar {
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #1e2d4a;
+    }
+
+    #filterBtns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filt {
+      background: #131d30;
+      border: 1px solid #1e2d4a;
+      border-radius: 20px;
+      color: #c9d8f0;
+      font-size: 13px;
+      padding: 5px 14px;
+      cursor: pointer;
+    }
+
+    .filt.active {
+      background: #1e3a6e;
+      border-color: #3a78cc;
+    }
+
+    #summary {
+      font-size: 13px;
+      color: #607090;
+      margin-left: auto;
+    }
+
+    /* ── List ── */
+    #list {
+      max-width: 780px;
+      margin: 24px auto;
+      padding: 0 16px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: #0d1525;
+      border: 1px solid #1e2d4a;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .rating {
+      font-size: 20px;
+    }
+
+    .ts {
+      font-size: 11px;
+      color: #607090;
+      margin-left: auto;
+    }
+
+    .question {
+      font-size: 13px;
+      font-style: italic;
+      color: #4a7abf;
+      margin-bottom: 8px;
+    }
+
+    .answer {
+      font-size: 13px;
+      color: #9ab0cc;
+      line-height: 1.5;
+      border-left: 2px solid #1e2d4a;
+      padding-left: 10px;
+      margin-bottom: 8px;
+      /* clamp to 3 lines with expand */
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .answer.expanded {
+      -webkit-line-clamp: unset;
+      overflow: visible;
+    }
+
+    .expand-btn {
+      font-size: 11px;
+      color: #3a78cc;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-bottom: 8px;
+    }
+
+    .comment {
+      font-size: 13px;
+      color: #c9d8f0;
+      background: #131d30;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-top: 4px;
+    }
+
+    .no-comment {
+      color: #3a4a5a;
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    #emptyState {
+      text-align: center;
+      color: #607090;
+      padding: 60px 0;
+      font-size: 14px;
+      display: none;
+    }
+
+    #loading {
+      text-align: center;
+      color: #607090;
+      padding: 60px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="site-warning"><strong>Work in progress:</strong> this site is still being developed, and some content and
+    historical data remain unverified.</div>
+
+  <header>
+    <h1>Feedback</h1>
+    <span class="sub">submarinedocent.org</span>
+    <span class="header-spacer"></span>
+    <button id="copyPageLinkBtn" type="button">Copy Link</button>
+  </header>
+
+  <div id="toolbar">
+    <div id="filterBtns">
+      <button class="filt active" data-filter="all">All</button>
+      <button class="filt" data-filter="up">👍 Helpful</button>
+      <button class="filt" data-filter="down">👎 Not helpful</button>
+      <button class="filt" data-filter="comment">With comments</button>
+      <button class="filt" data-filter="contact">✉️ Messages</button>
+    </div>
+    <span id="summary"></span>
+  </div>
+
+  <div id="list">
+    <div id="loading">Loading feedback…</div>
+    <div id="emptyState">No feedback matches this filter.</div>
+  </div>
+
+  <script>
+    // ── API base (match pampanito settings or default to same origin) ──────────
+    function getApiBase() {
+      try {
+        const s = JSON.parse(localStorage.getItem('docentSettings') || '{}');
+        return (s.apiBase || '').replace(/\/+$/, '') || window.location.origin;
+      } catch (_) { return window.location.origin; }
+    }
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    let allEntries = [];
+    let activeFilter = 'all';
+
+    function flashCopiedButton(button) {
+      const originalText = button.dataset.originalText || button.textContent;
+      button.dataset.originalText = originalText;
+      button.textContent = 'Copied';
+      button.classList.add('is-copied');
+      window.setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove('is-copied');
+      }, 1400);
+    }
+
+    // ── Load ───────────────────────────────────────────────────────────────────
+    async function loadFeedback() {
+      try {
+        const res = await fetch(`${getApiBase()}/feedback/list`);
+        allEntries = await res.json();
+        render();
+      } catch (e) {
+        document.getElementById('loading').textContent = `Error loading feedback: ${e.message}`;
+      }
+    }
+
+    // ── Filter ─────────────────────────────────────────────────────────────────
+    document.getElementById('filterBtns').addEventListener('click', e => {
+      const btn = e.target.closest('.filt');
+      if (!btn) return;
+      activeFilter = btn.dataset.filter;
+      document.querySelectorAll('.filt').forEach(b => b.classList.toggle('active', b === btn));
+      render();
+    });
+
+    document.getElementById('copyPageLinkBtn').addEventListener('click', async () => {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('filter');
+        if (activeFilter !== 'all') {
+          url.searchParams.set('filter', activeFilter);
+        }
+        await navigator.clipboard.writeText(url.toString());
+        flashCopiedButton(document.getElementById('copyPageLinkBtn'));
+      } catch (_) { }
+    });
+
+    // ── Render ─────────────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function formatTs(ts) {
+      try {
+        return new Date(ts).toLocaleString(undefined, {
+          month: 'short', day: 'numeric', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+      } catch (_) { return ts; }
+    }
+
+    function render() {
+      const list = document.getElementById('list');
+      const loading = document.getElementById('loading');
+      const emptyState = document.getElementById('emptyState');
+      loading.style.display = 'none';
+
+      const filtered = allEntries.filter(e => {
+        if (activeFilter === 'all') return true;
+        if (activeFilter === 'up') return e.rating === 'up';
+        if (activeFilter === 'down') return e.rating === 'down';
+        if (activeFilter === 'comment') return e.comment && e.comment.trim();
+        if (activeFilter === 'contact') return e.source === 'contact';
+        return true;
+      });
+
+      // Summary
+      const total = allEntries.length;
+      const ups = allEntries.filter(e => e.rating === 'up').length;
+      const downs = allEntries.filter(e => e.rating === 'down').length;
+      document.getElementById('summary').textContent =
+        `${total} total · 👍 ${ups} · 👎 ${downs}`;
+
+      // Remove old cards
+      list.querySelectorAll('.card').forEach(c => c.remove());
+      emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
+
+      filtered.forEach((entry, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        if (entry.source === 'contact') {
+          // Free-form visitor message from the public contact form.
+          const who = [entry.name, entry.email].filter(Boolean).map(esc).join(' · ');
+          card.innerHTML = `
+            <div class="card-header">
+              <span class="rating">✉️</span>
+              <span class="ts">${esc(formatTs(entry.ts))}</span>
+            </div>
+            <div class="question">${who || '<em>Anonymous</em>'}</div>
+            <div class="comment">💬 ${esc(entry.message || entry.comment)}</div>
+          `;
+          list.appendChild(card);
+          return;
+        }
+
+        const ratingIcon = entry.rating === 'up' ? '👍' : entry.rating === 'down' ? '👎' : '—';
+        const answerId = `ans-${idx}`;
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="rating">${ratingIcon}</span>
+            <span class="ts">${esc(formatTs(entry.ts))}</span>
+          </div>
+          <div class="question">"${esc(entry.question)}"</div>
+          <div class="answer" id="${answerId}">${esc(entry.answer)}</div>
+          <button class="expand-btn" data-target="${answerId}">Show full answer ▾</button>
+          ${entry.comment
+            ? `<div class="comment">💬 ${esc(entry.comment)}</div>`
+            : `<span class="no-comment">No comment</span>`}
+        `;
+        list.appendChild(card);
+      });
+
+      // Expand/collapse answer
+      list.querySelectorAll('.expand-btn').forEach(btn => {
+        const target = document.getElementById(btn.dataset.target);
+        // Only show expand button if text is actually clamped
+        if (target && target.scrollHeight <= target.clientHeight + 2) {
+          btn.style.display = 'none';
+        }
+        btn.addEventListener('click', () => {
+          target.classList.toggle('expanded');
+          btn.textContent = target.classList.contains('expanded')
+            ? 'Show less ▴' : 'Show full answer ▾';
+        });
+      });
+    }
+
+    (function applyInitialFilterFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const requestedFilter = params.get('filter');
+      if (!requestedFilter) return;
+      const button = document.querySelector(`.filt[data-filter="${requestedFilter}"]`);
+      if (!button) return;
+      activeFilter = requestedFilter;
+      document.querySelectorAll('.filt').forEach(b => b.classList.toggle('active', b === button));
+    })();
+
+    loadFeedback();
+  </script>
+</body>
+
+</html>

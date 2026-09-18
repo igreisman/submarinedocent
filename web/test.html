@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SubmarineDocent — Local Test</title>
+  <style>
+    body {
+      font-family: -apple-system, system-ui, sans-serif;
+      margin: 16px;
+      line-height: 1.35;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    label {
+      font-size: 12px;
+      color: #444;
+    }
+
+    select,
+    input,
+    textarea,
+    button {
+      font-size: 16px;
+      padding: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .cit {
+      margin: 6px 0;
+      padding-left: 12px;
+      border-left: 3px solid #eee;
+    }
+
+    .err {
+      color: #b00020;
+    }
+
+    .faq-question {
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    .faq-body {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .faq-body ol,
+    .faq-body ul {
+      padding-left: 2em;
+      margin: 0 0 10px 0;
+    }
+
+    .followup-btn {
+      display: block;
+      background: none;
+      border: none;
+      padding: 2px 0;
+      font-size: 13px;
+      color: #0066cc;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .followup-btn:hover {
+      text-decoration: underline;
+    }
+
+    dialog {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px 24px;
+      max-width: 360px;
+      font-family: -apple-system, system-ui, sans-serif;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .dialog-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 0 0 14px 0;
+    }
+
+    .dialog-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .dialog-btns button {
+      flex: 1;
+      padding: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .dialog-btns button.primary {
+      background: #0066cc;
+      color: #fff;
+      border-color: #0066cc;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>SubmarineDocent — Local Test</h2>
+  <div class="muted">
+    Plays audio in-browser and sends <span class="mono">compartment_id + playhead_time_ms</span> to your local API.
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>API Base URL</label><br />
+        <input id="apiBase" value="" style="width: 320px;" />
+        <div class="muted">Example: <span class="mono">http://192.168.1.23:8080</span> (your Mac’s IP)</div>
+      </div>
+
+      <div>
+        <select id="compartment">
+          <option value="forward_torpedo_room">Forward Torpedo Room</option>
+          <option value="forward_battery_compartment">Forward Battery</option>
+          <option value="control_room">Control Room</option>
+          <option value="conning_tower">Conning Tower</option>
+          <option value="radio_room">Radio Room</option>
+          <option value="maneuvering_room">Maneuvering Room</option>
+          <option value="forward_engine_room">Forward Engine Room</option>
+          <option value="after_engine_room">After Engine Room</option>
+          <option value="crews_mess">Crew’s Mess</option>
+          <option value="after_battery">After Battery</option>
+          <option value="after_torpedo_room">After Torpedo Room</option>
+          <option value="forward_deck">Forward Deck</option>
+          <option value="after_deck">After Deck</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Answer mode</label><br />
+        <select id="mode">
+          <option value="standard" selected>standard</option>
+          <option value="quick">quick</option>
+          <option value="deep">deep</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <label>Audio URL (MP3)</label><br />
+      <input id="audioUrl" placeholder="Drop in a local file URL or hosted MP3 URL" style="width: 100%;" />
+      <div class="muted">
+        For demo: you can host an MP3 locally (instructions below) and paste:
+        <span class="mono">http://&lt;MAC_IP&gt;:5500/audio/after_torpedo_room.mp3</span>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <audio id="player" controls preload="metadata" style="width:100%;"></audio>
+      <div class="row" style="margin-top:10px;">
+        <button id="loadAudio">Load audio</button>
+        <button id="seekBack">⟲ -10s</button>
+        <button id="seekFwd">+10s ⟳</button>
+        <div class="muted">Time: <span class="mono" id="timecode">00:00.000</span> (<span class="mono" id="ms">0</span>
+          ms)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Ask a question</label>
+    <textarea id="q" placeholder="Example: What’s the difference between a Mark 14 and Mark 18 torpedo?"></textarea>
+
+    <div class="row" style="margin-top:10px;">
+      <button id="askBtn">Ask</button>
+      <button id="askSample">Ask sample question</button>
+      <span class="muted">Uses current playhead time and selected compartment.</span>
+    </div>
+
+    <div id="status" class="muted" style="margin-top:10px;"></div>
+    <div id="err" class="err" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 10px 0;">Answer</h3>
+    <div id="answer" class="muted">No answer yet.</div>
+    <div id="what" style="margin-top:10px;"></div>
+
+    <h4 style="margin-top:14px;margin-block-end:0.33em;">Citations</h4>
+    <div id="cits" class="muted">—</div>
+
+    <h4 style="margin-top:14px;margin-block-end:0.33em;">Follow-ups</h4>
+    <div id="fups" class="muted">—</div>
+
+    <details style="margin-top:14px;">
+      <summary>Raw JSON</summary>
+      <pre id="raw" class="mono" style="white-space: pre-wrap;"></pre>
+    </details>
+  </div>
+
+  <dialog id="versionModal">
+    <p class="dialog-title">Which version would you like?</p>
+    <p style="font-size:13px;color:#444;margin:0;"><b>Quick</b> — a short, direct answer.<br><b>Deeper Docent</b> — full
+      context and explanation.</p>
+    <div class="dialog-btns">
+      <button id="modalQuick">Quick</button>
+      <button id="modalDeep" class="primary">Deeper Docent</button>
+    </div>
+    <div style="text-align:right;margin-top:12px;"><button id="modalCancel"
+        style="font-size:13px;background:none;border:none;color:#888;cursor:pointer;">Cancel</button></div>
+  </dialog>
+
+  <script>
+    const apiBaseEl = document.getElementById('apiBase');
+    const compartmentEl = document.getElementById('compartment');
+    const modeEl = document.getElementById('mode');
+    const audioUrlEl = document.getElementById('audioUrl');
+    const player = document.getElementById('player');
+
+    const timecodeEl = document.getElementById('timecode');
+    const msEl = document.getElementById('ms');
+    const statusEl = document.getElementById('status');
+    const errEl = document.getElementById('err');
+
+    const answerEl = document.getElementById('answer');
+    const whatEl = document.getElementById('what');
+    const citsEl = document.getElementById('cits');
+    const fupsEl = document.getElementById('fups');
+    const rawEl = document.getElementById('raw');
+
+    // Default API base to same host:port as the page (works if you serve this from your Mac)
+    apiBaseEl.value = `${location.protocol}//${location.hostname}:8080`;
+
+    function fmtTime(seconds) {
+      const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const ss = String(Math.floor(seconds % 60)).padStart(2, '0');
+      const ms = String(Math.floor((seconds - Math.floor(seconds)) * 1000)).padStart(3, '0');
+      return `${mm}:${ss}.${ms}`;
+    }
+
+    function updateTime() {
+      const t = player.currentTime || 0;
+      timecodeEl.textContent = fmtTime(t);
+      msEl.textContent = Math.floor(t * 1000);
+    }
+    player.addEventListener('timeupdate', updateTime);
+    player.addEventListener('loadedmetadata', updateTime);
+
+    document.getElementById('loadAudio').onclick = () => {
+      const url = audioUrlEl.value.trim();
+      if (!url) return alert("Paste an MP3 URL first.");
+      player.src = url;
+      player.load();
+    };
+
+    document.getElementById('seekBack').onclick = () => { player.currentTime = Math.max(0, (player.currentTime || 0) - 10); };
+    document.getElementById('seekFwd').onclick = () => { player.currentTime = (player.currentTime || 0) + 10; };
+
+    document.getElementById('askSample').onclick = () => {
+      document.getElementById('q').value = "What’s the difference between a Mark 14 and Mark 18 torpedo?";
+    };
+
+    // ── Rendering helpers ────────────────────────────────────────────────
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const bold = s => s.replace(/\b(NOTE|WARNING|IMPORTANT|CAUTION):/g, '<strong>$1:</strong>');
+    const renderBlock = p => {
+      const lines = p.split('\n').map(l => l.trim()).filter(l => l);
+      if (lines.length > 1 && lines.every(l => /^\d+\.[\s\u00a0]/.test(l))) {
+        const items = lines.map(l => `<li>${bold(esc(l.replace(/^\d+\.[\s\u00a0]+/, '')))}</li>`).join('');
+        return `<ol>${items}</ol>`;
+      }
+      if (lines.length > 1 && lines.every(l => /^[•\-]\s/.test(l))) {
+        const items = lines.map(l => `<li>${bold(esc(l.replace(/^[•\-]\s+/, '')))}</li>`).join('');
+        return `<ul>${items}</ul>`;
+      }
+      const escaped = p.split('\n').map(l => bold(esc(l.trim()))).join('<br>');
+      return `<p style="margin:0 0 10px 0;">${escaped}</p>`;
+    };
+
+    function renderAnswer(data) {
+      const answerText = data.answer_short || "(no answer_short)";
+      const nlIdx = answerText.indexOf('\n\n');
+      if (nlIdx !== -1) {
+        const q = answerText.slice(0, nlIdx);
+        const body = answerText.slice(nlIdx + 2);
+        const escapedBody = body.split('\n\n').map(renderBlock).join('');
+        answerEl.innerHTML = `<div class="faq-question">${q}</div><div class="faq-body">${escapedBody}</div>`;
+      } else {
+        answerEl.className = 'mono muted';
+        answerEl.textContent = answerText;
+      }
+      whatEl.textContent = data.what_you_are_seeing ? `🧭 ${data.what_you_are_seeing}` : "";
+
+      if (Array.isArray(data.citations) && data.citations.length) {
+        citsEl.innerHTML = data.citations.map(c =>
+          `<div class="cit"><div><b>${c.source_id}</b></div><div>${c.display_citation || ""}</div><div class="mono">${c.chunk_id || ""}</div></div>`
+        ).join("");
+      } else {
+        citsEl.textContent = "—";
+      }
+
+      if (Array.isArray(data.followups) && data.followups.length) {
+        fupsEl.innerHTML = data.followups.map(f => {
+          const isVersion = /quick.*docent|docent.*quick/i.test(f);
+          const isHighlights = /look for/i.test(f);
+          if (isVersion || isHighlights) {
+            return `<button class="followup-btn" data-action="${isVersion ? 'version' : 'highlights'}">• ${f}</button>`;
+          }
+          return `<div style="font-size:13px;">• ${f}</div>`;
+        }).join("");
+        fupsEl.querySelectorAll('.followup-btn').forEach(btn => {
+          btn.onclick = () => handleFollowup(btn.dataset.action);
+        });
+      } else {
+        fupsEl.textContent = "—";
+      }
+    }
+
+    // ── Core ask function ────────────────────────────────────────────────
+    let lastQuestion = "";
+
+    async function doAsk(question_text, answer_mode) {
+      errEl.textContent = "";
+      statusEl.textContent = "Asking…";
+
+      const apiBase = apiBaseEl.value.trim().replace(/\/+$/, '');
+      const compartment_id = compartmentEl.value;
+      const playhead_time_ms = Math.floor((player.currentTime || 0) * 1000);
+      const audio_track_id = compartment_id;
+      const payload = { compartment_id, audio_track_id, playhead_time_ms, question_text, answer_mode };
+
+      try {
+        const res = await fetch(`${apiBase}/ask`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        rawEl.textContent = JSON.stringify(data, null, 2);
+        if (!res.ok) {
+          statusEl.textContent = "";
+          errEl.textContent = `HTTP ${res.status}`;
+          return;
+        }
+        statusEl.textContent = "Answered.";
+        renderAnswer(data);
+        updateTime();
+      } catch (e) {
+        statusEl.textContent = "";
+        errEl.textContent = String(e);
+      }
+    }
+
+    // ── Follow-up handlers ───────────────────────────────────────────────
+    const versionModal = document.getElementById('versionModal');
+    document.getElementById('modalQuick').onclick = () => { versionModal.close(); doAsk(lastQuestion, 'quick'); };
+    document.getElementById('modalDeep').onclick = () => { versionModal.close(); doAsk(lastQuestion, 'deep'); };
+    document.getElementById('modalCancel').onclick = () => versionModal.close();
+
+    const compartmentLabels = {
+      forward_torpedo_room: "forward torpedo room",
+      forward_battery_compartment: "forward battery compartment",
+      control_room: "control room",
+      conning_tower: "conning tower",
+      radio_room: "radio room",
+      maneuvering_room: "maneuvering room",
+      forward_engine_room: "forward engine room",
+      after_engine_room: "after engine room",
+      crews_mess: "crew's mess",
+      after_battery: "after battery",
+      after_torpedo_room: "after torpedo room",
+      forward_deck: "forward deck",
+      after_deck: "after deck",
+    };
+
+    function handleFollowup(action) {
+      if (action === 'version') {
+        versionModal.showModal();
+      } else if (action === 'highlights') {
+        const label = compartmentLabels[compartmentEl.value] || compartmentEl.value.replace(/_/g, ' ');
+        doAsk(`What should visitors look for in the ${label}?`, modeEl.value);
+      }
+    }
+
+    // ── Button wiring ────────────────────────────────────────────────────
+    document.getElementById('askBtn').onclick = async () => {
+      const question_text = document.getElementById('q').value.trim();
+      if (!question_text) return alert("Type a question.");
+      lastQuestion = question_text;
+      await doAsk(question_text, modeEl.value);
+    };
+  </script>
+
+</body>
+
+</html>

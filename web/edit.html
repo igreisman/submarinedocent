@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor Hub</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #0f141b;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-2: #e3b341;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(88, 166, 255, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(227, 179, 65, 0.12), transparent 24%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 52px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+
+    .toplink {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .toplink:hover {
+      border-color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      min-height: 220px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+      color: inherit;
+      text-decoration: none;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .card:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
+    }
+
+    .card:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.18), 0 18px 38px rgba(0, 0, 0, 0.28);
+    }
+
+    .card-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(88, 166, 255, 0.16), rgba(88, 166, 255, 0.08));
+      color: var(--accent);
+      font-size: 30px;
+      box-shadow: inset 0 0 0 1px rgba(88, 166, 255, 0.12);
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        flex-direction: column;
+      }
+
+      .card {
+        grid-template-columns: 1fr;
+      }
+
+      .card-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <div>
+        <div class="eyebrow">SubmarineDocent Admin</div>
+        <h1>Editor Hub</h1>
+        <p class="lead">A single place to jump into the current editing workflows for FAQ content, reference data, and
+          special-history pages.</p>
+      </div>
+      <a class="toplink" href="/web/faqs.html">Open Public Site</a>
+    </div>
+
+    <section class="grid">
+      <a class="card" href="/web/faq_editor.html">
+        <div class="card-icon" aria-hidden="true">❓</div>
+        <div class="card-body">
+          <h2>FAQs</h2>
+          <p>Edit published FAQ entries, categories assigned to each FAQ, and answer HTML content.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_categories.html">
+        <div class="card-icon" aria-hidden="true">🗂</div>
+        <div class="card-body">
+          <h2>Categories</h2>
+          <p>Manage the category list, sort order, and category metadata used by the FAQ dashboard.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_lost_boats.html">
+        <div class="card-icon" aria-hidden="true">⚓</div>
+        <div class="card-body">
+          <h2>Lost Boats</h2>
+          <p>Jump to the current editing context for the Eternal Patrol and lost submarines content.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_glossary.html">
+        <div class="card-icon" aria-hidden="true">📘</div>
+        <div class="card-body">
+          <h2>Glossary</h2>
+          <p>Reserved space for glossary editing workflows and terminology management.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_incidents.html">
+        <div class="card-icon" aria-hidden="true">⚠️</div>
+        <div class="card-body">
+          <h2>Incidents</h2>
+          <p>Open the incidents editing landing page and current source details for the incidents dataset.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_memorial.html">
+        <div class="card-icon" aria-hidden="true">🕯</div>
+        <div class="card-body">
+          <h2>Memorial Page</h2>
+          <p>Open the current memorial-page editing landing page for linked memorial content and special-history paths.
+          </p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_vocab.html">
+        <div class="card-icon" aria-hidden="true">🎙</div>
+        <div class="card-body">
+          <h2>Voice Vocabulary</h2>
+          <p>Edit the domain-specific vocabulary hint sent to Whisper to reduce speech recognition errors for submarine terminology.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_moh.html">
+        <div class="card-icon" aria-hidden="true">🎖️</div>
+        <div class="card-body">
+          <h2>Medal of Honor</h2>
+          <p>Add, edit, and remove U.S. submarine Medal of Honor recipients shown on the public FAQ dashboard.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_museums.html">
+        <div class="card-icon" aria-hidden="true">🏛</div>
+        <div class="card-body">
+          <h2>Museums</h2>
+          <p>Manage museum listings and related content.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_patrols.html">
+        <div class="card-icon" aria-hidden="true">🗺</div>
+        <div class="card-body">
+          <h2>War Patrols</h2>
+          <p>Upload a .docx patrol report and edit it as HTML in a WYSIWYG editor. Saves directly to the patrol detail pages.</p>
+        </div>
+      </a>
+
+      <a class="card" href="/web/edit_videos.html">
+        <div class="card-icon" aria-hidden="true">🎬</div>
+        <div class="card-body">
+          <h2>Videos</h2>
+          <p>Add, edit, and remove videos on the public Videos page. Only for video we hold the rights to show.</p>
+        </div>
+      </a>
+    </section>
+  </main>
+  <script src="/web/admin-env-banner.js"></script>
+</body>
+
+</html>

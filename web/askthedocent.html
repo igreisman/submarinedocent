@@ -1,0 +1,2122 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ask the Docent, submarinedocent.org</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, system-ui, sans-serif;
+      background: #0a0f1a;
+      color: #e8e8e8;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: #0d1525;
+      border-bottom: 1px solid #1e2d4a;
+    }
+
+    header h1 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      color: #c9d8f0;
+    }
+
+    #settingsBtn {
+      display: none;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: #607090;
+      font-size: 13px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    #settingsBtn:hover {
+      color: #c9d8f0;
+    }
+
+    #headerLang {
+      margin-top: 6px;
+      background: #0d1525;
+      border: 1px solid #2a3a5a;
+      border-radius: 4px;
+      color: #8aa0c0;
+      font-size: 12px;
+      padding: 3px 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .site-warning {
+      background: #3b2f12;
+      border-bottom: 1px solid #6f5b28;
+      color: #f4e6b8;
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .site-warning strong {
+      color: #fff3cd;
+    }
+
+    /* ── Main layout ─────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px 24px;
+      gap: 18px;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ── The microphone ──────────────────────────────── */
+    #micWrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #micBtn {
+      width: 104px;
+      height: 104px;
+      font-size: 44px;
+      line-height: 1;
+      background: #151e30;
+      border: 1px solid #1e2d4a;
+      border-radius: 50%;
+      color: #c9d8f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+
+    #micBtn:hover {
+      background: #1e2d4a;
+      border-color: #3a78cc;
+    }
+
+    #micBtn.listening {
+      background: #7a1a1a;
+      border-color: #cc3a3a;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    #micBtn.answering {
+      background: #3a1a1a;
+      border-color: #7a3a3a;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.06);
+      }
+    }
+
+    #micPrompt {
+      font-size: 15px;
+      color: #8aa0c0;
+      text-align: center;
+    }
+
+    /* ── Speak / Type switch ─────────────────────────── */
+    #inputModeSwitch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      background: #111b2d;
+      border: 1px solid #223554;
+      border-radius: 999px;
+    }
+
+    .input-mode-btn {
+      border: none;
+      background: transparent;
+      color: #7f93b3;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+
+    .input-mode-btn:hover:not(:disabled) {
+      color: #d9e5f8;
+    }
+
+    .input-mode-btn.active {
+      background: #2e5da0;
+      color: #fff;
+    }
+
+    .input-mode-btn:disabled {
+      color: #3f4c63;
+      cursor: not-allowed;
+    }
+
+    #askStatus {
+      width: 100%;
+    }
+
+    #askStatusMsg {
+      display: block;
+      font-size: 12px;
+      color: #607090;
+      text-align: center;
+      min-height: 18px;
+    }
+
+    #textAskRow {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    #textAskInput {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #2a3a5a;
+      background: #0d1525;
+      color: #c8d8f0;
+      font-size: 15px;
+    }
+
+    #textAskInput::placeholder {
+      color: #3a5070;
+    }
+
+    #textAskSend {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid #2a4a7a;
+      background: #1a2a4a;
+      color: #c8d8f0;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    #textAskSend:active {
+      background: #2a3a6a;
+    }
+
+    /* ── Answer panel ────────────────────────────────── */
+    #answerPanel {
+      width: 100%;
+      background: #0d1525;
+      border: 1px solid #1e2d4a;
+      border-radius: 12px;
+      padding: 16px;
+      display: none;
+    }
+
+    #answerPanel.visible {
+      display: block;
+    }
+
+    #questionEcho {
+      font-size: 13px;
+      color: #4a7abf;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    #answerText {
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #c9d8f0;
+    }
+
+    #answerSource {
+      display: none;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #24354a;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #9ab1d1;
+    }
+
+    #answerSource.visible {
+      display: block;
+    }
+
+    .answer-source-head {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6a8ab0;
+      margin-bottom: 4px;
+    }
+
+    .answer-source-item+.answer-source-item {
+      margin-top: 4px;
+    }
+
+    .answer-source-label {
+      color: #c9d8f0;
+      font-weight: 600;
+    }
+
+    .answer-source-item a {
+      color: #8fb6e8;
+    }
+
+    #answerDebug {
+      margin-top: 10px;
+      font-size: 11px;
+      line-height: 1.45;
+      color: #7d95b8;
+      word-break: break-word;
+    }
+
+    .partial-match-note {
+      font-size: 12px;
+      font-style: italic;
+      color: #607090;
+      margin-bottom: 8px;
+    }
+
+    .faq-question {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #c9d8f0;
+    }
+
+    .faq-id {
+      font-weight: 400;
+      font-size: 11px;
+      color: #6a8ab0;
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+
+    .faq-body {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #b0c0d8;
+    }
+
+    .answer-video {
+      margin-top: 12px;
+    }
+
+    .answer-video iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 40vh;
+      border: 0;
+      border-radius: 6px;
+      background: #000;
+      display: block;
+    }
+
+    .answer-video-play {
+      width: 100%;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 14px;
+      color: #d8e4f4;
+      background: #1d2a3a;
+      border: 1px solid #33475f;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .answer-video-play:hover {
+      background: #24354a;
+    }
+
+    .answer-video-caption {
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #b0c0d8;
+    }
+
+    .answer-video-credit {
+      margin-top: 3px;
+      font-size: 11px;
+      color: #6a8ab0;
+    }
+
+    .answer-video-credit a {
+      color: #6a8ab0;
+    }
+
+    .answer-related {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid #24354a;
+    }
+
+    .answer-related-head {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6a8ab0;
+      margin-bottom: 6px;
+    }
+
+    .answer-related ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .answer-related li {
+      margin-bottom: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .answer-related a {
+      color: #8fb6e8;
+    }
+
+    .answer-related-embed {
+      margin: 0 0 8px;
+    }
+
+    .answer-related-embed iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1px solid #24354a;
+      border-radius: 8px;
+      background: #0b1320;
+    }
+
+    .answer-related-citation {
+      margin-top: 2px;
+      font-size: 11px;
+      color: #6a8ab0;
+    }
+
+    .faq-body p {
+      margin-bottom: 8px;
+    }
+
+    .faq-body ol,
+    .faq-body ul {
+      padding-left: 1.6em;
+      margin-bottom: 8px;
+    }
+
+    .faq-body li {
+      margin-bottom: 3px;
+    }
+
+    /* ── Feedback widget ─────────────────────────────── */
+    #feedbackRow {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #1e2d4a;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #feedbackRow.visible {
+      display: flex;
+    }
+
+    #feedbackButtons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #feedbackPrompt {
+      font-size: 12px;
+      color: #607090;
+      flex: 1;
+    }
+
+    .fbBtn {
+      background: #131d30;
+      border: 1px solid #1e2d4a;
+      border-radius: 8px;
+      color: #c9d8f0;
+      font-size: 18px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+
+    .fbBtn:hover {
+      background: #1e2d4a;
+      border-color: #3a78cc;
+    }
+
+    .fbBtn.selected {
+      background: #1e3a6e;
+      border-color: #3a78cc;
+    }
+
+    #feedbackExtra {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #feedbackExtra.visible {
+      display: flex;
+    }
+
+    #feedbackComment {
+      width: 100%;
+      background: #131d30;
+      border: 1px solid #1e2d4a;
+      border-radius: 8px;
+      color: #c9d8f0;
+      font-size: 13px;
+      padding: 8px 10px;
+      resize: vertical;
+      min-height: 60px;
+      outline: none;
+    }
+
+    #feedbackComment:focus {
+      border-color: #3a78cc;
+    }
+
+    #feedbackSend {
+      align-self: flex-end;
+      background: #1e3a6e;
+      color: #c9d8f0;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    #feedbackSend:hover {
+      background: #2a4f8f;
+    }
+
+    #feedbackThanks {
+      font-size: 12px;
+      color: #4a9a6a;
+      display: none;
+    }
+
+    /* ── Suggestion chips ─────────────────────────────── */
+    #suggestionsRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      width: 100%;
+    }
+
+    .sugChip {
+      background: #0d1a30;
+      border: 1px solid #2a4a7a;
+      border-radius: 20px;
+      color: #7aaee8;
+      font-size: 12px;
+      line-height: 1.3;
+      padding: 6px 14px;
+      cursor: pointer;
+      text-align: left;
+      flex: 1 1 calc(33% - 8px);
+      min-width: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .sugChip:active {
+      background: #162540;
+      border-color: #4a7abf;
+    }
+
+    /* ── Settings modal ──────────────────────────────── */
+    #settingsModal {
+      background: #0d1525;
+      border: 1px solid #2a3a5a;
+      border-radius: 12px;
+      padding: 22px 24px;
+      max-width: 420px;
+      width: 90%;
+      color: #c9d8f0;
+    }
+
+    #settingsModal::backdrop {
+      background: rgba(0, 0, 0, .6);
+    }
+
+    #settingsModal h2 {
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: #607090;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      background: #151e30;
+      border: 1px solid #2a3a5a;
+      border-radius: 6px;
+      color: #c9d8f0;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .field .hint {
+      font-size: 11px;
+      color: #4a5a7a;
+      margin-top: 4px;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .modal-btns button {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #2a3a5a;
+      cursor: pointer;
+      background: #151e30;
+      color: #c9d8f0;
+    }
+
+    .modal-btns button.primary {
+      background: #1a3d7a;
+      border-color: #3a78cc;
+    }
+
+    .modal-btns button:hover {
+      border-color: #4a88dc;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="site-warning"><strong>Work in progress:</strong> this site is still being developed, and some content and
+    historical data remain unverified.</div>
+
+  <header>
+    <div style="flex:1"></div>
+    <div style="text-align:center">
+      <h1>Ask the Docent</h1>
+      <select id="headerLang">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+        <option value="zh">中文</option>
+        <option value="ja">日本語</option>
+      </select>
+    </div>
+    <div style="flex:1;display:flex;justify-content:flex-end;gap:8px;align-items:flex-start;">
+      <button id="settingsBtn">⚙</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="micWrap">
+      <button id="micBtn" title="Ask a Question">🎙</button>
+      <div id="micPrompt">Ask the docent anything about WWII submarines.</div>
+      <div id="inputModeSwitch" role="group" aria-label="How to ask your question">
+        <button class="input-mode-btn" id="modeVoiceBtn" type="button">🎙 Speak</button>
+        <button class="input-mode-btn" id="modeTextBtn" type="button">⌨️ Type</button>
+      </div>
+    </div>
+
+    <div id="askStatus">
+      <span id="askStatusMsg"></span>
+      <div id="suggestionsRow"></div>
+      <!-- Text-input fallback for browsers without SpeechRecognition (Android Firefox, etc.) -->
+      <div id="textAskRow" style="display:none">
+        <input id="textAskInput" type="text" placeholder="Type your question…" autocomplete="off" />
+        <button id="textAskSend">Ask</button>
+      </div>
+    </div>
+
+    <!-- Answer panel -->
+    <div id="answerPanel">
+      <div id="questionEcho"></div>
+      <div id="answerText"></div>
+      <div id="answerSource"></div>
+      <button id="answerSpeakBtn" type="button" style="display:none">Listen to answer</button>
+      <div id="answerDebug"></div>
+      <!-- Feedback widget -->
+      <div id="feedbackRow">
+        <div id="feedbackButtons">
+          <span id="feedbackPrompt">Was this helpful?</span>
+          <button class="fbBtn" id="thumbsUp" title="Helpful">👍</button>
+          <button class="fbBtn" id="thumbsDown" title="Not helpful">👎</button>
+        </div>
+        <div id="feedbackExtra">
+          <textarea id="feedbackComment" placeholder="Anything to add? (optional)"></textarea>
+          <button id="feedbackSend">Send feedback</button>
+        </div>
+        <span id="feedbackThanks">Thanks for your feedback!</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Settings dialog -->
+  <dialog id="settingsModal">
+    <h2>Settings</h2>
+    <div class="field">
+      <label>API Base URL</label>
+      <input id="settApiBase" value="" />
+      <div class="hint">e.g. https://museum-docent.local:8443, or leave blank to use this page's origin</div>
+    </div>
+    <div class="field">
+      <label>ElevenLabs API Key <span style="color:#4a5a7a;">(optional — for AI voice)</span></label>
+      <input id="settElKey" type="password" placeholder="sk_..." />
+      <div class="hint">Leave blank to use the built-in server voice when available, otherwise recorded answer audio
+        only</div>
+    </div>
+    <div class="field">
+      <label>ElevenLabs Voice ID</label>
+      <input id="settElVoice" value="EXAVITQu4vr4xnSDxMaL" />
+      <div class="hint">Default: Sarah (neutral US English)</div>
+    </div>
+    <div class="field">
+      <label>FAQ Audio Language</label>
+      <select id="settLang">
+        <option value="en">English (en)</option>
+        <option value="fr">French (fr)</option>
+        <option value="de">German (de)</option>
+        <option value="es">Spanish (es)</option>
+        <option value="zh">Chinese (zh)</option>
+        <option value="ja">Japanese (ja)</option>
+      </select>
+      <div class="hint">Selects the language version of pre-recorded FAQ audio</div>
+    </div>
+    <div class="modal-btns">
+      <button id="settCancel">Cancel</button>
+      <button id="settSave" class="primary">Save</button>
+    </div>
+  </dialog>
+
+  <script>
+    // ── Debug mode ────────────────────────────────────────────────────────────
+    const DEBUG = false;
+
+    // ── Settings ───────────────────────────────────────────────────────────────
+    // The same localStorage keys the audio tour uses, so a visitor who set an API
+    // base or a language on one page finds it already set on the other.
+    function getDefaultApiBase() {
+      // Legacy local HTTPS/static split used 8444 for static files and 8443 for API.
+      if (location.port === '8444') {
+        return `${location.protocol}//${location.hostname}:8443`;
+      }
+      return window.location.origin;
+    }
+
+    function isPrivateNetworkHost(hostname) {
+      if (!hostname) return false;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+      if (/^192\.168\./.test(hostname)) return true;
+      if (/^10\./.test(hostname)) return true;
+      const match172 = hostname.match(/^172\.(\d{1,3})\./);
+      if (match172) {
+        const secondOctet = Number(match172[1]);
+        if (secondOctet >= 16 && secondOctet <= 31) return true;
+      }
+      return false;
+    }
+
+    function normalizeApiBase(storedApiBase) {
+      const defaultApiBase = getDefaultApiBase();
+      const currentIsLocal = isPrivateNetworkHost(window.location.hostname);
+      if (!storedApiBase) return defaultApiBase;
+
+      try {
+        const storedUrl = new URL(storedApiBase, window.location.origin);
+        if (currentIsLocal && !isPrivateNetworkHost(storedUrl.hostname)) {
+          return defaultApiBase;
+        }
+        if (currentIsLocal && storedUrl.hostname === window.location.hostname && storedUrl.port !== window.location.port) {
+          // Keep the explicit 8443 API target only for the legacy 8444 static server flow.
+          if (!(window.location.port === '8444' && storedUrl.port === '8443')) {
+            return defaultApiBase;
+          }
+        }
+        return storedUrl.origin;
+      } catch (e) {
+        return defaultApiBase;
+      }
+    }
+
+    function loadSettings() {
+      return {
+        apiBase: normalizeApiBase(localStorage.getItem('tour_apiBase')),
+        elKey: localStorage.getItem('tour_elKey') || '',
+        elVoice: localStorage.getItem('tour_elVoice') || 'EXAVITQu4vr4xnSDxMaL',
+        lang: localStorage.getItem('tour_lang') || 'en',
+      };
+    }
+
+    function saveSettings(s) {
+      localStorage.setItem('tour_apiBase', s.apiBase);
+      localStorage.setItem('tour_elKey', s.elKey);
+      localStorage.setItem('tour_elVoice', s.elVoice);
+      localStorage.setItem('tour_lang', s.lang);
+    }
+
+    function getAudioUrl(file) {
+      return `audio/${file}`;
+    }
+
+    // ── DOM refs ───────────────────────────────────────────────────────────────
+    const micBtn = document.getElementById('micBtn');
+    const askStatus = document.getElementById('askStatusMsg');
+    const answerPanel = document.getElementById('answerPanel');
+    const questionEcho = document.getElementById('questionEcho');
+    const answerText = document.getElementById('answerText');
+    const answerSource = document.getElementById('answerSource');
+    const answerSpeakBtn = document.getElementById('answerSpeakBtn');
+    const answerDebug = document.getElementById('answerDebug');
+    const settingsModal = document.getElementById('settingsModal');
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (DEBUG) settingsBtn.style.display = 'block';
+    const settApiBase = document.getElementById('settApiBase');
+    const settElKey = document.getElementById('settElKey');
+    const settElVoice = document.getElementById('settElVoice');
+
+    // ── Rendering helpers ──────────────────────────────────────────────────────
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const bold = s => s.replace(/\b(NOTE|WARNING|IMPORTANT|CAUTION):/g, '<strong>$1:</strong>');
+
+    function containsHtmlMarkup(text) {
+      return /<\/?(?:p|br|em|strong|ul|ol|li|div|span)\b/i.test(text || '');
+    }
+
+    function htmlToPlainText(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html || '';
+      return (tmp.textContent || tmp.innerText || '').replace(/\u00a0/g, ' ').trim();
+    }
+
+    function renderBlock(p) {
+      const lines = p.split('\n').map(l => l.trim()).filter(l => l);
+      if (lines.length > 1 && lines.every(l => /^\d+\.[\s\u00a0]/.test(l))) {
+        const items = lines.map(l => `<li>${bold(esc(l.replace(/^\d+\.[\s\u00a0]+/, '')))}</li>`).join('');
+        return `<ol>${items}</ol>`;
+      }
+      if (lines.length > 1 && lines.every(l => /^[•\-]\s/.test(l))) {
+        const items = lines.map(l => `<li>${bold(esc(l.replace(/^[•\-]\s+/, '')))}</li>`).join('');
+        return `<ul>${items}</ul>`;
+      }
+      return `<p>${bold(esc(p))}</p>`;
+    }
+
+    // ── Feedback widget ──────────────────────────────────────────────────────
+    let _lastQuestion = '';
+    let _lastAnswer = '';
+    let _lastAnswerData = null;
+    let _lastAnswerPlain = '';
+    let _answerAudioPrefetchKey = '';
+    let _answerAudioPrefetchPromise = null;
+    let _answerAudioPrefetchBuffer = null;
+    let _feedbackRating = null;
+    let ttsAvailable = false;
+
+    const feedbackRow = document.getElementById('feedbackRow');
+    const feedbackExtra = document.getElementById('feedbackExtra');
+    const feedbackThanks = document.getElementById('feedbackThanks');
+    const thumbsUpBtn = document.getElementById('thumbsUp');
+    const thumbsDownBtn = document.getElementById('thumbsDown');
+    const feedbackSend = document.getElementById('feedbackSend');
+
+    function resetFeedback() {
+      _feedbackRating = null;
+      feedbackRow.classList.remove('visible');
+      feedbackExtra.classList.remove('visible');
+      feedbackThanks.style.display = 'none';
+      document.getElementById('feedbackComment').value = '';
+      thumbsUpBtn.classList.remove('selected');
+      thumbsDownBtn.classList.remove('selected');
+      thumbsUpBtn.style.pointerEvents = '';
+      thumbsDownBtn.style.pointerEvents = '';
+    }
+
+    function hideAnswerSpeakButton() {
+      answerSpeakBtn.style.display = 'none';
+      answerSpeakBtn.disabled = true;
+    }
+
+    function clearAnswerAudioPrefetch() {
+      _answerAudioPrefetchKey = '';
+      _answerAudioPrefetchPromise = null;
+      _answerAudioPrefetchBuffer = null;
+    }
+
+    function buildServerTtsPrefetch(data, answerPlain) {
+      if (!ttsAvailable || !answerPlain) return null;
+      const citationSourceId = data.citations && data.citations[0] && data.citations[0].source_id;
+      const chunkId = data.citations && data.citations[0] && data.citations[0].chunk_id;
+      const s = loadSettings();
+      const stableAudioCacheKey = data.faq_id
+        ? `faq:${data.faq_id}:${s.lang}`
+        : (citationSourceId && chunkId ? `${citationSourceId}:${chunkId}:${s.lang}` : '');
+      const payload = { text: answerPlain, lang: s.lang || 'en', cache_key: stableAudioCacheKey };
+      return {
+        key: JSON.stringify(payload),
+        apiBase: s.apiBase,
+        payload,
+      };
+    }
+
+    function prefetchAnswerAudio(data, answerPlain) {
+      const req = buildServerTtsPrefetch(data, answerPlain);
+      if (!req) return;
+      _answerAudioPrefetchKey = req.key;
+      _answerAudioPrefetchBuffer = null;
+      _answerAudioPrefetchPromise = fetch(`${req.apiBase}/tts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req.payload),
+      }).then(res => res.ok ? res.arrayBuffer() : null).then(arrayBuf => {
+        if (_answerAudioPrefetchKey === req.key) _answerAudioPrefetchBuffer = arrayBuf;
+        return arrayBuf;
+      }).catch(() => null);
+    }
+
+    function getPrefetchedAnswerAudio(data, answerPlain) {
+      const req = buildServerTtsPrefetch(data, answerPlain);
+      if (!req || _answerAudioPrefetchKey !== req.key) return null;
+      if (_answerAudioPrefetchBuffer) return Promise.resolve(_answerAudioPrefetchBuffer);
+      return _answerAudioPrefetchPromise;
+    }
+
+    function showAnswerSpeakButton(data, answerPlain) {
+      if (!answerPlain) {
+        hideAnswerSpeakButton();
+        return;
+      }
+      _lastAnswerData = data;
+      _lastAnswerPlain = answerPlain;
+      answerSpeakBtn.disabled = false;
+      answerSpeakBtn.style.display = 'inline-flex';
+      prefetchAnswerAudio(data, answerPlain);
+    }
+
+    answerSpeakBtn.addEventListener('click', async () => {
+      if (!_lastAnswerData || !_lastAnswerPlain) return;
+      unlockAudio();
+      await playFaqAudioOrSpeak(_lastAnswerData, _lastAnswerPlain);
+    });
+
+    function showFeedback(question, answer) {
+      _lastQuestion = question;
+      _lastAnswer = answer;
+      resetFeedback();
+      feedbackRow.classList.add('visible');
+    }
+
+    async function submitFeedback() {
+      const comment = document.getElementById('feedbackComment').value.trim();
+      try {
+        const s = loadSettings();
+        await fetch(`${s.apiBase}/feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: _lastQuestion,
+            answer: _lastAnswer,
+            rating: _feedbackRating,
+            comment,
+          }),
+        });
+      } catch (_) { /* best-effort */ }
+      feedbackExtra.classList.remove('visible');
+      feedbackThanks.style.display = 'block';
+      thumbsUpBtn.style.pointerEvents = 'none';
+      thumbsDownBtn.style.pointerEvents = 'none';
+    }
+
+    thumbsUpBtn.addEventListener('click', () => {
+      _feedbackRating = 'up';
+      thumbsUpBtn.classList.add('selected');
+      thumbsDownBtn.classList.remove('selected');
+      feedbackExtra.classList.add('visible');
+    });
+    thumbsDownBtn.addEventListener('click', () => {
+      _feedbackRating = 'down';
+      thumbsDownBtn.classList.add('selected');
+      thumbsUpBtn.classList.remove('selected');
+      feedbackExtra.classList.add('visible');
+    });
+    feedbackSend.addEventListener('click', submitFeedback);
+
+    // A supplementary video is offered as a button, not an autoplaying frame, so
+    // nothing is requested from the video host until the visitor asks for it —
+    // reading an answer doesn't hand a third party a page view.
+    function videoBlockHtml(video) {
+      if (!video || !video.embed_url) return '';
+      const caption = video.caption
+        ? `<div class="answer-video-caption">${esc(video.caption)}</div>`
+        : '';
+      // Verbatim — a rights holder's required wording is not ours to prefix.
+      const creditInner = video.credit_url
+        ? `<a href="${esc(video.credit_url)}" target="_blank" rel="noopener noreferrer">${esc(video.credit)}</a>`
+        : esc(video.credit);
+      const credit = video.credit ? `<div class="answer-video-credit">${creditInner}</div>` : '';
+      return `<div class="answer-video" data-embed="${esc(video.embed_url)}">`
+        + `<button type="button" class="answer-video-play">▶&nbsp; Watch this account</button>`
+        + `${caption}${credit}</div>`;
+    }
+
+    function wireAnswerVideo() {
+      const holder = answerText.querySelector('.answer-video');
+      if (!holder) return;
+      const btn = holder.querySelector('.answer-video-play');
+      if (!btn) return;
+      btn.onclick = () => {
+        // The clip and the docent must never speak at once.
+        stopAnswerAudio();
+        const src = holder.getAttribute('data-embed');
+        btn.remove();
+        const frame = document.createElement('iframe');
+        frame.src = src + (src.indexOf('?') !== -1 ? '&' : '?') + 'autoplay=1';
+        frame.title = holder.querySelector('.answer-video-caption')?.textContent || 'Video';
+        frame.loading = 'lazy';
+        frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        frame.referrerPolicy = 'strict-origin-when-cross-origin';
+        frame.setAttribute('allowfullscreen', '');
+        holder.insertBefore(frame, holder.firstChild);
+      };
+    }
+
+    function parseStartSeconds(raw) {
+      const v = String(raw || '').trim().toLowerCase();
+      if (!v) return 0;
+      if (/^\d+$/.test(v)) return Number(v);
+      const m = v.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?$/);
+      if (!m) return 0;
+      const h = Number(m[1] || 0);
+      const mins = Number(m[2] || 0);
+      const s = Number(m[3] || 0);
+      return h * 3600 + mins * 60 + s;
+    }
+
+    function youtubeEmbedUrl(rawUrl) {
+      try {
+        const u = new URL(String(rawUrl || '').trim());
+        if (!/^https?:$/i.test(u.protocol)) return '';
+        const host = u.hostname.toLowerCase().replace(/^www\./, '');
+        let id = '';
+        if (host === 'youtu.be') {
+          id = u.pathname.split('/').filter(Boolean)[0] || '';
+        } else if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
+          if (u.pathname === '/watch') {
+            id = u.searchParams.get('v') || '';
+          } else if (u.pathname.startsWith('/embed/') || u.pathname.startsWith('/shorts/')) {
+            id = u.pathname.split('/').filter(Boolean)[1] || '';
+          }
+        }
+        if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return '';
+        const start = Math.max(
+          parseStartSeconds(u.searchParams.get('t')),
+          parseStartSeconds(u.searchParams.get('start')),
+        );
+        let embed = `https://www.youtube-nocookie.com/embed/${id}?rel=0`;
+        if (start > 0) embed += `&start=${start}`;
+        return embed;
+      } catch (e) {
+        return '';
+      }
+    }
+
+    // Links out to material held elsewhere. When a link points to YouTube,
+    // render an inline player as well for immediate playback.
+    function relatedLinksHtml(links) {
+      if (!links || !links.length) return '';
+      const items = links.map(l => {
+        const url = String(l.url || '').trim();
+        const label = String(l.label || url);
+        const embed = youtubeEmbedUrl(url);
+        const cite = l.citation
+          ? `<div class="answer-related-citation">${esc(l.citation)}</div>`
+          : '';
+        const player = embed
+          ? `<div class="answer-related-embed"><iframe src="${esc(embed)}" title="${esc(label || 'YouTube video')}" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`
+          : '';
+        return `<li>${player}<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>${cite}</li>`;
+      }).join('');
+      return `<div class="answer-related"><div class="answer-related-head">Hear it firsthand</div><ul>${items}</ul></div>`;
+    }
+
+    function sourceLabel(sourceId) {
+      return {
+        dieselsubs_faq: 'DieselSubs FAQ',
+        dieselsubs_shorts: 'DieselSubs short answer',
+        fleetsub_manual: '1946 fleet submarine manual',
+        sub_losses_wwii: 'United States Submarine Losses, World War II (US Navy, 1946)',
+      }[sourceId] || sourceId || 'Source';
+    }
+
+    function citationHtml(citation) {
+      if (!citation) return '';
+      const label = `<span class="answer-source-label">${esc(sourceLabel(citation.source_id))}</span>`;
+      const detailText = citation.display_citation || citation.chunk_id || '';
+      if (!detailText) return `<div class="answer-source-item">${label}</div>`;
+      const detail = citation.source_url
+        ? `<a href="${esc(citation.source_url)}" target="_blank" rel="noopener noreferrer">${esc(detailText)}</a>`
+        : esc(detailText);
+      return `<div class="answer-source-item">${label}: ${detail}</div>`;
+    }
+
+    function renderAnswerSource(data) {
+      const citations = (data.citations || []).filter(Boolean);
+      if (!citations.length) {
+        answerSource.innerHTML = '';
+        answerSource.classList.remove('visible');
+        return;
+      }
+      answerSource.innerHTML = `<div class="answer-source-head">Source</div>${citations.slice(0, 2).map(citationHtml).join('')}`;
+      answerSource.classList.add('visible');
+    }
+
+    function renderAnswer(data) {
+      const text = data.answer_short || '';
+      const disclaimer = data.partial_match
+        ? `<p class="partial-match-note">I don’t have a direct answer to that, but here’s something related:</p>`
+        : '';
+      const videoHtml = videoBlockHtml(data.video) + relatedLinksHtml(data.related_links);
+      if (containsHtmlMarkup(text)) {
+        answerText.innerHTML = disclaimer + text + videoHtml;
+        wireAnswerVideo();
+        return;
+      }
+      const nlIdx = text.indexOf('\n\n');
+      if (nlIdx !== -1) {
+        const q = text.slice(0, nlIdx);
+        const body = text.slice(nlIdx + 2);
+        const rendered = containsHtmlMarkup(body) ? body : body.split('\n\n').map(renderBlock).join('');
+        const faqBadge = data.faq_id ? ` <span class="faq-id">(${esc(data.faq_id)})</span>` : '';
+        answerText.innerHTML = disclaimer + `<div class="faq-question">${esc(q)}${faqBadge}</div><div class="faq-body">${rendered}</div>` + videoHtml;
+      } else {
+        answerText.innerHTML = disclaimer + `<span>${esc(text)}</span>` + videoHtml;
+      }
+      renderAnswerSource(data);
+      wireAnswerVideo();
+    }
+
+    function renderAnswerDebug(question, data) {
+      const s = loadSettings();
+      const firstCitation = (data.citations && data.citations[0]) || null;
+      const citationLabel = firstCitation
+        ? `${firstCitation.source_id || 'unknown'} / ${firstCitation.chunk_id || 'unknown'}`
+        : 'none';
+      answerDebug.textContent = `API: ${s.apiBase} | Question: ${question} | FAQ: ${data.faq_id || 'none'} | Source: ${citationLabel}`;
+    }
+
+    // ── Audio engine (AudioContext-based — survives iOS autoplay restrictions) ──
+    let audioCtx = null;
+    let currentSource = null; // currently-playing AudioBufferSourceNode
+
+    function unlockAudio() {
+      if (audioCtx) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Play a silent 1-sample buffer to fully unlock the context
+        const buf = audioCtx.createBuffer(1, 1, 22050);
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        src.connect(audioCtx.destination);
+        src.start(0);
+        audioCtx.resume();
+      } catch (e) { audioCtx = null; }
+      // Prime SpeechSynthesis as a last-resort fallback
+      if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance('');
+        window.speechSynthesis.speak(u);
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function showStopBtn() {
+      micBtn.classList.add('answering');
+      micBtn.textContent = '⏹';
+      micBtn.title = 'Stop';
+      micBtn.onclick = () => { stopAnswerAudio(); showAskBtn(); };
+    }
+
+    // Restores the button after an answer finishes.  Must land back in whatever
+    // mode the visitor is in — handing a microphone to someone who chose to
+    // type would silently undo their choice every time an answer plays out.
+    function showAskBtn() {
+      micBtn.classList.remove('answering');
+      if (useTextMode) {
+        micBtn.textContent = '⌨️';
+        micBtn.title = 'Type your question';
+        micBtn.onclick = () => { textAskRow.style.display = 'flex'; textAskInput.focus(); };
+      } else if (useRecordMode) {
+        micBtn.textContent = '🎙';
+        micBtn.title = 'Tap to record your question';
+        micBtn.onclick = () => { unlockAudio(); startRecordTranscribe(); };
+      } else {
+        micBtn.textContent = '🎙';
+        micBtn.title = 'Ask a Question';
+        micBtn.onclick = () => { unlockAudio(); if (isListening) stopListening(null); else startListening(); };
+      }
+    }
+
+    function stopAnswerAudio() {
+      if (currentSource) {
+        try { currentSource.stop(); } catch (e) { }
+        currentSource = null;
+      }
+      window.speechSynthesis && window.speechSynthesis.cancel();
+    }
+
+    // Play an ArrayBuffer through the unlocked AudioContext
+    function playArrayBuffer(arrayBuf, onended, gainValue) {
+      if (!audioCtx) { onended && onended(); return; }
+      stopAnswerAudio();
+      audioCtx.resume().then(() => {
+        audioCtx.decodeAudioData(arrayBuf, (decoded) => {
+          const src = audioCtx.createBufferSource();
+          src.buffer = decoded;
+          if (gainValue && gainValue !== 1.0) {
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = gainValue;
+            src.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+          } else {
+            src.connect(audioCtx.destination);
+          }
+          src.onended = () => { currentSource = null; onended && onended(); };
+          src.start(0);
+          currentSource = src;
+        }, () => { onended && onended(); }); // decode error
+      });
+    }
+
+    // Fetch a URL and play it via AudioContext; returns true if succeeded
+    async function fetchAndPlay(url, onended, gainValue) {
+      const resp = await fetch(url);
+      if (!resp.ok) return false;
+      const arrayBuf = await resp.arrayBuffer();
+      playArrayBuffer(arrayBuf, onended, gainValue);
+      return true;
+    }
+
+    // ── Try pre-recorded FAQ audio → server TTS → ElevenLabs TTS ───────────────
+    async function playFaqAudioOrSpeak(data, answerPlain) {
+      stopAnswerAudio();
+
+      const citationSourceId = data.citations && data.citations[0] && data.citations[0].source_id;
+      const chunkId = data.citations && data.citations[0] && data.citations[0].chunk_id;
+      const stableAudioCacheKey = data.faq_id
+        ? `faq:${data.faq_id}:${loadSettings().lang}`
+        : (citationSourceId && chunkId ? `${citationSourceId}:${chunkId}:${loadSettings().lang}` : '');
+
+      // If the answer is only a partial match, play the "no direct answer"
+      // audio clip first, then play the answer audio as usual.
+      if (data.partial_match) {
+        try {
+          const abrtCtrl = new AbortController();
+          const abrtTimer = setTimeout(() => abrtCtrl.abort(), 3000);
+          const ndaResp = await fetch(getAudioUrl('nodirectanswer.mp3'), { signal: abrtCtrl.signal });
+          clearTimeout(abrtTimer);
+          if (ndaResp.ok) {
+            const ndaBuf = await ndaResp.arrayBuffer();
+            await new Promise(resolve => playArrayBuffer(ndaBuf, resolve, 2.0));
+          }
+        } catch (e) { console.warn('[playFaqAudioOrSpeak] nodirectanswer fetch/play error:', e); }
+      }
+
+      const setSpeakStop = () => { showStopBtn(); };
+      const resetSpeakBtn = () => { showAskBtn(); };
+
+      // 1. Pre-recorded FAQ MP3 — fast timeout so a missing file doesn't block
+      if (chunkId) {
+        askStatus.textContent = '🔊 Loading audio…';
+        try {
+          const abortCtrl = new AbortController();
+          const abortTimer = setTimeout(() => abortCtrl.abort(), 1500);
+          const resp = await fetch(getAudioUrl(`${chunkId}_${loadSettings().lang}.mp3`), { signal: abortCtrl.signal });
+          clearTimeout(abortTimer);
+          if (resp.ok) {
+            const arrayBuf = await resp.arrayBuffer();
+            if (citationSourceId === 'dieselsubs_faq' || citationSourceId === 'dieselsubs_shorts') {
+              try {
+                const faqCtrl = new AbortController();
+                const faqTimer = setTimeout(() => faqCtrl.abort(), 3000);
+                const faqResp = await fetch(getAudioUrl('faqThatCoversThisTopic.mp3'), { signal: faqCtrl.signal });
+                clearTimeout(faqTimer);
+                if (faqResp.ok) {
+                  const faqBuf = await faqResp.arrayBuffer();
+                  await new Promise(resolve => playArrayBuffer(faqBuf, resolve, 2.0));
+                }
+              } catch (e) { console.warn('[playFaqAudioOrSpeak] faqThatCoversThisTopic fetch/play error:', e); }
+            }
+            playArrayBuffer(arrayBuf, resetSpeakBtn);
+            setSpeakStop();
+            askStatus.textContent = '';
+            return;
+          }
+        } catch (e) { /* not found or timed out — fall through */ }
+        askStatus.textContent = '';
+      }
+
+      const s = loadSettings();
+      // 2. Project-owned server TTS — preferred over visitor-supplied keys
+      if (ttsAvailable) {
+        const prefetchedAudio = getPrefetchedAnswerAudio(data, answerPlain);
+        if (prefetchedAudio) {
+          askStatus.textContent = '⏳ Generating audio…';
+          const arrayBuf = await prefetchedAudio;
+          if (arrayBuf) {
+            playArrayBuffer(arrayBuf, resetSpeakBtn);
+            setSpeakStop();
+            askStatus.textContent = '';
+            return;
+          }
+          askStatus.textContent = '';
+        }
+        try {
+          askStatus.textContent = '⏳ Generating audio…';
+          const res = await fetch(`${s.apiBase}/tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: answerPlain, lang: s.lang || 'en', cache_key: stableAudioCacheKey }),
+          });
+          if (res.ok) {
+            const arrayBuf = await res.arrayBuffer();
+            playArrayBuffer(arrayBuf, resetSpeakBtn);
+            setSpeakStop();
+            askStatus.textContent = '';
+            return;
+          }
+        } catch (e) {
+          console.warn('Server TTS error, falling back to configured ElevenLabs:', e);
+        }
+        askStatus.textContent = '';
+      }
+
+      // 3. ElevenLabs TTS — flash model, truncate to first 300 chars for speed
+      if (s.elKey) {
+        // Trim to ~300 chars at a sentence boundary for fast generation
+        let ttsText = answerPlain;
+        if (ttsText.length > 300) {
+          const cut = ttsText.lastIndexOf('. ', 300);
+          ttsText = ttsText.slice(0, cut > 50 ? cut + 1 : 300).trim();
+        }
+        try {
+          askStatus.textContent = '⏳ Generating audio…';
+          const res = await fetch(
+            `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(s.elVoice)}/stream?optimize_streaming_latency=3`,
+            {
+              method: 'POST',
+              headers: { 'xi-api-key': s.elKey, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                text: ttsText,
+                model_id: 'eleven_flash_v2_5',
+                voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+              }),
+            }
+          );
+          if (res.ok) {
+            const arrayBuf = await res.arrayBuffer();
+            playArrayBuffer(arrayBuf, resetSpeakBtn);
+            setSpeakStop();
+            return;
+          }
+        } catch (e) {
+          console.warn('ElevenLabs error while generating answer audio:', e);
+          askStatus.textContent = '';
+        }
+      }
+
+      askStatus.style.display = '';
+      askStatus.textContent = 'Spoken audio is not available for this answer right now.';
+      resetSpeakBtn();
+    }
+
+    // ── API call ───────────────────────────────────────────────────────────────
+    // No compartment and no playhead: a visitor here isn't standing anywhere in
+    // particular, so retrieval falls back to the global FAQ and reference corpora.
+    async function askQuestion(questionText) {
+      const s = loadSettings();
+      const res = await fetch(`${s.apiBase}/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          compartment_id: '',
+          audio_track_id: '',
+          playhead_time_ms: 0,
+          question_text: questionText,
+          answer_mode: 'standard',
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    // ── Voice recognition (browser SpeechRecognition) ─────────────────────────
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isListening = false;
+    let mediaRecorder = null;
+    let mediaChunks = [];
+    let lastQuestionAudio = null;  // Blob of the most recent question recording
+    let transcribeAvailable = true; // default true — downgraded only if /health says false
+    let useRecordMode = false;       // use MediaRecorder→server instead of SpeechRecognition
+    let useTextMode = false;         // no working microphone — typing is the only way in
+
+    const LANG_BCP47 = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', zh: 'zh-CN', ja: 'ja-JP' };
+
+    const textAskRow = document.getElementById('textAskRow');
+    const textAskInput = document.getElementById('textAskInput');
+    const textAskSend = document.getElementById('textAskSend');
+    const micPrompt = document.getElementById('micPrompt');
+    const modeVoiceBtn = document.getElementById('modeVoiceBtn');
+    const modeTextBtn = document.getElementById('modeTextBtn');
+
+    // Record mode is tap-to-start, tap-to-stop; native SpeechRecognition stops
+    // itself when the visitor stops talking.  The mic is the whole page here, so
+    // the hint has to describe the mode the visitor actually got.
+    const RECORD_HINT = 'Tap the microphone, ask your question, then tap again.';
+    const LISTEN_HINT = 'Tap the microphone and ask your question.';
+    const TYPE_HINT = 'Type your question and press Ask.';
+
+    function setAskHint(hint) {
+      askStatus.style.display = '';
+      askStatus.textContent = hint;
+    }
+
+    function showListenMode(hint) {
+      useRecordMode = false;
+      useTextMode = false;
+      micPrompt.textContent = 'Ask the docent anything about WWII submarines.';
+      textAskRow.style.display = 'none';
+      showAskBtn();
+      setAskHint(hint || LISTEN_HINT);
+      updateModeSwitch();
+    }
+
+    // Set once this browser's native speech service has been proven unreachable.
+    function speechKnownBroken() {
+      try { return localStorage.getItem('tour_speechBroken') === '1'; } catch (_) { return false; }
+    }
+
+    // Whether any route to a spoken question exists — our own server-side
+    // transcription works everywhere, so it alone is enough.
+    function voiceAvailable() {
+      return transcribeAvailable || (!!SpeechRec && !speechKnownBroken());
+    }
+
+    // A deliberate choice from the Speak/Type switch, remembered across visits.
+    // Distinct from a forced fallback: this is the visitor saying which they
+    // want, not the page reporting what broke.
+    function getAskMode() {
+      try { return localStorage.getItem('tour_askMode'); } catch (_) { return null; }
+    }
+
+    function setAskMode(mode) {
+      try {
+        if (mode) localStorage.setItem('tour_askMode', mode);
+        else localStorage.removeItem('tour_askMode');
+      } catch (_) { /* private browsing — the choice just won't persist */ }
+    }
+
+    function updateModeSwitch() {
+      const canVoice = voiceAvailable();
+      modeVoiceBtn.classList.toggle('active', !useTextMode);
+      modeTextBtn.classList.toggle('active', useTextMode);
+      modeVoiceBtn.setAttribute('aria-pressed', String(!useTextMode));
+      modeTextBtn.setAttribute('aria-pressed', String(useTextMode));
+      modeVoiceBtn.disabled = !canVoice;
+      modeVoiceBtn.title = canVoice
+        ? 'Ask out loud'
+        : `Voice unavailable: ${getVoiceUnavailableReason()}`;
+    }
+
+    modeVoiceBtn.addEventListener('click', () => {
+      if (!voiceAvailable()) return;
+      setAskMode('voice');
+      unlockAudio();       // this click is the gesture that lets audio play later
+      applyVoiceMode();
+    });
+
+    modeTextBtn.addEventListener('click', () => {
+      setAskMode('text');
+      enterTextMode(null, true);
+    });
+
+    function applyVoiceMode(hint) {
+      // A visitor who asked to type keeps typing until they say otherwise —
+      // including when the health check re-runs this on load.
+      if (getAskMode() === 'text') {
+        enterTextMode();
+        return;
+      }
+
+      // Android Chrome advertises webkitSpeechRecognition but it needs Google's
+      // cloud, which is unreachable from a local server — and any browser that
+      // has already failed that way stays failed.  Both go straight to our own
+      // transcription rather than through a microphone that cannot work.
+      if (isAndroid || speechKnownBroken()) {
+        if (transcribeAvailable) {
+          enableRecordMode(hint);
+          return;
+        }
+        if (SpeechRec && !speechKnownBroken()) {
+          showListenMode(hint);
+          return;
+        }
+        showTextFallback(hint);
+        return;
+      }
+
+      if (!SpeechRec) {
+        showTextFallback(hint);
+        return;
+      }
+
+      showListenMode(hint);
+    }
+
+    function getVoiceUnavailableReason() {
+      const reasons = [];
+      if (!window.isSecureContext) reasons.push('page is not in a secure context');
+      if (!SpeechRec) reasons.push('native browser speech API was not detected');
+      if (isAndroid && transcribeAvailable) reasons.push('Android is configured to use server transcription in this app');
+      if (!transcribeAvailable) reasons.push('server transcription is disabled');
+      return reasons.join('; ');
+    }
+
+    // The keyboard UI itself.  Reached two ways: the visitor picks Type, or the
+    // microphone failed and this is what is left.  Only the message differs.
+    // The button never closes the box, just opens and focuses it — a keyboard
+    // icon that hides the one remaining way to ask leaves the visitor nothing.
+    function enterTextMode(hint, focusInput) {
+      useTextMode = true;
+      useRecordMode = false;
+      stopAnswerAudio();
+      micBtn.textContent = '⌨️';
+      micBtn.title = 'Type your question';
+      micBtn.onclick = () => {
+        textAskRow.style.display = 'flex';
+        textAskInput.focus();
+      };
+      micPrompt.textContent = 'Type your question and the docent will answer.';
+      textAskRow.style.display = 'flex';
+      // Only grab focus when the visitor just acted.  Doing it on load would
+      // throw up the on-screen keyboard before they have seen the page.
+      if (focusInput) textAskInput.focus();
+      setAskHint(hint || TYPE_HINT);
+      updateModeSwitch();
+    }
+
+    function showTextFallback(hint) {
+      enterTextMode(hint || `Voice unavailable: ${getVoiceUnavailableReason()}. Type your question below.`, true);
+    }
+
+    function enableRecordMode(hint) {
+      // Switch to server-side Whisper transcription (works on all Android browsers)
+      useRecordMode = true;
+      useTextMode = false;
+      micBtn.textContent = '🎤';
+      micBtn.title = 'Tap to record your question';
+      micBtn.onclick = () => { unlockAudio(); startRecordTranscribe(); };
+      micPrompt.textContent = 'Ask the docent anything about WWII submarines.';
+      textAskRow.style.display = 'none';
+      setAskHint(hint || RECORD_HINT);
+      updateModeSwitch();
+    }
+
+    // Wire up text-ask submit.  When typing is the visitor's only way in, the
+    // box stays put between questions instead of collapsing after each one.
+    function submitTextAsk() {
+      const q = textAskInput.value.trim();
+      if (!q) return;
+      textAskInput.value = '';
+      if (!useTextMode) textAskRow.style.display = 'none';
+      handleQuestion(correctTranscript(q));
+    }
+    textAskSend.onclick = submitTextAsk;
+    textAskInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitTextAsk(); });
+
+    // Android Chrome has webkitSpeechRecognition but it fails in practice (no Google
+    // Speech API, local HTTPS certs, etc).  Use Groq Whisper record mode on Android
+    // and on any browser without SpeechRecognition.  Desktop browsers get native
+    // SpeechRecognition which auto-detects silence — no tap-to-stop needed.
+    const isAndroid = /android/i.test(navigator.userAgent);
+    applyVoiceMode();
+
+    // Background health check — if server has no Groq key, ensure Android falls
+    // back to text input and desktop stays in native-speech mode.
+    (async () => {
+      const tryHealth = async (apiBase) => {
+        const resp = await fetch(`${apiBase}/health`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return resp.json();
+      };
+
+      try {
+        const s = loadSettings();
+        let d;
+        try {
+          d = await tryHealth(s.apiBase);
+        } catch (err) {
+          const fallbackApiBase = getDefaultApiBase();
+          if (fallbackApiBase !== s.apiBase) {
+            d = await tryHealth(fallbackApiBase);
+            saveSettings({ ...s, apiBase: fallbackApiBase });
+          }
+        }
+        if (!d) return;
+        transcribeAvailable = !!d.transcribe_available;
+        ttsAvailable = !!d.tts_available;
+        if (transcribeAvailable) {
+          applyVoiceMode();
+        } else if (isAndroid && SpeechRec) {
+          applyVoiceMode('Server transcription is disabled. Using browser speech recognition instead.');
+        } else if (isAndroid || !SpeechRec) {
+          showTextFallback(`Voice unavailable: ${getVoiceUnavailableReason()}. Type your question below.`);
+        }
+      } catch (e) { /* keep current mode */ }
+    })();
+
+    function startListening() {
+      if (!SpeechRec || !window.isSecureContext) return;
+
+      recognition = new SpeechRec();
+      recognition.lang = LANG_BCP47[loadSettings().lang] || 'en-US';
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      askStatus.style.display = '';
+      askStatus.textContent = 'Speak your question…';
+      isListening = true;
+      micBtn.classList.add('listening');
+      micBtn.textContent = '🔴';
+      micBtn.title = 'Tap to stop';
+      micBtn.onclick = () => { if (isListening) stopListening(null); };
+
+      let finalTranscript = '';
+      // Set when onerror has handed this attempt over to server transcription.
+      // onend still fires afterwards, and without this it would see the *new*
+      // recording's isListening and tear it straight back down.
+      let handedOff = false;
+
+      // Hard timeout — iOS onend is unreliable; stop after 12 s max
+      const hardTimeout = setTimeout(() => {
+        if (!handedOff && isListening) stopListening(finalTranscript);
+      }, 12000);
+
+      const finishUp = () => {
+        clearTimeout(hardTimeout);
+        if (!handedOff && isListening) stopListening(finalTranscript);
+      };
+
+      recognition.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalTranscript += t;
+          else interim += t;
+        }
+        askStatus.textContent = finalTranscript || interim || 'Speak your question…';
+      };
+
+      // onspeechend fires when the user stops talking — more reliable than onend on iOS
+      recognition.onspeechend = () => { recognition.stop(); };
+
+      recognition.onerror = (e) => {
+        if (e.error === 'no-speech') return;
+        clearTimeout(hardTimeout);
+        stopListening(null);
+
+        // 'not-allowed' = the visitor denied the microphone.  Server transcription
+        // needs the same microphone, so there is nothing left but the keyboard.
+        if (e.error === 'not-allowed') {
+          showTextFallback('Microphone blocked — type your question below.');
+          return;
+        }
+
+        // 'network'/'service-not-allowed' = the browser's own speech service is
+        // unreachable (Chrome needs Google's, Safari needs Apple's).  The
+        // microphone itself is fine, so record it here and let our server
+        // transcribe instead of dropping the visitor to a keyboard.  Their tap
+        // was a request to speak — honour it by starting the recording now
+        // rather than making them tap a second time.
+        if (e.error === 'network' || e.error === 'service-not-allowed') {
+          if (transcribeAvailable) {
+            // Remember it: a browser whose speech service is unreachable now
+            // will almost certainly still be unreachable on the next visit, and
+            // a museum device gets opened over and over.  Skip the dead end.
+            try { localStorage.setItem('tour_speechBroken', '1'); } catch (_) { }
+            handedOff = true;
+            enableRecordMode();
+            startRecordTranscribe();  // their tap already asked to speak
+          } else {
+            showTextFallback('Speech recognition unavailable — type your question below.');
+          }
+          return;
+        }
+
+        askStatus.textContent = `Mic error: ${e.error}`;
+      };
+
+      recognition.onend = finishUp;
+      recognition.start();
+
+      // Record audio in parallel so we can attach it to the contact email
+      lastQuestionAudio = null;
+      mediaChunks = [];
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          const mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+            : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+              : '';
+          mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+          const capturedMimeType = mimeType || mediaRecorder.mimeType;
+          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) mediaChunks.push(e.data); };
+          mediaRecorder.onstop = () => {
+            lastQuestionAudio = new Blob(mediaChunks, { type: capturedMimeType });
+            stream.getTracks().forEach(t => t.stop());
+          };
+          mediaRecorder.start(250);
+        }).catch(() => { /* mic permission denied — no audio attachment */ });
+      }
+    }
+
+    // ── Server-side Whisper transcription (record→POST→transcript) ───────────
+    // Used on Android browsers that lack SpeechRecognition or whose
+    // SpeechRecognition requires Google's cloud (network error on local server).
+    function startRecordTranscribe() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showTextFallback('Microphone not available — type your question below.');
+        return;
+      }
+      isListening = true;
+      micBtn.classList.add('listening');
+      micBtn.textContent = '⏹';
+      micBtn.title = 'Tap to stop recording';
+      micBtn.onclick = () => stopRecordTranscribe();
+      askStatus.style.display = '';
+      askStatus.textContent = '🔴 Recording… tap mic to stop';
+
+      const hardTimeout = setTimeout(() => stopRecordTranscribe(), 30000);
+
+      mediaChunks = [];
+      lastQuestionAudio = null;
+
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+          : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+            : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+              : '';
+        mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+        const capturedMime = mimeType || mediaRecorder.mimeType || 'audio/webm';
+
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) mediaChunks.push(e.data); };
+        mediaRecorder.onstop = async () => {
+          clearTimeout(hardTimeout);
+          stream.getTracks().forEach(t => t.stop());
+          isListening = false;
+          micBtn.classList.remove('listening');
+          micBtn.textContent = '🎤';
+          micBtn.title = 'Tap to record your question';
+          micBtn.onclick = () => { unlockAudio(); startRecordTranscribe(); };
+
+          const blob = new Blob(mediaChunks, { type: capturedMime });
+          lastQuestionAudio = blob;
+
+          if (blob.size < 500) {
+            askStatus.textContent = 'No audio captured — try again.';
+            return;
+          }
+
+          askStatus.textContent = '⧖ Transcribing…';
+          const s = loadSettings();
+          const ext = capturedMime.includes('mp4') ? 'mp4' : 'webm';
+          const form = new FormData();
+          form.append('audio', blob, `question.${ext}`);
+          form.append('lang', s.lang || 'en');
+
+          try {
+            const resp = await fetch(`${s.apiBase}/transcribe`, { method: 'POST', body: form });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            const transcript = (data.transcript || '').trim();
+            if (!transcript) {
+              askStatus.textContent = 'Could not understand — try again.';
+              return;
+            }
+            handleQuestion(correctTranscript(transcript));
+          } catch (err) {
+            console.error('[transcribe]', err);
+            showTextFallback('Transcription failed — type your question below.');
+          }
+        };
+        mediaRecorder.start(250);
+      }).catch(() => {
+        clearTimeout(hardTimeout);
+        isListening = false;
+        micBtn.classList.remove('listening');
+        micBtn.textContent = '🎤';
+        micBtn.title = 'Tap to record your question';
+        micBtn.onclick = () => { unlockAudio(); startRecordTranscribe(); };
+        showTextFallback('Microphone access denied — type your question below.');
+      });
+    }
+
+    function stopRecordTranscribe() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    }
+
+    const CORRECTIONS = [
+      // Ship name
+      [/pam\s*pan+[ie]to/gi, 'Pampanito'],
+      [/pam\s*pen+[ie]to/gi, 'Pampanito'],
+      [/pam\s*pa\s*nee\s*to/gi, 'Pampanito'],
+      // Compartments
+      [/con+ing\s+tower/gi, 'conning tower'],
+      [/con+[eo]n+\s+tower/gi, 'conning tower'],
+      [/man[eo]+ver+ing/gi, 'maneuvering'],
+      [/tor+ped[oa]/gi, 'torpedo'],
+      [/torp\s+[ae]do/gi, 'torpedo'],
+      [/bal+[ae]st/gi, 'ballast'],
+      [/ball?\s+[ae]st/gi, 'ballast'],
+      [/p[ae]r+[ie]\s*scope/gi, 'periscope'],
+      [/per+[iy]\s*scope/gi, 'periscope'],
+      [/p[ae]r+[ae]scope/gi, 'periscope'],
+      [/snork[ae]l/gi, 'snorkel'],
+      [/hatch?way/gi, 'hatchway'],
+      [/bulk?head/gi, 'bulkhead'],
+      [/bulk?\s+head/gi, 'bulkhead'],
+      // Torpedo marks
+      [/mark\s+fourteen/gi, 'Mark 14'],
+      [/mark\s+eighteen/gi, 'Mark 18'],
+      [/mark\s+14/gi, 'Mark 14'],
+      [/mark\s+18/gi, 'Mark 18'],
+      [/mk\.?\s*14/gi, 'Mark 14'],
+      [/mk\.?\s*18/gi, 'Mark 18'],
+      // Phonetic STT substitutions
+      [/\bbanks\b/gi, 'bunks'],    // "banks" heard instead of "bunks"
+      [/\bhot\s+punk\b/gi, 'hot bunk'],  // "hot punk" heard instead of "hot bunk"
+      [/\bpunks?\b/gi, 'bunk'],   // "punk" heard instead of "bunk"
+      // "where is" → "were" before crew/people nouns (common ASR error)
+      [/\bwhere\s+is\s+(submariners?|sailors?|officers?|crewmen?|crew\b|men\b)/gi, 'were $1'],
+      // Sub systems
+      [/diesel?\s+sub(marine)?s?/gi, 'diesel submarines'],
+      [/bal+ao/gi, 'Balao'],
+      [/gato\s+class/gi, 'Gato class'],
+      [/fleet\s+sub/gi, 'fleet submarine'],
+    ];
+
+    function correctTranscript(text) {
+      let t = text;
+      for (const [pattern, replacement] of CORRECTIONS) {
+        t = t.replace(pattern, replacement);
+      }
+      return t;
+    }
+
+    function stopListening(transcript) {
+      isListening = false;
+      if (recognition) { try { recognition.stop(); } catch (e) { } recognition = null; }
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') { try { mediaRecorder.stop(); } catch (e) { } }
+      mediaRecorder = null;
+      micBtn.classList.remove('listening');
+      micBtn.textContent = '🎙';
+      micBtn.title = 'Ask a Question';
+      micBtn.onclick = () => { unlockAudio(); if (isListening) stopListening(null); else startListening(); };
+
+      if (!transcript || !transcript.trim()) {
+        askStatus.textContent = 'No speech detected. Try again.';
+        return;
+      }
+      handleQuestion(correctTranscript(transcript.trim()));
+    }
+
+    // ── Freeform listener — captures full spoken response ───────────────────
+    function listenFreeform(callback) {
+      if (!SpeechRec) { callback(''); return; }
+      const rec = new SpeechRec();
+      rec.lang = LANG_BCP47[loadSettings().lang] || 'en-US';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      let done = false;
+
+      const finish = (text) => {
+        if (done) return;
+        done = true;
+        try { rec.stop(); } catch (e) { }
+        callback(text);
+      };
+
+      const timer = setTimeout(() => finish(''), 12000);
+
+      rec.onresult = (e) => {
+        clearTimeout(timer);
+        finish((e.results[0][0].transcript || '').trim());
+      };
+      rec.onerror = () => { clearTimeout(timer); finish(''); };
+      rec.onend = () => { clearTimeout(timer); if (!done) finish(''); };
+
+      askStatus.textContent = 'Listening…';
+      rec.start();
+    }
+
+    // ── Send visitor question + contact info to historian ───────────────────
+    async function sendContact(question, visitorResponse) {
+      const s = loadSettings();
+      try {
+        const form = new FormData();
+        form.append('question_text', question);
+        form.append('visitor_response', visitorResponse);
+        form.append('lang', s.lang);
+        if (lastQuestionAudio && lastQuestionAudio.size > 0) {
+          const ext = lastQuestionAudio.type.includes('mp4') ? 'mp4' : 'webm';
+          form.append('audio', lastQuestionAudio, `question.${ext}`);
+        }
+        const res = await fetch(`${s.apiBase}/contact`, { method: 'POST', body: form });
+        const data = await res.json();
+        console.log('[contact] result:', data);
+      } catch (e) {
+        console.warn('[contact] send failed:', e);
+      }
+    }
+
+    // ── Yes/no listener (used after nothits.mp3) ────────────────────────────
+    function listenYesNo(callback) {
+      if (!SpeechRec) { callback(false); return; }
+      const rec = new SpeechRec();
+      rec.lang = LANG_BCP47[loadSettings().lang] || 'en-US';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      let done = false;
+
+      const finish = (heard) => {
+        if (done) return;
+        done = true;
+        try { rec.stop(); } catch (e) { }
+        callback(heard);
+      };
+
+      const timer = setTimeout(() => finish(false), 6000);
+
+      rec.onresult = (e) => {
+        clearTimeout(timer);
+        const t = (e.results[0][0].transcript || '').trim().toLowerCase();
+        finish(/\byes\b|\byeah\b|\byep\b|\bsure\b|\bplease\b|\baffirmative\b/.test(t));
+      };
+      rec.onerror = () => { clearTimeout(timer); finish(false); };
+      rec.onend = () => { clearTimeout(timer); if (!done) finish(false); };
+
+      askStatus.textContent = 'Say "yes" or "no"…';
+      rec.start();
+    }
+
+    // ── Suggestion chips ──────────────────────────────────────────────────────
+    // No compartment context here, so these are ship-wide openers.
+    const DEFAULT_SUGGESTIONS = [
+      'How deep could Pampanito dive?',
+      'How many men were in the crew?',
+      'How long were patrols?',
+      'What ships did Pampanito sink?',
+      'Did anyone on Pampanito get killed?',
+      'Where did the crew sleep?',
+      'What did the crew eat?',
+      'How did the torpedoes work?',
+      'How did Pampanito rescue POWs?',
+    ];
+
+    function showSuggestions() {
+      const row = document.getElementById('suggestionsRow');
+      const shuffled = DEFAULT_SUGGESTIONS.slice().sort(() => Math.random() - 0.5);
+      row.innerHTML = shuffled.slice(0, 3).map(q =>
+        `<button class="sugChip" data-q="${q.replace(/"/g, '&quot;')}">${q}</button>`
+      ).join('');
+    }
+
+    document.getElementById('suggestionsRow').addEventListener('click', (e) => {
+      const chip = e.target.closest('.sugChip');
+      if (chip) { unlockAudio(); handleQuestion(chip.dataset.q); }
+    });
+
+    async function handleQuestion(question) {
+      document.getElementById('suggestionsRow').innerHTML = '';
+      askStatus.style.display = '';
+      askStatus.textContent = `Heard: "${question}"`;
+      questionEcho.textContent = `"${question}"`;
+      answerText.textContent = '';
+      answerSource.innerHTML = '';
+      answerSource.classList.remove('visible');
+      hideAnswerSpeakButton();
+      _lastAnswerData = null;
+      _lastAnswerPlain = '';
+      clearAnswerAudioPrefetch();
+      answerDebug.textContent = DEBUG ? `API: ${loadSettings().apiBase}` : '';
+      resetFeedback();
+      answerPanel.classList.add('visible');
+
+      try {
+        const data = await askQuestion(question);
+
+        // ── No-source refusal: play nothits.mp3, then listen for yes/no ──────
+        if (data.refusal && data.refusal.is_refusal) {
+          renderAnswer(data);
+          askStatus.textContent = '';
+          showStopBtn();
+          const ok = await fetchAndPlay(getAudioUrl('nothits.mp3'), () => {
+            listenYesNo((heardYes) => {
+              askStatus.textContent = heardYes ? 'Got it…' : '';
+              if (heardYes) {
+                showStopBtn();
+                fetchAndPlay(getAudioUrl('emailaddressorphonenumber.mp3'), () => {
+                  // Audio finished — listen for their contact info
+                  listenFreeform((response) => {
+                    if (response) {
+                      sendContact(question, response);
+                      showStopBtn();
+                      fetchAndPlay(getAudioUrl('wewillgetbacktoyou.mp3'), () => {
+                        askStatus.textContent = '';
+                        showAskBtn();
+                      }, 2.0).then(played => {
+                        if (!played) { askStatus.textContent = ''; showAskBtn(); }
+                      });
+                    } else {
+                      askStatus.textContent = '';
+                      showAskBtn();
+                    }
+                  });
+                }, 2.0).then(played => {
+                  if (!played) {
+                    askStatus.textContent = '';
+                    showAskBtn();
+                  }
+                });
+              } else {
+                showAskBtn();
+              }
+            });
+          }, 2.0);
+          if (!ok) {
+            askStatus.textContent = '';
+            showAskBtn();
+          }
+          showSuggestions();
+          return;
+        }
+
+        renderAnswer(data);
+        if (DEBUG) renderAnswerDebug(question, data);
+        const answerPlain = containsHtmlMarkup(data.answer_short || '')
+          ? htmlToPlainText(data.answer_short || '')
+          : (data.answer_short || '').replace(/\n+/g, ' ');
+        answerPanel.classList.add('visible');
+        askStatus.textContent = '';
+        askStatus.style.display = 'none';
+        showSuggestions();
+        showFeedback(question, answerPlain);
+        showAnswerSpeakButton(data, answerPlain);
+      } catch (err) {
+        answerText.textContent = `Error: ${err.message}`;
+        hideAnswerSpeakButton();
+        answerDebug.textContent = DEBUG ? `API: ${loadSettings().apiBase}` : '';
+        askStatus.textContent = '';
+      }
+    }
+
+    // ── Settings modal ─────────────────────────────────────────────────────────
+    settingsBtn.onclick = () => {
+      const s = loadSettings();
+      settApiBase.value = s.apiBase;
+      settElKey.value = s.elKey;
+      settElVoice.value = s.elVoice;
+      document.getElementById('settLang').value = s.lang;
+      settingsModal.showModal();
+    };
+    document.getElementById('settCancel').onclick = () => settingsModal.close();
+    document.getElementById('settSave').onclick = () => {
+      saveSettings({
+        apiBase: settApiBase.value.trim().replace(/\/+$/, ''),
+        elKey: settElKey.value.trim(),
+        elVoice: settElVoice.value.trim() || 'EXAVITQu4vr4xnSDxMaL',
+        lang: document.getElementById('settLang').value,
+      });
+      document.getElementById('headerLang').value = document.getElementById('settLang').value;
+      settingsModal.close();
+    };
+
+    // ── Header language dropdown ──────────────────────────────────────────────
+    const headerLang = document.getElementById('headerLang');
+    headerLang.value = loadSettings().lang;
+    headerLang.addEventListener('change', () => {
+      const s = loadSettings();
+      s.lang = headerLang.value;
+      saveSettings(s);
+      document.getElementById('settLang').value = headerLang.value;
+    });
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    showSuggestions();
+  </script>
+</body>
+
+</html>

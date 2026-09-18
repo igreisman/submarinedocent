@@ -1,0 +1,2586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diesel-Electric Submarine FAQs</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f8fa;
+      color: #24292e;
+      min-height: 100vh;
+    }
+
+    /* ── Dashboard ── */
+    #dashboard {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 24px 60px;
+    }
+
+    #dash-search-wrap {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    #dash-search {
+      width: 100%;
+      flex: 1 1 320px;
+      max-width: 480px;
+      padding: 10px 16px;
+      border: 1px solid #d1d5da;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+      color: #24292e;
+      outline: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    #dash-search:focus {
+      border-color: #0366d6;
+      box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+    }
+
+    #dash-search::placeholder {
+      color: #9ea5af;
+    }
+
+    .share-link-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .share-link-btn-light {
+      background: #f6f8fa;
+      border: 1px solid #d1d5da;
+      color: #586069;
+    }
+
+    .share-link-btn-light:hover {
+      background: #e8eaed;
+    }
+
+    .share-link-btn-dark {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      color: #fff;
+    }
+
+    .share-link-btn-dark:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .share-link-btn.is-copied {
+      background: #1f7a3e;
+      border-color: #1f7a3e;
+      color: #fff;
+    }
+
+    .view-bar-spacer {
+      flex: 1 1 auto;
+    }
+
+    #dashboard h2 {
+      font-size: 19px;
+      font-weight: 700;
+      color: #1a2332;
+      margin-bottom: 18px;
+    }
+
+    #cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 700px) {
+      #cat-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 440px) {
+      #cat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cat-card {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      background: #e3e8ee;
+      border: 1px solid #e1e4e8;
+      border-radius: 10px;
+      padding: 18px 16px 16px;
+      transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+      cursor: pointer;
+    }
+
+    .cat-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-color: #c8d3e0;
+      transform: translateY(-1px);
+      background: #d9e0e8;
+    }
+
+    .cat-card:focus-visible {
+      outline: 3px solid rgba(3, 102, 214, 0.25);
+      outline-offset: 2px;
+    }
+
+    .cat-card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 0;
+      background: rgba(3, 102, 214, 0.08);
+    }
+
+    .cat-card-body {
+      min-width: 0;
+    }
+
+    .cat-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0366d6;
+      margin-bottom: 0;
+      line-height: 1.4;
+    }
+
+    .cat-count {
+      color: #6a737d;
+      font-weight: 400;
+    }
+
+    .btn-explore {
+      display: inline-block;
+      padding: 6px 14px;
+      background: #0366d6;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-explore:hover {
+      background: #0256b5;
+    }
+
+    /* ── Special section cards ── */
+    .special-card {
+      border-radius: 10px;
+      padding: 16px;
+      transition: box-shadow 0.15s, opacity 0.15s, transform 0.15s;
+      cursor: pointer;
+    }
+
+    .special-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .special-card:focus-visible {
+      outline: 3px solid rgba(255, 255, 255, 0.65);
+      outline-offset: 2px;
+    }
+
+    .special-card-header {
+      display: contents;
+    }
+
+    .special-card .cat-card-icon {
+      line-height: 1;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .special-card .cat-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 0;
+      line-height: 1.4;
+    }
+
+    .special-card .btn-explore {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      font-weight: 600;
+    }
+
+    .special-card .btn-explore:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .special-card-green {
+      background: #2e7d4f;
+      color: #fff;
+    }
+
+    .special-card-green .cat-card-title {
+      color: #fff;
+    }
+
+    .special-card-gold {
+      background: #e6a817;
+      color: #1a1a1a;
+    }
+
+    .special-card-gold .cat-card-title {
+      color: #1a1a1a;
+    }
+
+    .special-card-gold .btn-explore {
+      background: rgba(0, 0, 0, 0.25);
+      color: #fff;
+      border-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .special-card-gold .btn-explore:hover {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .special-card-red {
+      background: #c0392b;
+      color: #fff;
+    }
+
+    .special-card-red .cat-card-title {
+      color: #fff;
+    }
+
+    .special-card-blue {
+      background: #1565c0;
+      color: #fff;
+    }
+
+    .special-card-blue .cat-card-title {
+      color: #fff;
+    }
+
+    @media (max-width: 520px) {
+      .cat-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Medal of Honor view ── */
+    #moh-view {
+      display: none;
+    }
+
+    #moh-back-bar {
+      background: #2e7d4f;
+      color: #fff;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #btn-moh-back {
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #fff;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    #btn-moh-back:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    #moh-back-bar h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+
+    #moh-content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    #moh-content h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1a2332;
+      margin-bottom: 14px;
+    }
+
+    #moh-content .lead {
+      font-size: 15px;
+      color: #555d66;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .moh-recipient {
+      background: #fff;
+      border: 1px solid #e1e4e8;
+      border-left: 4px solid #2e7d4f;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+    }
+
+    .moh-recipient h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #2e7d4f;
+      margin-bottom: 10px;
+    }
+
+    .moh-recipient p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444d56;
+      margin-bottom: 8px;
+    }
+
+    .moh-recipient p:last-child {
+      margin-bottom: 0;
+    }
+
+    .moh-recipient strong {
+      color: #1a2332;
+    }
+
+    /* ── Lost Submarines (Eternal Patrol) view ── */
+    #lost-subs-view {
+      display: none;
+    }
+
+    #ls-back-bar {
+      background: #b8960c;
+      color: #fff;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #btn-ls-back {
+      padding: 6px 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.35);
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #fff;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    #btn-ls-back:hover {
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    #ls-back-bar h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+
+    #ls-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    #ls-content h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1a2332;
+      margin-bottom: 10px;
+    }
+
+    #ls-content .lead {
+      font-size: 15px;
+      color: #555d66;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    /* stats row */
+    .ls-stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .ls-stat-card {
+      background: #fff;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      padding: 16px 20px;
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .ls-stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      color: #b8960c;
+    }
+
+    .ls-stat-label {
+      font-size: 12px;
+      color: #6a737d;
+      margin-top: 4px;
+    }
+
+    /* filter bar */
+    #ls-filter-bar {
+      background: #fff;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    #ls-filter-bar label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #586069;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    #ls-era-filter {
+      padding: 7px 10px;
+      border: 1px solid #d1d5da;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #24292e;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    #ls-search-filter {
+      flex: 1;
+      min-width: 200px;
+      padding: 7px 12px;
+      border: 1px solid #d1d5da;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #24292e;
+      background: #fff;
+      outline: none;
+    }
+
+    #ls-search-filter:focus {
+      border-color: #b8960c;
+      box-shadow: 0 0 0 3px rgba(184, 150, 12, 0.12);
+    }
+
+    #ls-search-filter::placeholder {
+      color: #9ea5af;
+    }
+
+    /* boat cards */
+    #ls-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 640px) {
+      #ls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ls-boat-card {
+      background: #fff;
+      border: 1px solid #e1e4e8;
+      border-left: 4px solid #b8960c;
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+
+    .ls-boat-card h5 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a2332;
+      margin-bottom: 6px;
+    }
+
+    .ls-boat-meta {
+      font-size: 12px;
+      color: #6a737d;
+      margin-bottom: 8px;
+    }
+
+    .ls-boat-meta span {
+      margin-right: 10px;
+    }
+
+    .ls-boat-field {
+      font-size: 13px;
+      color: #444d56;
+      line-height: 1.6;
+      margin-bottom: 4px;
+    }
+
+    .ls-boat-field strong {
+      color: #1a2332;
+    }
+
+    .ls-boat-notes {
+      font-size: 12px;
+      color: #6a737d;
+      line-height: 1.6;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #f0f3f6;
+    }
+
+    #ls-no-results {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+      color: #6a737d;
+    }
+
+    #ls-count-bar {
+      font-size: 12px;
+      color: #6a737d;
+      margin-bottom: 14px;
+    }
+
+    #dash-loading {
+      text-align: center;
+      padding: 60px 24px;
+      color: #6a737d;
+      font-size: 15px;
+    }
+
+    /* ── FAQ list view ── */
+    #faq-view {
+      display: none;
+    }
+
+    #back-bar {
+      background: #fff;
+      border-bottom: 1px solid #e1e4e8;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #btn-back {
+      padding: 6px 12px;
+      background: #f6f8fa;
+      border: 1px solid #d1d5da;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #586069;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    #btn-back:hover {
+      background: #e8eaed;
+    }
+
+    #search {
+      flex: 1;
+      min-width: 180px;
+      max-width: 420px;
+      padding: 7px 12px;
+      border: 1px solid #d1d5da;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      color: #24292e;
+      outline: none;
+    }
+
+    #search:focus {
+      border-color: #0366d6;
+    }
+
+    #search::placeholder {
+      color: #9ea5af;
+    }
+
+    /* ── Category filter ── */
+    #cat-nav {
+      display: flex;
+      justify-content: flex-start;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 18px 24px 0;
+    }
+
+    .faq-filter-item {
+      width: fit-content;
+      margin-bottom: 0;
+    }
+
+    .faq-filter-item .faq-q {
+      cursor: default;
+      padding: 13px 16px;
+    }
+
+    .faq-filter-item .faq-q:hover {
+      background: #fff;
+    }
+
+    #cat-select {
+      width: auto;
+      min-width: 0;
+      max-width: 100%;
+      padding: 0 36px 0 0;
+      border: 0;
+      border-radius: 0;
+      background: #fff;
+      color: #24292e;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #586069 50%), linear-gradient(135deg, #586069 50%, transparent 50%);
+      background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    #cat-select:hover {
+      color: #111827;
+    }
+
+    #cat-select:focus {
+      outline: none;
+    }
+
+    @media (max-width: 700px) {
+      #cat-nav {
+        padding: 18px 24px 0;
+      }
+
+      .faq-filter-item {
+        width: 100%;
+      }
+
+      #cat-select {
+        width: 100%;
+      }
+    }
+
+    /* ── Main content ── */
+    #content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 6px 24px 60px;
+    }
+
+    .cat-section {
+      margin-bottom: 40px;
+    }
+
+    .cat-section h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a2332;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #0366d6;
+      margin-bottom: 12px;
+    }
+
+    .faq-item {
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .faq-q {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      cursor: pointer;
+      user-select: none;
+      gap: 12px;
+    }
+
+    .faq-q:hover {
+      background: #f6f8fa;
+    }
+
+    .faq-q-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0366d6;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .faq-chevron {
+      font-size: 11px;
+      color: #6a737d;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .faq-item.open .faq-chevron {
+      transform: rotate(90deg);
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 16px 16px;
+      border-top: 1px solid #f0f3f6;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    .faq-video {
+      margin-top: 14px;
+      max-width: 640px;
+    }
+
+    .faq-video iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 6px;
+      background: #000;
+      display: block;
+    }
+
+    .faq-video-play {
+      width: 100%;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 14px;
+      color: #24292e;
+      background: #f6f8fa;
+      border: 1px solid #d1d5da;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .faq-video-play:hover {
+      background: #eef1f5;
+    }
+
+    .faq-video-caption {
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #444d56;
+    }
+
+    .faq-video-credit {
+      margin-top: 3px;
+      font-size: 11px;
+      color: #6a737d;
+    }
+
+    .faq-related {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #f0f3f6;
+    }
+
+    .faq-related-head {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6a737d;
+      margin-bottom: 6px;
+    }
+
+    .faq-related ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .faq-related li {
+      margin-bottom: 10px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .faq-related-embed {
+      margin: 0 0 8px;
+    }
+
+    .faq-related-embed iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1px solid #d1d5da;
+      border-radius: 8px;
+      background: #000;
+    }
+
+    .faq-related-citation {
+      margin-top: 2px;
+      font-size: 11px;
+      color: #6a737d;
+    }
+
+    .faq-answer p,
+    .faq-answer li {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444d56;
+      margin-top: 12px;
+    }
+
+    .faq-answer>*:first-child {
+      margin-top: 12px;
+    }
+
+    .faq-answer ul,
+    .faq-answer ol {
+      margin: 12px 0 0 20px;
+      padding-left: 20px;
+      color: #444d56;
+    }
+
+    .faq-answer li {
+      margin-top: 8px;
+      line-height: 1.7;
+    }
+
+    .faq-answer table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+      color: #444d56;
+    }
+
+    .faq-answer td,
+    .faq-answer th {
+      border: 1px solid #d0d7de;
+      padding: 2px 10px;
+      vertical-align: middle;
+      line-height: 1.4;
+    }
+
+    .faq-answer td p,
+    .faq-answer th p {
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .faq-answer strong,
+    .faq-answer em,
+    .faq-answer a,
+    .faq-answer span,
+    .faq-answer div {
+      line-height: 1.7;
+    }
+
+    /* Only color real hyperlinks. Word paste leaves bookmark anchors like
+       <a name="_Hlk..."> (no href) around text; without the [href] guard those
+       inherit the blue link color and look like an unfixable blue paragraph. */
+    .faq-answer a[href] {
+      color: #0366d6;
+    }
+
+    .faq-answer a[href]:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Empty state ── */
+    #no-results {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+      color: #6a737d;
+    }
+
+    #no-results h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #9ea5af;
+      border-top: 1px solid #e1e4e8;
+    }
+
+    footer a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    mark {
+      background: #fff3b0;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    /* Modal styles */
+    #ls-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s;
+    }
+
+    #ls-modal.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    #ls-modal .ls-modal-backdrop {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(30, 40, 60, 0.45);
+      z-index: 1;
+    }
+
+    #ls-modal .ls-modal-content {
+      position: relative;
+      z-index: 2;
+      background: #fff;
+      border-radius: 10px;
+      max-width: 540px;
+      width: 97vw;
+      margin: 0 auto;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      padding: 32px 28px 22px 28px;
+      animation: lsModalIn 0.2s;
+      border-top: 6px solid #b8960c;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #ls-modal-body {
+      overflow-y: auto;
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: 70vh;
+    }
+
+    #ls-modal .ls-modal-close {
+      position: absolute;
+      right: 16px;
+      top: 12px;
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: #b8960c;
+      cursor: pointer;
+      z-index: 3;
+      line-height: 1;
+    }
+
+    /* Modal redesign styles */
+    .ls-modal-header {
+      border-bottom: 1px solid #e1e4e8;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+    }
+
+    .ls-modal-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 2px;
+    }
+
+    .ls-modal-designation {
+      font-size: 20px;
+      font-weight: 800;
+      color: #b8960c;
+      letter-spacing: 1px;
+    }
+
+    .ls-modal-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a2332;
+    }
+
+    .ls-modal-date {
+      font-size: 13px;
+      color: #6a737d;
+      margin-bottom: 2px;
+    }
+
+    .ls-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .ls-copy-link-btn {
+      border: 1px solid #d0b13c;
+      background: #fff9db;
+      color: #7a5d00;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .ls-copy-link-btn:hover {
+      background: #fff2b3;
+      border-color: #b8960c;
+    }
+
+    .ls-copy-link-btn.is-copied {
+      background: #e8fff0;
+      border-color: #2da44e;
+      color: #1a7f37;
+    }
+
+    .ls-modal-section {
+      margin-bottom: 14px;
+    }
+
+    .ls-modal-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #444d56;
+      margin-bottom: 2px;
+    }
+
+    .ls-modal-field {
+      font-size: 14px;
+      color: #444d56;
+      margin-bottom: 4px;
+    }
+
+    .ls-modal-narrative {
+      font-size: 13px;
+      color: #222;
+      margin-bottom: 2px;
+      line-height: 1.6;
+    }
+
+    @keyframes lsModalIn {
+      from {
+        transform: translateY(40px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Modal redesign: gallery and images */
+    .ls-modal-flexrow {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .ls-modal-maincol {
+      flex: 2 1 320px;
+      min-width: 0;
+    }
+
+    .ls-modal-sidecol {
+      flex: 1 1 160px;
+      min-width: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .ls-modal-photo-card {
+      background: #fafbfc;
+      border: 1px solid #e1e4e8;
+      border-radius: 7px;
+      padding: 8px 8px 4px 8px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .ls-modal-photo-card img {
+      max-width: 100%;
+      max-height: 120px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    .ls-modal-photo-label {
+      font-size: 12px;
+      color: #6a737d;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .ls-modal-infobox {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 14px;
+      background: #fafbfc;
+      border: 1px solid #e1e4e8;
+      border-radius: 7px;
+      padding: 10px 14px 6px 14px;
+    }
+
+    .ls-modal-infocol {
+      flex: 1 1 120px;
+      min-width: 120px;
+    }
+
+    .ls-modal-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .ls-modal-gallery-img {
+      flex: 1 1 90px;
+      max-width: 120px;
+      text-align: center;
+    }
+
+    .ls-modal-gallery-img img {
+      max-width: 100%;
+      max-height: 80px;
+      border-radius: 4px;
+      background: #eee;
+    }
+
+    .ls-modal-gallery-caption {
+      font-size: 11px;
+      color: #6a737d;
+      margin-top: 2px;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+
+<body data-enable-glossary-tooltips="true">
+
+  <!-- Dashboard (default landing) -->
+  <div id="dashboard">
+    <div id="dash-search-wrap">
+      <input id="dash-search" type="search" placeholder="Search questions and answers&hellip;" autocomplete="off" />
+    </div>
+    <h2>Browse by Category</h2>
+    <div id="cat-grid">
+      <div id="dash-loading">Loading&hellip;</div>
+    </div>
+  </div>
+
+  <!-- FAQ list view (drill-down) -->
+  <div id="faq-view" style="display:none">
+    <div id="back-bar">
+      <button id="btn-back">&#8592; All categories</button>
+      <input id="search" type="search" placeholder="Search questions and answers&hellip;" autocomplete="off" />
+      <button id="btn-copy-faq" type="button" class="share-link-btn share-link-btn-light">Copy Link</button>
+    </div>
+    <nav id="cat-nav" aria-label="FAQ category filter">
+      <div class="faq-item faq-filter-item">
+        <div class="faq-q">
+          <select id="cat-select">
+            <option value="all">All categories</option>
+          </select>
+        </div>
+      </div>
+    </nav>
+    <div id="content">
+      <div id="no-results">
+        <h3>No results found</h3>
+        <p>Try different search terms or clear the filter.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medal of Honor view -->
+  <div id="moh-view" style="display:none">
+    <div id="moh-back-bar">
+      <button id="btn-moh-back">&#8592; All categories</button>
+      <h2>🎖️ U.S. Submarine Medal of Honor Recipients</h2>
+      <span class="view-bar-spacer"></span>
+      <button id="btn-copy-moh" type="button" class="share-link-btn share-link-btn-dark">Copy Link</button>
+    </div>
+    <div id="moh-content">
+      <h1>U.S. Submarine Medal of Honor Recipients</h1>
+      <p class="lead">The following U.S. Navy Submariners were awarded the Medal of Honor for extraordinary heroism and
+        self-sacrifice in the line of duty. Their actions represent the highest traditions of naval service and courage
+        under the most perilous conditions.</p>
+      <div id="moh-recipients-list"></div>
+    </div>
+  </div>
+
+  <!-- Lost Submarines (Eternal Patrol) view -->
+  <div id="lost-subs-view" style="display:none">
+    <div id="ls-back-bar">
+      <button id="btn-ls-back">&#8592; All categories</button>
+      <h2>⚓ Submarines on Eternal Patrol</h2>
+      <span class="view-bar-spacer"></span>
+      <button id="btn-copy-ls" type="button" class="share-link-btn share-link-btn-dark">Copy Link</button>
+    </div>
+    <div id="ls-content">
+      <h1>Submarines on Eternal Patrol</h1>
+      <p class="lead">Honoring the brave men and vessels lost in service to their nation.
+        This list covers U.S. submarines lost from the early 20th century through the Cold War era.</p>
+
+      <!-- Stats (populated by JS) -->
+      <div class="ls-stats" id="ls-stats"></div>
+
+      <!-- Filters -->
+      <div id="ls-filter-bar">
+        <div>
+          <label for="ls-era-filter">Filter by Era</label>
+          <select id="ls-era-filter">
+            <option value="all">All Eras</option>
+            <option value="pre-wwii">Pre-WWII</option>
+            <option value="wwii">World War II</option>
+            <option value="post-wwii">Post-WWII</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label for="ls-search-filter">Search by name or hull number</label>
+          <input id="ls-search-filter" type="search" placeholder="e.g., USS Tang or SS-306" autocomplete="off" />
+        </div>
+      </div>
+
+      <!-- Count bar -->
+      <div id="ls-count-bar"></div>
+
+      <!-- Boat grid (populated by JS) -->
+      <div id="ls-grid"></div>
+      <div id="ls-no-results">
+        <h3>No submarines found</h3>
+        <p>Try adjusting your search or era filter.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Incidents Database view -->
+  <div id="incidents-view" style="display:none">
+    <div id="incidents-back-bar" style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
+      <button id="btn-incidents-back">&#8592; All categories</button>
+      <span style="font-size:2.2rem;line-height:1;">⚠️</span>
+      <h1 style="font-size:2.5rem;font-weight:800;margin:0;">Submarine Incidents</h1>
+      <span class="view-bar-spacer"></span>
+      <button id="btn-copy-incidents" type="button" class="share-link-btn share-link-btn-light">Copy Link</button>
+    </div>
+    <div id="incidents-content" style="max-width:860px;margin:0 auto;">
+      <p class="lead" style="font-size:1.25rem;color:#222;margin-bottom:28px;">A comprehensive record of US submarine
+        incidents throughout history, including accidents, collisions, groundings, and other notable events.</p>
+      <div id="incidents-stats-bar" style="display:flex;gap:18px;margin-bottom:32px;flex-wrap:wrap;"></div>
+      <div id="incidents-filter-bar"
+        style="background:#fff;border:1px solid #e1e4e8;border-radius:8px;padding:24px 20px 18px 20px;margin-bottom:28px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;">
+        <div>
+          <label for="incidents-era-filter"
+            style="font-size:14px;font-weight:600;color:#586069;display:block;margin-bottom:6px;">Era</label>
+          <select id="incidents-era-filter"
+            style="padding:8px 12px;border:1px solid #d1d5da;border-radius:6px;font-size:15px;color:#24292e;background:#fff;">
+            <option value="all">All Eras</option>
+            <option value="pre-ww2">Pre-WW2</option>
+            <option value="ww2">WW2 Era</option>
+            <option value="post-ww2">Post-WW2</option>
+          </select>
+        </div>
+        <div>
+          <label for="incidents-type-filter"
+            style="font-size:14px;font-weight:600;color:#586069;display:block;margin-bottom:6px;">Incident Type</label>
+          <select id="incidents-type-filter"
+            style="padding:8px 12px;border:1px solid #d1d5da;border-radius:6px;font-size:15px;color:#24292e;background:#fff;">
+            <option value="all">All Types</option>
+            <!-- JS will populate more types -->
+          </select>
+        </div>
+        <div style="flex:1;min-width:180px;">
+          <label for="incidents-search"
+            style="font-size:14px;font-weight:600;color:#586069;display:block;margin-bottom:6px;">Search</label>
+          <input id="incidents-search" type="search" placeholder="Search by submarine name, hull, or notes"
+            autocomplete="off"
+            style="width:100%;padding:8px 12px;border:1px solid #d1d5da;border-radius:6px;font-size:15px;">
+        </div>
+        <button id="incidents-filter-btn"
+          style="padding:10px 22px;background:#0099ee;color:#fff;border:none;border-radius:8px;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+          <span style="font-size:1.3em;">&#128269;</span> Filter
+        </button>
+      </div>
+      <div id="incidents-grid"></div>
+      <div id="incidents-no-results" style="display:none;text-align:center;padding:60px 24px;color:#6a737d;">
+        <h3>No incidents found</h3>
+        <p>Try adjusting your search or filters.</p>
+      </div>
+      <div id="incidents-modal" style="display:none"></div>
+    </div>
+  </div>
+  <footer>
+    Content provided by <a href="https://www.submarinedocent.com">SubmarineDocent</a> &mdash;
+    AI-powered tour guide for <a href="https://maritime.org/ship/pampanito/" target="_blank" rel="noopener">USS
+      Pampanito (SS-383)</a>
+  </footer>
+
+  <script>
+    'use strict';
+
+    const CAT_ICONS = {
+      'Hull and Compartments': '⚙️',
+      'US WW2 Subs in General': '🚢',
+      'Operating US Subs in WW2': '✅',
+      'Attacks and Battles, Small and Large': '🎯',
+      'Crews Aboard US Subs in WW2': '👥',
+      'Life Aboard US WW2 Subs': '🏠',
+      'Diving and Surfacing': '🌊',
+      'Torpedoes': '💥',
+      'Japanese Submarines': '🔱',
+    };
+
+    let allGroups = [];
+    let activeCategory = 'all';
+    let searchQuery = '';
+    let categorySortOrder = new Map();
+
+    // Incidents view globals
+    let incidents = null;
+    let incidentsSearchQuery = '';
+
+    function writeTextToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+      }
+
+      return new Promise((resolve, reject) => {
+        try {
+          const input = document.createElement('input');
+          input.value = text;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand('copy');
+          input.remove();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    function flashCopiedButton(button) {
+      if (!button) return;
+      const originalText = button.dataset.originalText || button.textContent;
+      button.dataset.originalText = originalText;
+      button.textContent = 'Copied';
+      button.classList.add('is-copied');
+      window.setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove('is-copied');
+      }, 1400);
+    }
+
+    function getCategorySortOrder(category) {
+      if (categorySortOrder.has(category)) {
+        return categorySortOrder.get(category);
+      }
+      return Number.MAX_SAFE_INTEGER;
+    }
+
+    function sortGroupsByCategoryOrder(groups) {
+      return groups.slice().sort((a, b) => {
+        const orderDelta = getCategorySortOrder(a.category) - getCategorySortOrder(b.category);
+        if (orderDelta !== 0) return orderDelta;
+        return (a.category || '').localeCompare(b.category || '');
+      });
+    }
+
+    function getFaqDisplayOrder(faq, index) {
+      const parsed = Number(faq?.display_order);
+      if (Number.isFinite(parsed)) {
+        return [0, parsed, index];
+      }
+      return [1, index, index];
+    }
+
+    function sortFaqsByDisplayOrder(faqs) {
+      return faqs
+        .map((faq, index) => ({ faq, index }))
+        .sort((a, b) => {
+          const [rankA, orderA, fallbackA] = getFaqDisplayOrder(a.faq, a.index);
+          const [rankB, orderB, fallbackB] = getFaqDisplayOrder(b.faq, b.index);
+          if (rankA !== rankB) return rankA - rankB;
+          if (orderA !== orderB) return orderA - orderB;
+          return fallbackA - fallbackB;
+        })
+        .map(entry => entry.faq);
+    }
+
+    async function init() {
+      try {
+        const [faqRes, categoryRes] = await Promise.all([
+          fetch('/api/faqs'),
+          fetch('/api/faq-categories').catch(() => null),
+        ]);
+        if (!faqRes.ok) throw new Error(`HTTP ${faqRes.status}`);
+        allGroups = await faqRes.json();
+        if (categoryRes && categoryRes.ok) {
+          const categories = await categoryRes.json();
+          categorySortOrder = new Map(
+            categories.map((category, index) => [category.title, Number(category.sort_order ?? index * 10)])
+          );
+          // Add empty groups for categories that have no FAQs yet
+          const existingCats = new Set(allGroups.map(g => g.category));
+          categories.forEach(cat => {
+            if (cat.title && !existingCats.has(cat.title)) {
+              allGroups.push({ category: cat.title, faqs: [] });
+            }
+          });
+          allGroups = sortGroupsByCategoryOrder(allGroups);
+        }
+        buildDashboard();
+        buildCategoryNav();
+
+        const params = new URLSearchParams(location.search);
+        const initialCategory = params.get('cat');
+        const initialFaqQuery = params.get('q');
+        const initialView = params.get('view');
+        lsEraFilter = params.get('ls_era') || 'all';
+        lsSearchQuery = (params.get('ls_q') || '').trim();
+        incidentsSearchQuery = (params.get('inc_q') || '').trim();
+
+        if (initialCategory) {
+          activeCategory = initialCategory;
+        }
+
+        document.getElementById('ls-era-filter').value = lsEraFilter;
+        document.getElementById('ls-search-filter').value = lsSearchQuery;
+        document.getElementById('incidents-search').value = incidentsSearchQuery;
+
+        if (params.get('lost_sub')) {
+          pendingLostSubKey = params.get('lost_sub').trim();
+          showLostSubsView();
+        } else if (initialView === 'lost-subs') {
+          showLostSubsView();
+        } else if (initialView === 'moh') {
+          showMohView();
+        } else if (initialView === 'incidents') {
+          showIncidentsView();
+        } else if (initialFaqQuery) {
+          searchQuery = initialFaqQuery.trim();
+          document.getElementById('dash-search').value = searchQuery;
+          document.getElementById('search').value = searchQuery;
+          showFaqView();
+        } else if (initialCategory) {
+          showFaqView();
+        }
+      } catch (e) {
+        const dashLoading = document.getElementById('dash-loading');
+        if (dashLoading) {
+          dashLoading.textContent = 'Error loading FAQs: ' + e.message;
+        }
+      }
+    }
+
+    function buildDashboard() {
+      const grid = document.getElementById('cat-grid');
+      grid.innerHTML = '';
+      allGroups.forEach(group => {
+        const card = document.createElement('div');
+        card.className = 'cat-card';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `${group.category}, ${group.faqs.length} FAQs`);
+        const icon = CAT_ICONS[group.category] || '📄';
+        card.innerHTML = `
+          <span class="cat-card-icon">${icon}</span>
+          <div class="cat-card-body">
+            <div class="cat-card-title">${escHtml(group.category)} <span class="cat-count">(${group.faqs.length})</span></div>
+          </div>`;
+        const openCategory = () => {
+          setCategory(group.category);
+          showFaqView();
+        };
+        card.addEventListener('click', openCategory);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openCategory();
+          }
+        });
+        grid.appendChild(card);
+      });
+
+      // Special section cards.  `action` switches to a view on this page;
+      // `href` navigates away.  Order here is the order they appear in the grid.
+      const SPECIAL = [
+        { label: 'Medal of Honor', icon: '🎖️', cls: 'special-card-green', action: showMohView },
+        { label: 'Lost Submarines', icon: '⚓', cls: 'special-card-gold', action: showLostSubsView },
+        { label: 'Incidents Database', icon: '⚠️', cls: 'special-card-red', action: showIncidentsView },
+        // The way out when browsing categories hasn't turned up what the
+        // visitor actually came to ask.
+        { label: 'Ask the Docent', icon: '🎙', cls: 'special-card-blue', href: '/web/askthedocent.html' },
+        { label: 'Museums', icon: '🏛', cls: 'special-card-blue', href: '/web/museums.html' },
+        { label: 'Videos', icon: '🎬', cls: 'special-card-blue', href: '/web/videos.html' }
+      ];
+      SPECIAL.forEach(s => {
+        const activate = s.action || (() => { window.location.href = s.href; });
+        const card = document.createElement('div');
+        card.className = `special-card ${s.cls}`;
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', s.label);
+        card.innerHTML = `
+          <div class="special-card-header">
+            <span class="cat-card-icon">${s.icon}</span>
+            <div class="cat-card-body">
+              <div class="cat-card-title">${s.label}</div>
+            </div>
+          </div>`;
+        card.addEventListener('click', activate);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            activate();
+          }
+        });
+        grid.appendChild(card);
+      });
+    }
+  </script>
+
+  </div> <!-- End main HTML body content -->
+
+  <script>
+    function showIncidentsView() {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('faq-view').style.display = 'none';
+      document.getElementById('moh-view').style.display = 'none';
+      document.getElementById('lost-subs-view').style.display = 'none';
+      document.getElementById('incidents-view').style.display = 'block';
+      initIncidents();
+    }
+
+    document.getElementById('btn-incidents-back').addEventListener('click', showDashboard);
+
+    async function initIncidents() {
+      if (incidents !== null) { renderIncidents(); return; }
+      const grid = document.getElementById('incidents-grid');
+      grid.innerHTML = '<div style="text-align:center;padding:40px;color:#6a737d">Loading&hellip;</div>';
+      try {
+        const res = await fetch('/api/incidents');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        incidents = data.incidents;
+        buildIncidentsStats();
+        renderIncidents();
+      } catch (e) {
+        if (grid) {
+          grid.innerHTML = '<div style="text-align:center;padding:40px;color:#c0392b">Error loading data: ' + escHtml(e.message) + '</div>';
+        } else {
+          // fallback: show alert if grid is missing
+          alert('Error loading data: ' + e.message);
+        }
+      }
+    }
+
+    function buildIncidentsStats() {
+      const statsBar = document.getElementById('incidents-stats-bar');
+      if (statsBar) {
+        // Only count exact matches for each era
+        const total = incidents.length;
+        const pre = incidents.filter(i => (i.era || '').trim().toLowerCase() === 'pre-ww2').length;
+        const ww2 = incidents.filter(i => {
+          const era = (i.era || '').trim().toLowerCase();
+          return era === 'ww2' || era === 'ww2 era';
+        }).length;
+        const post = incidents.filter(i => (i.era || '').trim().toLowerCase() === 'post-ww2').length;
+        statsBar.innerHTML = `
+        <div style="background:#0074f8;color:#fff;border-radius:16px;padding:24px 32px;text-align:center;min-width:120px;font-weight:700;font-size:2rem;">
+          <div style="font-size:2rem;font-weight:800;">${total}</div><div style="font-size:1.1rem;font-weight:500;margin-top:4px;">Total<br>Incidents</div>
+        </div>
+        <div style="background:#00c6f8;color:#fff;border-radius:16px;padding:24px 32px;text-align:center;min-width:120px;font-weight:700;font-size:2rem;">
+          <div style="font-size:2rem;font-weight:800;">${pre}</div><div style="font-size:1.1rem;font-weight:500;margin-top:4px;">Pre-WW2</div>
+        </div>
+        <div style="background:#e74c3c;color:#fff;border-radius:16px;padding:24px 32px;text-align:center;min-width:120px;font-weight:700;font-size:2rem;">
+          <div style="font-size:2rem;font-weight:800;">${ww2}</div><div style="font-size:1.1rem;font-weight:500;margin-top:4px;">WW2 Era</div>
+        </div>
+        <div style="background:#636c72;color:#fff;border-radius:16px;padding:24px 32px;text-align:center;min-width:120px;font-weight:700;font-size:2rem;">
+          <div style="font-size:2rem;font-weight:800;">${post}</div><div style="font-size:1.1rem;font-weight:500;margin-top:4px;">Post-WW2</div>
+        </div>
+      `;
+      }
+    }
+
+    function renderIncidents() {
+      const q = incidentsSearchQuery.toLowerCase();
+      let filtered = (incidents || []).filter(i => {
+        if (q && !((i.submarine_name || '') + ' ' + (i.description || '') + ' ' + (i.hull_number || '') + ' ' + (i.date || '') + ' ' + (i.incident_type || '') + ' ' + (i.status || '') + ' ' + (i.era || '') + ' ' + (i.notes || '')).toLowerCase().includes(q)) return false;
+        return true;
+      });
+      filtered = filtered.slice().sort((a, b) => {
+        // Use date_sort if present, else fallback to date
+        const aSort = a.date_sort || a.date || '';
+        const bSort = b.date_sort || b.date || '';
+        if (!aSort && !bSort) return 0;
+        if (!aSort) return 1;
+        if (!bSort) return -1;
+        return aSort.localeCompare(bSort);
+      });
+      const grid = document.getElementById('incidents-grid');
+      const noRes = document.getElementById('incidents-no-results');
+      const statsElem = document.getElementById('incidents-stats');
+      if (statsElem) {
+        statsElem.textContent = `${filtered.length} of ${(incidents || []).length} incidents`;
+      }
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        noRes.style.display = 'block';
+        return;
+      }
+      noRes.style.display = 'none';
+      grid.innerHTML = filtered.map((i, idx) => {
+        let dateStr = i.date || 'Unknown';
+        if (i.date) {
+          const parts = i.date.split('-');
+          if (parts.length === 3) {
+            const year = parseInt(parts[0], 10);
+            if (year < 1900) {
+              // Render as 'Month D, YYYY' without using Date object (to avoid JS date bugs for pre-1900)
+              const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+              const month = monthNames[parseInt(parts[1], 10) - 1] || parts[1];
+              dateStr = `${month} ${parseInt(parts[2], 10)}, ${year}`;
+            } else {
+              // Use local time to avoid UTC offset issues for 1900+ dates
+              const d = new Date(year, parts[1] - 1, parts[2]);
+              if (!isNaN(d)) {
+                dateStr = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+              }
+            }
+          }
+        }
+        let title = i.submarine_name ? escHtml(i.submarine_name) : 'Unknown Submarine';
+        // Badge colors
+        let eraBg = '#00b4e6', eraColor = '#fff';
+        if (i.era) {
+          const era = String(i.era).trim().toLowerCase();
+          if (era === 'ww2' || era === 'ww2 era') {
+            eraBg = '#d32f2f'; // red
+            eraColor = '#fff';
+          } else if (era === 'post-ww2' || era === 'post ww2' || era === 'postwar' || era === 'post-war') {
+            eraBg = '#444'; // gray
+            eraColor = '#fff';
+          }
+        }
+        const eraBadge = i.era ? `<span style="background:${eraBg};color:${eraColor};padding:2px 10px;border-radius:6px;font-size:0.95em;font-weight:700;margin-left:8px;">${escHtml(i.era)}</span>` : '';
+        const typeBadge = i.incident_type ? `<span style="background:#ffd600;color:#222;padding:2px 10px;border-radius:6px;font-size:0.95em;font-weight:700;margin-left:8px;">${escHtml(i.incident_type)}</span>` : '';
+        // Status badge
+        let statusBadge = '';
+        if (i.status) {
+          let color = '#fff', bg = '#2e7d4f';
+          const status = i.status.toLowerCase();
+          if (status.includes('lost')) {
+            bg = '#d32f2f';
+          }
+          statusBadge = `<span style="background:${bg};color:${color};padding:2px 10px;border-radius:6px;font-size:0.95em;font-weight:700;margin-left:8px;">${escHtml(i.status)}</span>`;
+        }
+        // Casualties color
+        let casualties = (i.casualties !== undefined && i.casualties !== null) ? String(i.casualties) : '';
+        let casualtiesColor = '#2e7d4f';
+        if (casualties && casualties !== 'None' && casualties !== '0') casualtiesColor = '#c0392b';
+        if (casualties === 'None' || casualties === '0') casualties = 'None';
+        // Card HTML
+        return `
+            <div class="ls-boat-card" style="border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-bottom:24px;padding:0;overflow:hidden;">
+              <div style="background:#23272e;color:#fff;padding:12px 18px 10px 18px;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;font-size:1.25em;font-weight:700;">
+                  ${title}
+                </div>
+                <div>${eraBadge}${typeBadge}</div>
+              </div>
+              <div style="padding:18px 18px 10px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:24px 32px;">
+                <div style="font-size:1.08em;"><span style="font-weight:700;">&#128197; Date:</span> ${escHtml(dateStr)}</div>
+                <div style="font-size:1.08em;"><span style="font-weight:700;">Casualties:</span> <span style="color:${casualtiesColor};font-weight:700;">${escHtml(casualties)}</span></div>
+              </div>
+              <div style="padding:0 18px 0 18px;">
+                <div style="margin:12px 0 0 0;font-size:1.08em;font-weight:700;display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:1.1em;">&#8505;&#65039;</span> Description:
+                </div>
+                <div style="margin:4px 0 0 0;font-size:1.08em;line-height:1.6;">${i.description ? escHtml(i.description) : '<span style=\"color:#888\">No description.</span>'}</div>
+              </div>
+              <div style="padding:0 18px 0 18px;">
+                <div style="margin:18px 0 0 0;font-size:1.08em;font-weight:700;display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:1.1em;">&#9873;</span> Status: ${statusBadge}
+                </div>
+              </div>
+              ${i.notes ? `<div style="margin:18px 18px 0 18px;padding:16px 18px;background:#fafbfc;border-radius:8px;font-size:1.05em;color:#555;">
+                <span style="font-weight:700;display:flex;align-items:center;gap:6px;">
+                  &#128221; Notes:
+                </span>
+                <div style="margin-top:4px;">${escHtml(i.notes)}</div>
+              </div>` : ''}
+              <div style="height:10px;"></div>
+            </div>
+          `;
+      }).join('');
+      grid.querySelectorAll('.ls-boat-link').forEach(el => {
+        el.addEventListener('click', e => {
+          const idx = parseInt(el.getAttribute('data-idx'));
+          showIncidentModal(filtered[idx]);
+        });
+      });
+    }
+
+    document.getElementById('incidents-search').addEventListener('input', e => {
+      incidentsSearchQuery = e.target.value.trim();
+      renderIncidents();
+    });
+
+    function showIncidentModal(incident) {
+      let modal = document.getElementById('incidents-modal');
+      modal.innerHTML = `
+                <div class="ls-modal-backdrop" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);z-index:1000;"></div>
+                <div class="ls-modal-content" style="background:#fff;max-width:600px;margin:60px auto;padding:32px 28px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;z-index:1001;">
+                  <button class="ls-modal-close" aria-label="Close" style="position:absolute;top:18px;right:18px;font-size:22px;background:none;border:none;cursor:pointer;">&times;</button>
+                  <div class="ls-modal-header">
+                    <div class="ls-modal-title-row">
+                      <span class="ls-modal-designation">${incident.submarine_name ? escHtml(incident.submarine_name) : ''}</span>
+                      <span class="ls-modal-name">${incident.incident_type ? escHtml(incident.incident_type) : ''}</span>
+                    </div>
+                    <div class="ls-modal-date">${incident.date ? escHtml(incident.date) : ''}</div>
+                  </div>
+                  <div class="ls-modal-section ls-modal-infobox">
+                    <div class="ls-modal-infocol">
+                      ${incident.hull_number ? `<div class="ls-modal-field"><strong>Hull Number:</strong> ${escHtml(incident.hull_number)}</div>` : ''}
+                      ${incident.status ? `<div class="ls-modal-field"><strong>Status:</strong> ${escHtml(incident.status)}</div>` : ''}
+                      ${incident.era ? `<div class="ls-modal-field"><strong>Era:</strong> ${escHtml(incident.era)}</div>` : ''}
+                      ${incident.casualties !== undefined ? `<div class="ls-modal-field"><strong>Casualties:</strong> ${escHtml(String(incident.casualties))}</div>` : ''}
+                    </div>
+                    <div class="ls-modal-infocol">
+                      ${incident.date ? `<div class="ls-modal-field"><strong>Date:</strong> ${escHtml(incident.date)}</div>` : ''}
+                    </div>
+                  </div>
+                  ${incident.description ? `<div class="ls-modal-section"><div class="ls-modal-label">Description</div><div class="ls-modal-narrative">${escHtml(incident.description)}</div></div>` : ''}
+                  ${incident.notes ? `<div class="ls-modal-section"><div class="ls-modal-label">Notes</div><div class="ls-modal-narrative">${escHtml(incident.notes)}</div></div>` : ''}
+                </div>
+              `;
+      modal.style.display = 'block';
+      setTimeout(() => { modal.classList.add('open'); }, 10);
+      document.body.style.overflow = 'hidden';
+      modal.querySelector('.ls-modal-close').onclick = closeIncidentModal;
+      modal.querySelector('.ls-modal-backdrop').onclick = closeIncidentModal;
+    }
+
+    function closeIncidentModal() {
+      const modal = document.getElementById('incidents-modal');
+      if (modal) {
+        modal.classList.remove('open');
+        setTimeout(() => { modal.style.display = 'none'; }, 200);
+        document.body.style.overflow = '';
+      }
+    }
+    // ...existing code...
+
+    function buildCategoryNav() {
+      const select = document.getElementById('cat-select');
+      select.innerHTML = '<option value="all">All categories</option>';
+      sortGroupsByCategoryOrder(allGroups).forEach(group => {
+        const option = document.createElement('option');
+        option.value = group.category;
+        option.textContent = group.category;
+        select.appendChild(option);
+      });
+      select.value = activeCategory;
+      updateCategoryNavWidth();
+    }
+
+    function updateCategoryNavWidth() {
+      const select = document.getElementById('cat-select');
+      if (!select || window.innerWidth <= 700) {
+        if (select) {
+          select.style.width = '';
+        }
+        return;
+      }
+
+      const probe = document.createElement('span');
+      probe.style.position = 'absolute';
+      probe.style.visibility = 'hidden';
+      probe.style.whiteSpace = 'nowrap';
+      probe.style.fontSize = window.getComputedStyle(select).fontSize;
+      probe.style.fontWeight = window.getComputedStyle(select).fontWeight;
+      probe.style.fontFamily = window.getComputedStyle(select).fontFamily;
+      probe.style.letterSpacing = window.getComputedStyle(select).letterSpacing;
+      document.body.appendChild(probe);
+
+      let widest = 0;
+      Array.from(select.options).forEach(option => {
+        probe.textContent = option.textContent || '';
+        widest = Math.max(widest, Math.ceil(probe.getBoundingClientRect().width));
+      });
+
+      probe.remove();
+      select.style.width = `${widest + 36}px`;
+    }
+
+    function showFaqView() {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('moh-view').style.display = 'none';
+      document.getElementById('lost-subs-view').style.display = 'none';
+      document.getElementById('incidents-view').style.display = 'none';
+      document.getElementById('faq-view').style.display = 'block';
+      render();
+    }
+
+    function showMohView() {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('faq-view').style.display = 'none';
+      document.getElementById('lost-subs-view').style.display = 'none';
+      document.getElementById('incidents-view').style.display = 'none';
+      document.getElementById('moh-view').style.display = 'block';
+      loadMohRecipients();
+    }
+
+    let _mohLoaded = false;
+    function loadMohRecipients() {
+      if (_mohLoaded) return;
+      _mohLoaded = true;
+      fetch('/api/moh-recipients')
+        .then(r => r.json())
+        .then(entries => {
+          const el = document.getElementById('moh-recipients-list');
+          if (!entries.length) { el.innerHTML = ''; return; }
+          el.innerHTML = entries.map(e => `
+            <div class="moh-recipient">
+              <h3>${escHtml(e.name)}${e.posthumous ? ' <span style="font-size:13px;font-weight:400;color:#8b949e">(posthumous)</span>' : ''}</h3>
+              <p><strong>Rank/Unit:</strong> ${escHtml(e.rank_unit)}<br>
+                <strong>Date Awarded:</strong> ${escHtml(e.date_awarded)}</p>
+              <p><strong>Citation Summary:</strong><br>${escHtml(e.citation_summary)}</p>
+            </div>`).join('');
+        })
+        .catch(() => {});
+    }
+
+    function showLostSubsView() {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('faq-view').style.display = 'none';
+      document.getElementById('moh-view').style.display = 'none';
+      document.getElementById('incidents-view').style.display = 'none';
+      document.getElementById('lost-subs-view').style.display = 'block';
+      initLostSubs();
+    }
+
+    function showDashboard() {
+      document.getElementById('faq-view').style.display = 'none';
+      document.getElementById('moh-view').style.display = 'none';
+      document.getElementById('lost-subs-view').style.display = 'none';
+      document.getElementById('incidents-view').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      activeCategory = 'all';
+      searchQuery = '';
+      document.getElementById('search').value = '';
+      document.getElementById('dash-search').value = '';
+      document.getElementById('cat-select').value = 'all';
+    }
+
+    document.getElementById('btn-back').addEventListener('click', showDashboard);
+    document.getElementById('btn-moh-back').addEventListener('click', showDashboard);
+    document.getElementById('btn-ls-back').addEventListener('click', showDashboard);
+
+    function getActiveVisitorView() {
+      if (document.getElementById('incidents-view').style.display === 'block') return 'incidents';
+      if (document.getElementById('lost-subs-view').style.display === 'block') return 'lost-subs';
+      if (document.getElementById('moh-view').style.display === 'block') return 'moh';
+      if (document.getElementById('faq-view').style.display === 'block') return 'faq';
+      return 'dashboard';
+    }
+
+    function clearVisitorShareParams(url) {
+      ['view', 'q', 'cat', 'lost_sub', 'ls_era', 'ls_q', 'inc_q'].forEach(name => {
+        url.searchParams.delete(name);
+      });
+    }
+
+    function getVisitorShareUrl() {
+      const currentUrl = new URL(window.location.href);
+      const url = new URL(window.location.href);
+      const activeView = getActiveVisitorView();
+
+      clearVisitorShareParams(url);
+
+      if (activeView === 'faq') {
+        if (activeCategory !== 'all') {
+          url.searchParams.set('cat', activeCategory);
+        }
+        if (searchQuery) {
+          url.searchParams.set('q', searchQuery);
+        }
+      } else if (activeView === 'moh') {
+        url.searchParams.set('view', 'moh');
+      } else if (activeView === 'lost-subs') {
+        const activeLostSub = currentUrl.searchParams.get('lost_sub');
+        url.searchParams.set('view', 'lost-subs');
+        if (lsEraFilter !== 'all') {
+          url.searchParams.set('ls_era', lsEraFilter);
+        }
+        if (lsSearchQuery) {
+          url.searchParams.set('ls_q', lsSearchQuery);
+        }
+        if (activeLostSub) {
+          url.searchParams.set('lost_sub', activeLostSub);
+        }
+      } else if (activeView === 'incidents') {
+        url.searchParams.set('view', 'incidents');
+        if (incidentsSearchQuery) {
+          url.searchParams.set('inc_q', incidentsSearchQuery);
+        }
+      }
+
+      return url.toString();
+    }
+
+    async function copyVisitorLink(button) {
+      await writeTextToClipboard(getVisitorShareUrl());
+      flashCopiedButton(button);
+    }
+
+    // ── Lost Submarines ──────────────────────────────────────────────────────
+    let lsBoats = null;
+    let lsEraFilter = 'all';
+    let lsSearchQuery = '';
+    let pendingLostSubKey = null;
+
+    function slugifyLinkValue(value) {
+      return String(value || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    function getLostSubLinkKey(boat) {
+      return slugifyLinkValue(boat.designation || boat.boat_number || boat.name || '');
+    }
+
+    function lostSubMatchesKey(boat, key) {
+      const wanted = slugifyLinkValue(key);
+      return [boat.designation, boat.boat_number, boat.name].some(value => slugifyLinkValue(value) === wanted);
+    }
+
+    function updateLostSubUrl(boat) {
+      const url = new URL(window.location.href);
+      if (boat) {
+        url.searchParams.set('lost_sub', getLostSubLinkKey(boat));
+      } else {
+        url.searchParams.delete('lost_sub');
+      }
+      history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+
+    function getLostSubShareUrl(boat) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lost_sub', getLostSubLinkKey(boat));
+      return url.toString()
+    }
+
+    async function copyLostSubLink(boat, button) {
+      await writeTextToClipboard(getLostSubShareUrl(boat));
+      flashCopiedButton(button);
+    }
+
+    function closeBoatModal() {
+      const modal = document.getElementById('ls-modal');
+      if (modal) {
+        modal.classList.remove('open');
+        setTimeout(() => { modal.style.display = 'none'; }, 200);
+        document.body.style.overflow = '';
+      }
+      updateLostSubUrl(null);
+    }
+
+    function showBoatModal(boat, options = {}) {
+      if (!boat) return;
+      const { updateUrl = true } = options;
+      let modal = document.getElementById('ls-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'ls-modal';
+        modal.innerHTML = `
+            <div class="ls-modal-backdrop"></div>
+            <div class="ls-modal-content">
+              <button class="ls-modal-close" aria-label="Close">&times;</button>
+              <div id="ls-modal-body"></div>
+            </div>
+          `;
+        document.body.appendChild(modal);
+        modal.querySelector('.ls-modal-close').onclick = closeBoatModal;
+        modal.querySelector('.ls-modal-backdrop').onclick = closeBoatModal;
+      }
+
+      const body = modal.querySelector('#ls-modal-body');
+      function imgPath(src) {
+        if (!src) return null;
+        if (src.startsWith('images/')) return '/web/' + src;
+        if (src.startsWith('/web/')) return src;
+        return src;
+      }
+
+      let galleryHtml = '';
+      for (let i = 1; i <= 10; ++i) {
+        const img = boat[`image${i}`];
+        if (img) {
+          const subtitle = boat[`image${i}_subtitle`] || '';
+          galleryHtml += `<div class="ls-modal-gallery-img"><img src="${imgPath(img)}" alt="Extra image"/><div class="ls-modal-gallery-caption">${escHtml(subtitle)}</div></div>`;
+        }
+      }
+
+      body.innerHTML = `
+          <div class="ls-modal-flexrow">
+            <div class="ls-modal-maincol">
+              <div class="ls-modal-header">
+                <div class="ls-modal-title-row">
+                  <span class="ls-modal-designation">${boat.designation ? escHtml(boat.designation) : ''}</span>
+                  <span class="ls-modal-name">${boat.name ? escHtml(boat.name) : ''}</span>
+                </div>
+                <div class="ls-modal-date">${boat.date_lost ? escHtml(boat.date_lost) : ''}</div>
+                <div class="ls-modal-actions">
+                  <button type="button" class="ls-copy-link-btn" id="ls-copy-link-btn">Copy Link</button>
+                </div>
+              </div>
+              <div class="ls-modal-section ls-modal-infobox">
+                <div class="ls-modal-infocol">
+                  ${boat.designation ? `<div class="ls-modal-field"><strong>Hull Number:</strong> ${escHtml(boat.designation)}</div>` : ''}
+                  ${boat.last_captain ? `<div class="ls-modal-field"><strong>Last Captain:</strong> ${escHtml(boat.last_captain)}</div>` : ''}
+                  ${boat.fatalities_text != null ? `<div class="ls-modal-field"><strong>Fatalities:</strong> ${escHtml(String(boat.fatalities_text))}</div>` : ''}
+                </div>
+                <div class="ls-modal-infocol">
+                  ${boat.date_lost ? `<div class="ls-modal-field"><strong>Date Lost:</strong> ${escHtml(boat.date_lost)}</div>` : ''}
+                  ${boat.location ? `<div class="ls-modal-field"><strong>Location:</strong> ${escHtml(boat.location)}</div>` : ''}
+                  ${boat.cause ? `<div class="ls-modal-field"><strong>Cause:</strong> ${escHtml(boat.cause)}</div>` : ''}
+                </div>
+              </div>
+              ${boat.construction ? `<div class="ls-modal-section"><div class="ls-modal-label">Construction</div><div class="ls-modal-narrative">${escHtml(boat.construction)}</div></div>` : ''}
+              ${boat.loss_narrative ? `<div class="ls-modal-section"><div class="ls-modal-label">Loss Narrative</div><div class="ls-modal-narrative">${escHtml(boat.loss_narrative)}</div></div>` : ''}
+              ${boat.prior_history ? `<div class="ls-modal-section"><div class="ls-modal-label">Prior History</div><div class="ls-modal-narrative">${escHtml(boat.prior_history)}</div></div>` : ''}
+              ${boat.notes ? `<div class="ls-modal-section"><div class="ls-modal-label">Notes</div><div class="ls-modal-narrative">${escHtml(boat.notes)}</div></div>` : ''}
+              ${galleryHtml ? `<div class="ls-modal-section"><div class="ls-modal-label">Gallery</div><div class="ls-modal-gallery">${galleryHtml}</div></div>` : ''}
+            </div>
+            <div class="ls-modal-sidecol">
+              ${boat.photo_boat ? `<div class="ls-modal-photo-card"><div class="ls-modal-photo-label">Submarine Photo</div><img src="${imgPath(boat.photo_boat)}" alt="Submarine photo"/></div>` : ''}
+              ${boat.photo_captain ? `<div class="ls-modal-photo-card"><div class="ls-modal-photo-label">Captain Photo</div><img src="${imgPath(boat.photo_captain)}" alt="Captain photo"/></div>` : ''}
+            </div>
+          </div>
+        `;
+      modal.style.display = 'block';
+      setTimeout(() => { modal.classList.add('open'); }, 10);
+      document.body.style.overflow = 'hidden';
+      const copyButton = modal.querySelector('#ls-copy-link-btn');
+      if (copyButton) {
+        copyButton.onclick = () => copyLostSubLink(boat, copyButton);
+      }
+      if (updateUrl) updateLostSubUrl(boat);
+    }
+
+    function maybeOpenLostSubFromQuery() {
+      if (!pendingLostSubKey || !lsBoats) return;
+      const boat = lsBoats.find(entry => lostSubMatchesKey(entry, pendingLostSubKey));
+      pendingLostSubKey = null;
+      if (boat) {
+        showBoatModal(boat, { updateUrl: false });
+      }
+    }
+
+    async function initLostSubs() {
+      if (lsBoats !== null) {
+        renderLostSubs();
+        maybeOpenLostSubFromQuery();
+        return;
+      }
+      const grid = document.getElementById('ls-grid');
+      grid.innerHTML = '<div style="text-align:center;padding:40px;color:#6a737d">Loading&hellip;</div>';
+      try {
+        const res = await fetch('/api/eternal-patrol');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        lsBoats = await res.json();
+        buildLsStats();
+        renderLostSubs();
+        maybeOpenLostSubFromQuery();
+      } catch (e) {
+        grid.innerHTML = '<div style="text-align:center;padding:40px;color:#c0392b">Error loading data: ' + escHtml(e.message) + '</div>';
+      }
+    }
+
+    function buildLsStats() {
+      const totalLost = lsBoats.reduce((n, b) => n + (b.fatalities_num || 0), 0);
+      document.getElementById('ls-stats').innerHTML = `
+        <div class="ls-stat-card"><div class="ls-stat-num">${lsBoats.length}</div><div class="ls-stat-label">Total Submarines Lost</div></div>
+        <div class="ls-stat-card"><div class="ls-stat-num">${totalLost.toLocaleString()}</div><div class="ls-stat-label">Lives Lost</div></div>`;
+    }
+
+    function renderLsStats(data) {
+      const totalLost = data.reduce((n, b) => n + (b.fatalities_num || 0), 0);
+      document.getElementById('ls-stats').innerHTML = `
+        <div class="ls-stat-card"><div class="ls-stat-num">${data.length}</div><div class="ls-stat-label">Total Submarines Lost</div></div>
+        <div class="ls-stat-card"><div class="ls-stat-num">${totalLost.toLocaleString()}</div><div class="ls-stat-label">Lives Lost</div></div>`;
+    }
+
+    function renderLostSubs() {
+      const q = lsSearchQuery.toLowerCase();
+      let filtered = (lsBoats || []).filter(b => {
+        if (lsEraFilter !== 'all' && b.era !== lsEraFilter) return false;
+        if (q && !(b.name + ' ' + b.designation + ' ' + (b.cause || '')).toLowerCase().includes(q)) return false;
+        return true;
+      });
+      // Sort by date_lost_sort (ascending, nulls last)
+      filtered = filtered.slice().sort((a, b) => {
+        if (!a.date_lost_sort && !b.date_lost_sort) return 0;
+        if (!a.date_lost_sort) return 1;
+        if (!b.date_lost_sort) return -1;
+        return a.date_lost_sort.localeCompare(b.date_lost_sort);
+      });
+      renderLsStats(filtered);
+      const grid = document.getElementById('ls-grid');
+      const noRes = document.getElementById('ls-no-results');
+      document.getElementById('ls-count-bar').textContent =
+        `${filtered.length} of ${(lsBoats || []).length} submarines`;
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        noRes.style.display = 'block';
+        return;
+      }
+      noRes.style.display = 'none';
+      grid.innerHTML = filtered.map((b, idx) => {
+        const dateStr = b.date_lost || 'Unknown';
+        let boatTitle = b.designation ? escHtml(b.designation) : escHtml(b.name);
+        return `
+          <div class="ls-boat-card">
+            <h5 class="ls-boat-link" data-idx="${idx}" style="cursor:pointer;color:#0366d6;text-decoration:underline;">${boatTitle}</h5>
+            <div class="ls-boat-meta">
+              <span>📅 ${escHtml(dateStr)}</span>
+            </div>
+            ${b.fatalities_text != null ? `<div class="ls-boat-field"><strong>Fatalities:</strong> ${escHtml(String(b.fatalities_text))}</div>` : ''}
+            ${b.location ? `<div class="ls-boat-field"><strong>Location:</strong> ${escHtml(b.location)}</div>` : ''}
+            ${b.cause ? `<div class="ls-boat-field"><strong>Cause:</strong> ${escHtml(b.cause)}</div>` : ''}
+            ${b.notes ? `<div class="ls-boat-notes">${escHtml(b.notes)}</div>` : ''}
+          </div>`;
+      }).join('');
+      // Add click listeners for modal popup
+      grid.querySelectorAll('.ls-boat-link').forEach(el => {
+        el.addEventListener('click', e => {
+          const idx = parseInt(el.getAttribute('data-idx'));
+          showBoatModal(filtered[idx]);
+        });
+      });
+    }
+
+    document.getElementById('ls-era-filter').addEventListener('change', e => {
+      lsEraFilter = e.target.value;
+      renderLostSubs();
+    });
+    document.getElementById('ls-search-filter').addEventListener('input', e => {
+      lsSearchQuery = e.target.value.trim();
+      renderLostSubs();
+    });
+
+    ['btn-copy-faq', 'btn-copy-moh', 'btn-copy-ls', 'btn-copy-incidents']
+      .forEach(id => {
+        const button = document.getElementById(id);
+        if (!button) return;
+        button.addEventListener('click', () => {
+          copyVisitorLink(button).catch(() => {
+            const originalText = button.dataset.originalText || 'Copy Link';
+            button.textContent = 'Copy failed';
+            window.setTimeout(() => {
+              button.textContent = originalText;
+            }, 1400);
+          });
+        });
+      });
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      document.getElementById('cat-select').value = cat;
+      render();
+    }
+
+    document.getElementById('cat-select').addEventListener('change', e => {
+      setCategory(e.target.value);
+    });
+
+    document.getElementById('search').addEventListener('input', e => {
+      searchQuery = e.target.value.trim();
+      render();
+    });
+
+    document.getElementById('dash-search').addEventListener('input', e => {
+      searchQuery = e.target.value.trim();
+      if (searchQuery) {
+        document.getElementById('search').value = searchQuery;
+        activeCategory = 'all';
+        document.getElementById('cat-select').value = 'all';
+        showFaqView();
+      }
+    });
+
+    function highlight(text, query) {
+      if (!query) return escHtml(text);
+      const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      return escHtml(text).replace(re, '<mark>$1</mark>');
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function hasHtmlContent(text) {
+      return /<\/?[a-z][\s\S]*>/i.test(text) || /&(?:nbsp|amp|lt|gt|quot|#39);/i.test(text);
+    }
+
+    function decodeStoredHtml(text) {
+      const value = String(text || '');
+      if (!/[&](?:lt|gt|amp|quot|nbsp|#39);/i.test(value)) return value;
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = value;
+      return textarea.value;
+    }
+
+    function normalizeRichHtml(html) {
+      const value = decodeStoredHtml(String(html || '').trim());
+      if (!value) return '';
+
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = value;
+
+      wrapper.querySelectorAll('span.ql-ui').forEach(node => node.remove());
+      wrapper.querySelectorAll('[data-row]').forEach(node => node.removeAttribute('data-row'));
+      wrapper.querySelectorAll('[style="color: black;"]').forEach(node => node.removeAttribute('style'));
+
+      wrapper.querySelectorAll('[class]').forEach(node => {
+        const classes = Array.from(node.classList);
+        let indentLevel = 0;
+        classes.forEach(cls => {
+          if (cls === 'ql-align-right') node.style.textAlign = 'right';
+          if (cls === 'ql-align-center') node.style.textAlign = 'center';
+          if (cls === 'ql-align-justify') node.style.textAlign = 'justify';
+          if (cls.startsWith('ql-indent-')) {
+            indentLevel = Number.parseInt(cls.slice('ql-indent-'.length), 10) || 0;
+          }
+        });
+        if (indentLevel > 0) node.style.marginLeft = `${indentLevel * 3}em`;
+        node.className = classes.filter(cls => !cls.startsWith('ql-')).join(' ');
+        if (!node.className) node.removeAttribute('class');
+      });
+
+      wrapper.querySelectorAll('ol').forEach(list => {
+        const items = Array.from(list.children).filter(node => node.tagName === 'LI');
+        const allBullets = items.length > 0 && items.every(item => item.getAttribute('data-list') === 'bullet');
+        if (allBullets) {
+          const ul = document.createElement('ul');
+          while (list.firstChild) {
+            const child = list.firstChild;
+            if (child.nodeType === Node.ELEMENT_NODE && child.hasAttribute('data-list')) {
+              child.removeAttribute('data-list');
+            }
+            ul.appendChild(child);
+          }
+          list.replaceWith(ul);
+          return;
+        }
+        items.forEach(item => item.removeAttribute('data-list'));
+      });
+
+      wrapper.querySelectorAll('ul > li[data-list], ol > li[data-list]').forEach(item => item.removeAttribute('data-list'));
+
+      while (wrapper.firstElementChild && wrapper.firstElementChild.matches('p') && !wrapper.firstElementChild.textContent.trim() && !wrapper.firstElementChild.querySelector('img,video,table,iframe')) {
+        wrapper.firstElementChild.remove();
+      }
+      while (wrapper.lastElementChild && wrapper.lastElementChild.matches('p') && !wrapper.lastElementChild.textContent.trim() && !wrapper.lastElementChild.querySelector('img,video,table,iframe')) {
+        wrapper.lastElementChild.remove();
+      }
+
+      return wrapper.innerHTML.trim();
+    }
+
+    function applyHighlightToHtml(html, query) {
+      if (!query) return html;
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(`(${escaped})`, 'gi');
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = html;
+
+      const walk = node => {
+        Array.from(node.childNodes).forEach(child => {
+          if (child.nodeType === Node.TEXT_NODE) {
+            if (!child.textContent.trim()) return;
+            const highlighted = child.textContent.replace(re, '<mark>$1</mark>');
+            if (highlighted !== child.textContent) {
+              const fragment = document.createElement('span');
+              fragment.innerHTML = highlighted;
+              child.replaceWith(...fragment.childNodes);
+            }
+            return;
+          }
+
+          if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== 'MARK') {
+            walk(child);
+          }
+        });
+      };
+
+      walk(wrapper);
+      return wrapper.innerHTML;
+    }
+
+    // Supplementary video, offered as a button rather than an eager iframe: this
+    // page renders every FAQ in a category at once, so embedding on load would
+    // fire a request to the video host for each one whether or not the visitor
+    // ever opens that answer.
+    function faqVideoHtml(video) {
+      if (!video || !video.embed_url) return '';
+      const caption = video.caption
+        ? `<div class="faq-video-caption">${escHtml(video.caption)}</div>`
+        : '';
+      // Verbatim — a rights holder's required wording is not ours to prefix.
+      const creditInner = video.credit_url
+        ? `<a href="${escHtml(video.credit_url)}" target="_blank" rel="noopener noreferrer">${escHtml(video.credit)}</a>`
+        : escHtml(video.credit);
+      const credit = video.credit ? `<div class="faq-video-credit">${creditInner}</div>` : '';
+      return `<div class="faq-video" data-embed="${escHtml(video.embed_url)}">`
+        + `<button type="button" class="faq-video-play">&#9654;&nbsp; Watch this account</button>`
+        + `${caption}${credit}</div>`;
+    }
+
+    function wireFaqVideo(item) {
+      const holder = item.querySelector('.faq-video');
+      if (!holder) return;
+      const btn = holder.querySelector('.faq-video-play');
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const src = holder.getAttribute('data-embed');
+        btn.remove();
+        const frame = document.createElement('iframe');
+        frame.src = src + (src.indexOf('?') !== -1 ? '&' : '?') + 'autoplay=1';
+        frame.title = holder.querySelector('.faq-video-caption')?.textContent || 'Video';
+        frame.loading = 'lazy';
+        frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        frame.referrerPolicy = 'strict-origin-when-cross-origin';
+        frame.setAttribute('allowfullscreen', '');
+        holder.insertBefore(frame, holder.firstChild);
+      });
+    }
+
+    function parseStartSeconds(raw) {
+      const v = String(raw || '').trim().toLowerCase();
+      if (!v) return 0;
+      if (/^\d+$/.test(v)) return Number(v);
+      const m = v.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?$/);
+      if (!m) return 0;
+      const h = Number(m[1] || 0);
+      const mins = Number(m[2] || 0);
+      const s = Number(m[3] || 0);
+      return h * 3600 + mins * 60 + s;
+    }
+
+    function youtubeEmbedUrl(rawUrl) {
+      try {
+        const u = new URL(String(rawUrl || '').trim());
+        if (!/^https?:$/i.test(u.protocol)) return '';
+        const host = u.hostname.toLowerCase().replace(/^www\./, '');
+        let id = '';
+        if (host === 'youtu.be') {
+          id = u.pathname.split('/').filter(Boolean)[0] || '';
+        } else if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
+          if (u.pathname === '/watch') {
+            id = u.searchParams.get('v') || '';
+          } else if (u.pathname.startsWith('/embed/') || u.pathname.startsWith('/shorts/')) {
+            id = u.pathname.split('/').filter(Boolean)[1] || '';
+          }
+        }
+        if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return '';
+        const start = Math.max(
+          parseStartSeconds(u.searchParams.get('t')),
+          parseStartSeconds(u.searchParams.get('start')),
+        );
+        let embed = `https://www.youtube-nocookie.com/embed/${id}?rel=0`;
+        if (start > 0) embed += `&start=${start}`;
+        return embed;
+      } catch (e) {
+        return '';
+      }
+    }
+
+    // Links out to material held elsewhere. If the link is YouTube, also show
+    // an inline player for quick playback.
+    function relatedLinksHtml(links) {
+      if (!links || !links.length) return '';
+      const items = links.map(l => {
+        const url = String(l.url || '').trim();
+        const label = String(l.label || url);
+        const embed = youtubeEmbedUrl(url);
+        const cite = l.citation
+          ? `<div class="faq-related-citation">${escHtml(l.citation)}</div>`
+          : '';
+        const player = embed
+          ? `<div class="faq-related-embed"><iframe src="${escHtml(embed)}" title="${escHtml(label || 'YouTube video')}" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`
+          : '';
+        return `<li>${player}<a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer">${escHtml(label)}</a>${cite}</li>`;
+      }).join('');
+      return `<div class="faq-related"><div class="faq-related-head">Hear it firsthand</div><ul>${items}</ul></div>`;
+    }
+
+    function answerToHtml(text, query) {
+      if (hasHtmlContent(text)) {
+        return applyHighlightToHtml(normalizeRichHtml(text), query);
+      }
+
+      return text
+        .split(/\n+/)
+        .filter(p => p.trim())
+        .map(p => `<p>${highlight(p.trim(), query)}</p>`)
+        .join('');
+    }
+
+    function render() {
+      const q = searchQuery.toLowerCase();
+      const content = document.getElementById('content');
+      const noResults = document.getElementById('no-results');
+
+      const groups = sortGroupsByCategoryOrder(allGroups)
+        .filter(g => activeCategory === 'all' || g.category === activeCategory)
+        .map(g => ({
+          category: g.category,
+          faqs: sortFaqsByDisplayOrder(
+            g.faqs.filter(f => !q || (f.title + ' ' + f.answer).toLowerCase().includes(q))
+          )
+        }))
+        .filter(g => g.faqs.length > 0);
+
+      if (groups.length === 0) {
+        content.querySelectorAll('.cat-section').forEach(el => el.remove());
+        noResults.style.display = 'block';
+        return;
+      }
+      noResults.style.display = 'none';
+
+      const existing = {};
+      content.querySelectorAll('.cat-section').forEach(el => { existing[el.dataset.cat] = el; });
+      const wanted = new Set(groups.map(g => g.category));
+      Object.keys(existing).forEach(k => { if (!wanted.has(k)) existing[k].remove(); });
+
+      groups.forEach(group => {
+        let section = existing[group.category];
+        if (!section) {
+          section = document.createElement('div');
+          section.className = 'cat-section';
+          section.dataset.cat = group.category;
+          content.appendChild(section);
+        }
+        section.innerHTML = activeCategory === 'all' ? `<h2>${escHtml(group.category)}</h2>` : '';
+        Array.from(section.querySelectorAll('.faq-item')).forEach(el => el.remove());
+        group.faqs.forEach(faq => {
+          const item = document.createElement('div');
+          item.className = 'faq-item';
+          item.innerHTML = `
+            <div class="faq-q" role="button" aria-expanded="false">
+              <span class="faq-q-text">${highlight(faq.title, q)}</span>
+              <span class="faq-chevron">&#9654;</span>
+            </div>
+            <div class="faq-answer">${answerToHtml(faq.answer, q)}${faqVideoHtml(faq.video)}${relatedLinksHtml(faq.related_links)}</div>`;
+          item.querySelector('.faq-q').addEventListener('click', () => {
+            const isOpen = item.classList.toggle('open');
+            item.querySelector('.faq-q').setAttribute('aria-expanded', String(isOpen));
+          });
+          wireFaqVideo(item);
+          section.appendChild(item);
+        });
+      });
+
+      if (q) {
+        content.querySelectorAll('.faq-item').forEach(item => {
+          item.classList.add('open');
+          item.querySelector('.faq-q').setAttribute('aria-expanded', 'true');
+        });
+      }
+    }
+
+    init();
+  </script>
+  <script src="/web/glossary-tooltips.js"></script>
+  <script src="/web/site-footer.js"></script>
+  <script src="/web/site-header.js"></script>
+  <script>
+    SiteFooter.render({ onCopy: () => writeTextToClipboard(getVisitorShareUrl()) });
+    SiteHeader.render({
+      title:    'Diesel-Electric Submarine FAQs',
+      subtitle: 'A comprehensive collection of frequently asked questions about diesel-electric submarines, with special focus on World War II US submarines.',
+    });
+  </script>
+</body>
+
+</html>

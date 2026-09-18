@@ -1,0 +1,112 @@
+CONTENT LICENSE — submarinedocent.org
+
+This file covers the content in this repository. The source code is covered
+separately by LICENSE (MIT). NOTICE lists the asset classes and points at both.
+
+────────────────────────────────────────────────────────────────────────────
+TEXT — Creative Commons Attribution 4.0 International (CC BY 4.0)
+────────────────────────────────────────────────────────────────────────────
+
+The text in this repository is licensed CC BY 4.0. You may share and adapt
+it, including commercially, provided you give appropriate credit.
+
+    https://creativecommons.org/licenses/by/4.0/
+
+Attribute as: submarinedocent.org — except the glossary, which is Dwight
+Naset's work and is attributed to him by name.
+
+Specifically, this grant covers:
+
+  - corpora/dieselsubs_faq_corpus.jsonl
+  - corpora/dieselsubs_shorts_corpus.jsonl
+  - corpora/dieselsubs_faq_categories.jsonl
+  - corpora/eternal_patrol.jsonl          (text only — see PHOTOGRAPHS)
+  - corpora/incidents.jsonl
+  - corpora/museums.jsonl, corpora/museum_pages.jsonl
+  - corpora/videos.jsonl                  (records only — see VIDEO)
+  - the prose written for this project elsewhere in the repository
+
+corpora/dieselsubs_glossary.jsonl is also covered, and is the work of
+Dwight Naset rather than of this project. He released it under CC BY 4.0 by
+email on 18 September 2026. Credit him by name, not merely as
+submarinedocent.org.
+
+Some of this material was first published on dieselsubs.com or on the
+DieselSubs YouTube channel. Both are Irving Greisman's own properties, so
+material derived from them is his to license.
+
+This grant does NOT cover:
+
+  - United States Government works included as primary sources:
+    corpora/dieselsubs_fleetsub_manual.jsonl, corpora/dieselsubs_sub_losses_wwii.jsonl
+    and corpora/moh_recipients.jsonl. These are in the public domain in the
+    United States as works of the federal government and need no licence from
+    us. We do not grant, and cannot grant, rights in them.
+
+  - photographs and video, which are addressed separately below.
+
+corpora/README.md states the origin and licensing of every corpus file and is
+the authority if this list and that table ever disagree.
+
+────────────────────────────────────────────────────────────────────────────
+PHOTOGRAPHS — NOT covered by the CC BY grant
+────────────────────────────────────────────────────────────────────────────
+
+Photographs in this repository are of mixed provenance. They are used with
+credit for non-commercial educational purposes and are EXCLUDED from the CC BY
+grant above, which covers text only.
+
+We do not own most of these photographs and cannot sublicense them. Copying
+this repository does not give you permission to reuse them. If you intend to
+use a photograph for any purpose, trace it to its source and seek permission
+from the rights holder.
+
+Known sources:
+
+  - web/images/extracted/ — submarine and commanding-officer photographs, most
+    sourced via NavSource Naval History (navsource.org). NavSource aggregates
+    material from many contributors, including US Navy and National Archives
+    photographs and privately held collections. Each lost-boat record carries a
+    per-image credit field, rendered beneath the image on the page. Where a
+    contributor is known the credit names them; where it is not, the credit
+    reads "Photo via NavSource Naval History", which records the route the
+    image reached us by and not a claim about who holds the rights.
+
+    web/images/extracted/ is the only image directory in this repository.
+    Untraced images that were never published on the site were removed from
+    the tree rather than shipped with unresolved provenance.
+
+If you hold rights in any photograph here and want it credited differently or
+removed, contact us and we will act on it. See SECURITY.md for contact details.
+
+────────────────────────────────────────────────────────────────────────────
+AUDIO
+────────────────────────────────────────────────────────────────────────────
+
+web/audio/ holds five short spoken prompts used by the Ask the Docent
+interface ("no direct answer", and so on). They are speech synthesised from
+text written for this project, so they fall under the CC BY grant above with
+the text they were made from. No recorded human voice, oral history or
+interview audio is distributed in this repository.
+
+────────────────────────────────────────────────────────────────────────────
+VIDEO
+────────────────────────────────────────────────────────────────────────────
+
+No video is distributed in this repository.
+
+The catalogue RECORDS in corpora/videos.jsonl — titles, descriptions,
+categories, tags and ordering — were written for this project and ARE covered
+by the CC BY grant above.
+
+The VIDEO those records point at is NOT. Of the 99 records, 97 point at
+YouTube and 2 at this project's own object storage. Each record carries its own
+rights_status and rights_note: 89 are marked not_required, 10 granted. Video is
+shown only where rights have been confirmed or are not required.
+
+Nothing in this licence grants any rights in any third-party video. Reusing a
+record is not permission to reuse the video it names.
+
+Descriptions in that catalogue are ours. Where a description had been copied
+from a channel's own YouTube text, the copied part — contact details, links and
+calls to action — was removed rather than published under our licence.

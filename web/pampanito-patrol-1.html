@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>USS Pampanito — First Patrol</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+    .patrol-content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+      line-height: 1.7;
+    }
+    .patrol-content h1, .patrol-content h2, .patrol-content h3 {
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .patrol-content h1 { font-size: 28px; margin: 1.5em 0 0.5em; }
+    .patrol-content h2 { font-size: 22px; margin: 1.4em 0 0.4em; }
+    .patrol-content h3 { font-size: 18px; margin: 1.2em 0 0.4em; }
+    .patrol-content p { margin: 0 0 1em; }
+    .patrol-content ul, .patrol-content ol { padding-left: 1.5em; margin: 0 0 1em; }
+    .patrol-content blockquote {
+      border-left: 3px solid #30363d;
+      margin: 0 0 1em;
+      padding-left: 1em;
+      color: #8b949e;
+    }
+    .patrol-content table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+      font-size: 14px;
+    }
+    .patrol-content th, .patrol-content td {
+      border: 1px solid #30363d;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .patrol-content th { background: #161b22; font-weight: 600; }
+    .patrol-content a { color: #58a6ff; }
+  </style>
+</head>
+<body>
+  <article class="patrol-content">
+<!-- PATROL-BODY-START -->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@300;400;600&display=swap');
+
+  :root {
+    --ink: #1a1208;
+    --paper: #e8dfc8;
+    --aged: #d4c9a8;
+    --stamp-red: #8b1a1a;
+    --stamp-blue: #1a3a6b;
+    --olive: #4a4a2a;
+    --rule: #7a6a4a;
+    --faded: #8a7a5a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #2a2218;
+    font-family: 'Special Elite', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .page-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* COVER STAMP AREA */
+  .cover {
+    background: var(--paper);
+    border: 2px solid var(--rule);
+    padding: 50px 60px;
+    margin-bottom: 6px;
+    position: relative;
+    box-shadow: 4px 4px 0 #1a1208, 8px 8px 0 rgba(0,0,0,0.3);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid var(--rule);
+    pointer-events: none;
+  }
+
+  .classification {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 6px;
+    color: var(--stamp-red);
+    border: 2px solid var(--stamp-red);
+    display: inline-block;
+    padding: 3px 12px;
+    margin-bottom: 40px;
+    transform: rotate(-1deg);
+  }
+
+  .cover-title {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--faded);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .cover-ship {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 52px;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+
+  .cover-hull {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px;
+    color: var(--olive);
+    margin-bottom: 20px;
+    letter-spacing: 3px;
+  }
+
+  .cover-patrol {
+    font-family: 'Oswald', sans-serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--stamp-blue);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 0;
+    margin: 20px 0;
+  }
+
+  .cover-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--faded);
+    line-height: 2;
+    letter-spacing: 1px;
+  }
+
+  .cover-meta span { color: var(--ink); }
+
+  /* DOCUMENT PAGES */
+  .doc-page {
+    background: var(--paper);
+    border: 2px solid var(--rule);
+    padding: 40px 50px;
+    margin-bottom: 6px;
+    position: relative;
+    box-shadow: 4px 4px 0 #1a1208;
+  }
+
+  .page-header {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--faded);
+    text-transform: uppercase;
+    border-bottom: 2px dashed var(--rule);
+    padding-bottom: 8px;
+    margin-bottom: 28px;
+  }
+
+  .section-label {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: var(--stamp-blue);
+    text-transform: uppercase;
+    margin: 32px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: attr(data-id);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--faded);
+    border: 1px solid var(--faded);
+    padding: 1px 5px;
+    font-weight: 400;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* LOG ENTRIES */
+  .log-date {
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--stamp-blue);
+    border-left: 3px solid var(--stamp-blue);
+    padding-left: 10px;
+    margin: 24px 0 10px;
+    text-transform: uppercase;
+  }
+
+  .log-entry {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0 16px;
+    padding: 5px 0;
+    border-bottom: 1px dotted var(--aged);
+    align-items: baseline;
+  }
+
+  .log-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--faded);
+    text-align: right;
+  }
+
+  .log-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2px;
+    margin: 16px 0;
+  }
+
+  .stat-box {
+    background: var(--aged);
+    padding: 14px 16px;
+    border: 1px solid var(--rule);
+  }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--faded);
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-family: 'Oswald', sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .stat-unit {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--faded);
+  }
+
+  /* FUEL TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    margin: 16px 0;
+  }
+
+  .data-table th {
+    background: var(--olive);
+    color: var(--paper);
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .data-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--aged);
+    color: var(--ink);
+  }
+
+  .data-table tr:nth-child(even) td { background: var(--aged); }
+
+  .data-table .total-row td {
+    background: var(--ink) !important;
+    color: var(--paper);
+    font-weight: bold;
+  }
+
+  .data-table td.num { text-align: right; }
+
+  /* NARRATIVE BLOCK */
+  .narrative {
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--ink);
+    margin: 12px 0;
+    text-align: justify;
+    text-indent: 24px;
+  }
+
+  /* DEFECTS LIST */
+  .defect-item {
+    border-left: 3px solid var(--stamp-red);
+    padding: 10px 14px;
+    margin: 10px 0;
+    background: rgba(139,26,26,0.04);
+  }
+
+  .defect-system {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--stamp-red);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .defect-desc {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  /* MINE SIGHTINGS */
+  .mine-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .mine-card {
+    background: var(--aged);
+    border: 1px solid var(--rule);
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .mine-date {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--stamp-blue);
+    letter-spacing: 1px;
+  }
+
+  .mine-pos {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--faded);
+    line-height: 1.5;
+    margin-top: 3px;
+  }
+
+  /* PACK INFO */
+  .pack-boat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-bottom: 1px dotted var(--aged);
+    font-size: 13px;
+  }
+
+  .pack-boat-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--stamp-blue);
+    min-width: 80px;
+  }
+
+  .pack-boat-role {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--faded);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .flagship-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    background: var(--stamp-blue);
+    color: var(--paper);
+    padding: 2px 6px;
+    letter-spacing: 2px;
+  }
+
+  /* RADAR CONTACTS TABLE */
+  .radar-entry {
+    background: var(--aged);
+    border: 1px solid var(--rule);
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+  }
+
+  .radar-entry-num {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--faded);
+    float: right;
+    margin-left: 12px;
+  }
+
+  .kv { display: grid; grid-template-columns: 140px 1fr; }
+  .kv-key { color: var(--faded); }
+  .kv-val { color: var(--ink); font-weight: bold; }
+
+  /* PAGE NUMBER */
+  .pg-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--faded);
+    text-align: right;
+    margin-top: 24px;
+    letter-spacing: 2px;
+  }
+
+  /* FOOTER */
+  .doc-footer {
+    background: var(--ink);
+    color: var(--aged);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-align: center;
+    padding: 16px;
+    margin-top: 6px;
+  }
+
+  hr.rule {
+    border: none;
+    border-top: 1px dashed var(--rule);
+    margin: 20px 0;
+  }
+</style>
+
+
+<div class="page-wrapper">
+
+  <!-- COVER PAGE -->
+  <div class="cover">
+    <div class="classification">DECLASSIFIED</div>
+    <div class="cover-title">United States Navy</div>
+    <div class="cover-ship">PAMPANITO</div>
+    <div class="cover-hull">SS-383</div>
+    <div class="cover-patrol">Report of Sixth War Patrol</div>
+    <div class="cover-meta">
+      PATROL DATES: <span>28 February – 24 April 1945</span><br>
+      OPERATING AREA: <span>Gulf of Siam / South China Sea (Area D-2)</span><br>
+      DEPARTED: <span>Subic Bay, Luzon, P.I.</span><br>
+      ARRIVED: <span>Pearl Harbor, T.H.</span><br>
+      PACK COMMANDER: <span>Pampanito (CTF. 71 Pack 14)</span>
+    </div>
+  </div>
+
+  <!-- PATROL LOG -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Deck Log</div>
+
+    <div class="section-label" data-id="A">Chronological Log</div>
+
+    <!-- 20 March 1945 -->
+    <div class="log-date">20 March 1945</div>
+    <div class="log-entry"><div class="log-time">1000 (H)</div><div class="log-text">Dived to work on gyro.</div></div>
+    <div class="log-entry"><div class="log-time">1200 (H)</div><div class="log-text">Noon Position — 05° 55' N. — 104° 27' E.</div></div>
+    <div class="log-entry"><div class="log-time">1640 (H)</div><div class="log-text">Repairs completed. Surfaced.</div></div>
+
+    <!-- 21 March 1945 -->
+    <div class="log-date">21 March 1945</div>
+    <div class="log-entry"><div class="log-time">0306 (H)</div><div class="log-text">SJ has Great Redang Island at 65,000 yards bearing 255° T.</div></div>
+    <div class="log-entry"><div class="log-time">0719 (H)</div><div class="log-text">Exchanged recognition signals with Sealion.</div></div>
+    <div class="log-entry"><div class="log-time">0735 (H)</div><div class="log-text">Changed Sealion's patrol orders.</div></div>
+    <div class="log-entry"><div class="log-time">0822 (H)</div><div class="log-text">Sighted Mingo bearing 033° T.</div></div>
+    <div class="log-entry"><div class="log-time">0918 (H)</div><div class="log-text">Dived for plane reported by Mingo.</div></div>
+    <div class="log-entry"><div class="log-time">1002 (H)</div><div class="log-text">Surfaced.</div></div>
+    <div class="log-entry"><div class="log-time">1200 (H)</div><div class="log-text">Noon Position — 05° 58' N. — 104° 19' E.</div></div>
+    <div class="log-entry"><div class="log-time">1320 (H)</div><div class="log-text">Exchanged recognition signals with Sealion and maneuvered to talk with her.</div></div>
+    <div class="log-entry"><div class="log-time">1448 (H)</div><div class="log-text">Ordered Caiman and Mingo to conduct search in Gulf of Siam.</div></div>
+    <div class="log-entry"><div class="log-time">1537 (H)</div><div class="log-text">Gyro repeaters out of commission again.</div></div>
+    <div class="log-entry"><div class="log-time">1610 (H)</div><div class="log-text">Sighted wreckage in water. Closed to investigate and found remains of a Japanese plane — wing with landing gear.</div></div>
+    <div class="log-entry"><div class="log-time">1702 (H)</div><div class="log-text">Exchanged recognition signals with Sealion. Ordered her to conduct search with us close into the coast.</div></div>
+    <div class="log-entry"><div class="log-time">1915 (H)</div><div class="log-text">Sighted a large explosion in water ahead of Sealion. Not knowing the cause, turned toward her at full speed. Sealion reported she had exploded a mine.</div></div>
+    <div class="log-entry"><div class="log-time">2355 (H)</div><div class="log-text">SJ has land bearing 188° T., range 40,000 yards.</div></div>
+
+    <!-- 22 March -->
+    <div class="log-date">22 March 1945</div>
+    <div class="log-entry"><div class="log-time">0400 (H)</div><div class="log-text">Ordered Sealion to patrol area around 8° N. and 104° E.</div></div>
+    <div class="log-entry"><div class="log-time">1200 (H)</div><div class="log-text">Noon Position — 05° 56' N. — 104° 38' E.</div></div>
+    <div class="log-entry"><div class="log-time">1464 (H)</div><div class="log-text">Ordered Sealion and Mingo to conduct submerged patrol in area off coast south of Great Redang; Caiman to rendezvous with us.</div></div>
+    <div class="log-entry"><div class="log-time">2139 (H)</div><div class="log-text">Sent Pampanito third to CTF. 71.</div></div>
+
+    <!-- 23 March -->
+    <div class="log-date">23 March 1945</div>
+    <div class="log-entry"><div class="log-time">0030 (H)</div><div class="log-text">SJ has land from 217° T. to 304° T. at ranges of about 40,000 yards. Patrolling inshore for possible traffic.</div></div>
+    <div class="log-entry"><div class="log-time">0635 (H)</div><div class="log-text">SJ lost land contacts.</div></div>
+    <div class="log-entry"><div class="log-time">1058 (H)</div><div class="log-text">SD contacts at 10 and 20 miles. Dived.</div></div>
+    <div class="log-entry"><div class="log-time">1142 (H)</div><div class="log-text">Surfaced.</div></div>
+    <div class="log-entry"><div class="log-time">1200 (H)</div><div class="log-text">Noon Position — 05° 10' N. — 104° 48' E.</div></div>
+    <div class="log-entry"><div class="log-time">1339 (H)</div><div class="log-text">APR picked up a signal at 148 Megs. followed by an SD contact at 20 miles. Lost contact at 32 miles.</div></div>
+    <div class="log-entry"><div class="log-time">1730 (H)</div><div class="log-text">Sighted a floating mine at range of about 500 yards.</div></div>
+    <div class="log-entry"><div class="log-time">1807 (H)</div><div class="log-text">SJ interference — should be Caiman making rendezvous.</div></div>
+    <div class="log-entry"><div class="log-time">1830 (H)</div><div class="log-text">Exchanged recognition signals with Caiman. Made rendezvous. Transferred Lieutenant Commander William J. Bush, USN, our PCO to Caiman per orders from CTF. 71.</div></div>
+    <div class="log-entry"><div class="log-time">1905 (H)</div><div class="log-text">Completed transfer and pulled clear.</div></div>
+
+    <!-- 24 March -->
+    <div class="log-date">24 March 1945</div>
+    <div class="log-entry"><div class="log-time">0834 (H)</div><div class="log-text">SD contact at 10 miles. Dived.</div></div>
+    <div class="log-entry"><div class="log-time">0926 (H)</div><div class="log-text">Surfaced.</div></div>
+    <div class="log-entry"><div class="log-time">0936 (H)</div><div class="log-text">SD contact at 13 miles.</div></div>
+    <div class="log-entry"><div class="log-time">1200 (H)</div><div class="log-text">Noon Position — 06° 44' N. — 103° 40' E.</div></div>
+
+    <!-- 25 March -->
+    <div class="log-date">25 March 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Turned the Pack over to the Caiman and started north to be in position for passing OP control to Comsubpac as ordered.</div></div>
+    <div class="log-entry"><div class="log-time">1200 (H)</div><div class="log-text">Noon Position — 03° 32' N. — 108° 03' E.</div></div>
+    <div class="log-entry"><div class="log-time">1507 (H)</div><div class="log-text">Sent Pampanito fourth to CTF. 71.</div></div>
+    <div class="log-entry"><div class="log-time">2050 (H)</div><div class="log-text">Exchanged recognition signals with Boarfish.</div></div>
+
+    <!-- 26–28 March -->
+    <div class="log-date">26 March 1945</div>
+    <div class="log-entry"><div class="log-time">0630 (H)</div><div class="log-text">Departed Area D-2. Sighted several friendly search planes during morning.</div></div>
+
+    <div class="log-date">27 March 1945</div>
+    <div class="log-entry"><div class="log-time">1520 (H)</div><div class="log-text">Reported to Comsubpac.</div></div>
+
+    <div class="log-date">28 March 1945</div>
+    <div class="log-entry"><div class="log-time">0200 (H)</div><div class="log-text">Received instructions from Comsubpac to proceed to Pearl Harbor, stopping at Saipan for fuel.</div></div>
+
+    <!-- 29 March -->
+    <div class="log-date">29 March 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Enroute Saipan. I.F.F. out of commission.</div></div>
+    <div class="log-entry"><div class="log-time">0705 (H)</div><div class="log-text">SD contact 10 miles.</div></div>
+    <div class="log-entry"><div class="log-time">0922 (H)</div><div class="log-text">SD contact 8 miles — large formation of friendly planes heading north, probably for Formosa.</div></div>
+    <div class="log-entry"><div class="log-time">1147 (H)</div><div class="log-text">SD contact 4 miles. Dived.</div></div>
+    <div class="log-entry"><div class="log-time">1225 (H)</div><div class="log-text">SD contact 18 miles — more formations of planes heading north.</div></div>
+    <div class="log-entry"><div class="log-time">1637 (H)</div><div class="log-text">Contacted Itbayat Island 90,000 yards.</div></div>
+    <div class="log-entry"><div class="log-time">1917 (H)</div><div class="log-text">Surfaced. Commenced transit of passage between Itbayat and Bataan Islands.</div></div>
+    <div class="log-entry"><div class="log-time">2022 (H)</div><div class="log-text">Completed transit of passage. Cloudy day, wind and sea from northeast, force 4.</div></div>
+
+    <!-- 30–31 March -->
+    <div class="log-date">30 March 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Enroute Saipan. Cloudy day with wind and sea from northeast, force 4.</div></div>
+
+    <div class="log-date">31 March 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Enroute Saipan. Storm set in with heavy seas and high winds from northeast.</div></div>
+    <div class="log-entry"><div class="log-time">1304 (H)</div><div class="log-text">Exchanged recognition signals with U.S.S. Snook.</div></div>
+
+    <!-- April -->
+    <div class="log-date">1 April 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Enroute Saipan. Still heavy weather shifting to the east. Complete overcast.</div></div>
+    <div class="log-entry"><div class="log-time">1914 (I)</div><div class="log-text">Contacted two ships at 21,000 yards by radar. APR showed them to be friendly. Avoided in accordance with instructions.</div></div>
+
+    <div class="log-date">2–5 April 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Enroute Saipan. Heavy seas, high winds from southeast, moderating a little in the evening.</div></div>
+
+    <div class="log-date">5 April 1945</div>
+    <div class="log-entry"><div class="log-time">0810 (I)</div><div class="log-text">Arrived Saipan.</div></div>
+
+    <div class="log-date">6 April 1945</div>
+    <div class="log-entry"><div class="log-time">1752 (I)</div><div class="log-text">Underway enroute Saipan to Pearl Harbor, T.H.</div></div>
+
+    <div class="log-date">7–10 April 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Enroute Pearl Harbor, T.H.</div></div>
+
+    <div class="log-date">11 April 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Joined Pack 14 in accordance with instructions of Comsubpac.</div></div>
+
+    <div class="log-date">18 April 1945</div>
+    <div class="log-entry"><div class="log-time">—</div><div class="log-text">Departed area enroute Pearl Harbor, T.H.</div></div>
+
+    <div class="log-date">24 April 1945</div>
+    <div class="log-entry"><div class="log-time">1100 (W)</div><div class="log-text">Arrived Pearl Harbor, T.H.</div></div>
+
+    <div class="pg-num">— 10 / 12 —</div>
+  </div>
+
+  <!-- PACK COMPOSITION -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Pack Composition</div>
+
+    <div class="section-label" data-id="B">Wolf Pack Composition</div>
+    <div class="pack-boat">
+      <div class="pack-boat-name">PAMPANITO</div>
+      <div class="pack-boat-role">SS-383 &nbsp;·&nbsp; Pack Commander</div>
+      <div class="flagship-badge">FLAGSHIP</div>
+    </div>
+    <div class="pack-boat">
+      <div class="pack-boat-name">SEALION</div>
+      <div class="pack-boat-role">Patrol / Inshore search</div>
+    </div>
+    <div class="pack-boat">
+      <div class="pack-boat-name">MINGO</div>
+      <div class="pack-boat-role">Search / Gulf of Siam</div>
+    </div>
+    <div class="pack-boat">
+      <div class="pack-boat-name">CAIMAN</div>
+      <div class="pack-boat-role">Joined mid-patrol; assumed Pack command 25 March</div>
+    </div>
+
+    <p class="narrative">Pack was assigned Area D-2 in the Gulf of Siam / South China Sea. Pampanito served as pack commander throughout the patrol until turning command over to Caiman on 25 March 1945. Pack boats maintained an east-west staggered patrol line between Latitudes 5° and 6° N. from the Malay Coast eastward approximately 150 miles, with inshore boats submerging during daylight to reduce detection by enemy aircraft while seaward boats maintained surface cruising. It was during this plan that Sealion sank an unescorted tanker off the coast at night.</p>
+  </div>
+
+  <!-- CONTACTS -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Contacts</div>
+
+    <div class="section-label" data-id="C">Ship Contacts</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>No.</th><th>Date/Time</th><th>Position</th><th>Type</th><th>Init. Range</th><th>Est. Course/Speed</th><th>How Contacted</th><th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>0001(H)<br>3/19/45</td>
+          <td>05° 19.2' N.<br>106° 05.3' E.</td>
+          <td>Probable Destroyer</td>
+          <td class="num">15,750 yds</td>
+          <td>000° T. / 22 kts</td>
+          <td>SJ Radar</td>
+          <td>Unable to Close</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" data-id="D">Aircraft Contacts</div>
+    <p class="narrative">Thirty contacts with enemy planes were made while in the area. The pack was bothered throughout the patrol by efficient use of Japanese search planes. While no boat in the pack was able to confirm it, the evidence strongly suggests the Japanese kept track of all submarines and routed traffic accordingly. In only one instance was there evidence of airborne radar, on 23 March 1945. At no time in the area did the pack encounter planes at night. The vast majority of plane contacts were made by radar, leaving little information regarding aircraft types in operation.</p>
+    <p class="narrative">On 21 March 1945, in position Lat. 05° 37' N. and Long. 104° 20' E., the wreckage of a Japanese plane was sighted in the water.</p>
+    <p class="narrative">On one occasion while proceeding on the surface at full speed during daylight to intercept a contact — later identified as a hospital ship — the pack was forced down three different times by enemy planes which circled at about 8 miles. Just prior to diving on one of these occasions, a Japanese two-engine bomber escorted by a fighter was sighted circling at 7–8 miles. At this time, all five submarines including Pampanito were attempting to intercept the ship, and enemy surveillance was almost certain.</p>
+  </div>
+
+  <!-- MINES -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Mines</div>
+
+    <div class="section-label" data-id="I">Mine Sightings</div>
+    <p class="narrative">No mine laying activities were observed. However, numerous floating mines were encountered. These floating mines have been reported often in this area and it is believed most of them came from the Gulf of Siam. Dates and positions of all sightings:</p>
+
+    <div class="mine-grid">
+      <div class="mine-card"><div class="mine-date">1 Mar 1945</div><div class="mine-pos">06° 40' N.<br>103° 00' E.</div></div>
+      <div class="mine-card"><div class="mine-date">6 Mar 1945</div><div class="mine-pos">06° 04' N.<br>103° 01' E.</div></div>
+      <div class="mine-card"><div class="mine-date">6 Mar 1945</div><div class="mine-pos">06° 06' N.<br>103° 25' E.</div></div>
+      <div class="mine-card"><div class="mine-date">6 Mar 1945</div><div class="mine-pos">06° 06' N.<br>103° 26' E.</div></div>
+      <div class="mine-card"><div class="mine-date">7 Mar 1945</div><div class="mine-pos">06° 24' N.<br>103° 39' E.</div></div>
+      <div class="mine-card"><div class="mine-date">12 Mar 1945</div><div class="mine-pos">07° 00' N.<br>104° 05' E.</div></div>
+      <div class="mine-card"><div class="mine-date">15 Mar 1945</div><div class="mine-pos">05° 06' N.<br>105° 52' E.</div></div>
+      <div class="mine-card"><div class="mine-date">23 Mar 1945</div><div class="mine-pos">05° 45' N.<br>105° 25' E.</div></div>
+    </div>
+  </div>
+
+  <!-- MAJOR DEFECTS -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Engineering</div>
+
+    <div class="section-label" data-id="K">Major Defects & Damage</div>
+
+    <div class="defect-item">
+      <div class="defect-system">Hull & Machinery — Air Compressor Motor</div>
+      <div class="defect-desc">#2 air compressor motor flooded out when a plug in the salt water circulating system carried away due to corrosion.</div>
+    </div>
+    <div class="defect-item">
+      <div class="defect-system">Hull & Machinery — Main Engine #1</div>
+      <div class="defect-desc">Cracked cylinder liner water jacket — same engine on which three liners were replaced at last refit for the same defect. The crack occurred around the starting air adapter. Starting air adapters were found badly pitted or corroded, allowing exhaust gas to enter the water jacket, probably causing the cracks.</div>
+    </div>
+    <div class="defect-item">
+      <div class="defect-system">Hull & Machinery — Main Motors #2 & #4</div>
+      <div class="defect-desc">Again developed a badly unbalanced condition after running with 75% or more load for a period of 24 hours or longer. Unbalance occurs instantaneously with #2 main motor taking the load. Load was transferred off motors before brushes burned and brush rigging on #2 motor shifted until the load balanced.</div>
+    </div>
+    <div class="defect-item">
+      <div class="defect-system">Hull & Machinery — Shunt Field Coils</div>
+      <div class="defect-desc">Two shunt field coils and one interpole coil developed a zero ground and were replaced.</div>
+    </div>
+    <div class="defect-item">
+      <div class="defect-system">Navigation — Gyro Compass</div>
+      <div class="defect-desc">Follow-up motor failed due to overheating. Motor was removed and spare installed. Bearing on the top of the vertical shaft of the follow-up gear train was found to be scored, causing the system to be very stiff. Since no spare bearing is carried it could not be replaced. The system was freed up as much as possible and the burned-up motor is being repaired.</div>
+    </div>
+    <div class="defect-item">
+      <div class="defect-system">Ordnance & Gunnery</div>
+      <div class="defect-desc">No major defects or damages occurred in ordnance and gunnery equipment.</div>
+    </div>
+
+    <div class="section-label" data-id="L">Radio</div>
+    <p class="narrative">Two defects experienced: "C" frequency band in the RBH receiver, and No. 8 frequency band in one RLL filed. The signal from Bakers Fox faded daily between 0500 and 0700 zebra on all frequencies. A complete log of receiving conditions was submitted to CNO as a separate report. Pampanito cleared six messages to shore stations without too great delay — two direct to NPM and VIK0, and four via Fox/Fleet broadcast. A roger via Fox was received in all cases. Each boat would alert the pack when diving for planes by sending a spare code group until the antenna went under — this was very successful at all times.</p>
+
+    <div class="section-label" data-id="M">Radar</div>
+
+    <div class="defect-item">
+      <div class="defect-system">SJ-1 Surface Search Radar</div>
+      <div class="defect-desc">Operation was normal during this patrol. On 7 March 1945 two hours of operational time were lost when the "A" scope sweep disappeared — a shorted C-33.1 in the power supply for the cathode ray tube. On 19 March a thorough check was made but the trouble could not be found; P-11 (25,000 ohms) was replaced by spare P-8 (70,000 ohms). Reliable ranges: U.S. submarines 12,000 yds; Great Redang Island 80,000 yds; U.S. Destroyer Escort 21,000 yds; Unknown Japanese vessel (believed Japanese Destroyer) 15,000 yds.</div>
+    </div>
+    <div class="defect-item">
+      <div class="defect-system">SD-4 Air Search Radar</div>
+      <div class="defect-desc">Performance was excellent during the entire patrol. No operational difficulties were encountered. All aircraft were detected at a range of eight miles or greater.</div>
+    </div>
+    <div class="defect-item">
+      <div class="defect-system">APR-1 & SPL-1</div>
+      <div class="defect-desc">On 5 March 1945 the power transformer in the SPL-1 unit developed a short after approximately 500 hours of operation — second transformer to fail after this period of operation. Operation was restored when the transformer was replaced by a spare. The power transformer of the BN shorted on 25 March 1945. As no spare is carried for this transformer, the BN was inoperative for the remainder of the patrol.</div>
+    </div>
+
+    <div class="pg-num">— 14 / 15 / 16 —</div>
+  </div>
+
+  <!-- STATISTICS -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Statistics</div>
+
+    <div class="section-label" data-id="P">Health, Food & Habitability</div>
+    <p class="narrative">Health was generally good. There were several colds the first week after leaving Subic Bay. One man was on the binnacle list for two weeks with a fever from a cold. The meals were well planned and served, except that 354 lbs. of meat spoiled and had to be surveyed, thereby limiting the menu slightly. Being the first boat to refit at Subic Bay, recreational facilities were very limited and the crew lived on board during the refit.</p>
+
+    <div class="section-label" data-id="Q">Personnel</div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-label">Men Detached (prev. patrol)</div><div class="stat-value">3</div></div>
+      <div class="stat-box"><div class="stat-label">Men on Board During Patrol</div><div class="stat-value">82</div></div>
+      <div class="stat-box"><div class="stat-label">Qualified — Start of Patrol</div><div class="stat-value">63</div></div>
+      <div class="stat-box"><div class="stat-label">Qualified — End of Patrol</div><div class="stat-value">76</div></div>
+      <div class="stat-box"><div class="stat-label">First Patrol (Unqualified)</div><div class="stat-value">3</div></div>
+    </div>
+
+    <div class="section-label" data-id="R">Miles Steamed — Fuel Used</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Leg</th><th class="num">Miles</th><th class="num">Fuel (Gallons)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Subic Bay to Area</td><td class="num">806</td><td class="num">13,940</td></tr>
+        <tr><td>In Area</td><td class="num">7,076</td><td class="num">65,000</td></tr>
+        <tr><td>Area to Saipan</td><td class="num">2,979</td><td class="num">31,800</td></tr>
+        <tr><td>Saipan to Pearl Harbor</td><td class="num">4,763</td><td class="num">54,000</td></tr>
+        <tr class="total-row"><td>TOTAL</td><td class="num">15,624</td><td class="num">163,740</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" data-id="S">Duration</div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-label">Days Enroute to Area</div><div class="stat-value">2</div><div class="stat-unit">days</div></div>
+      <div class="stat-box"><div class="stat-label">Days In Area</div><div class="stat-value">27</div><div class="stat-unit">days</div></div>
+      <div class="stat-box"><div class="stat-label">Days Area to Saipan</div><div class="stat-value">10</div><div class="stat-unit">days</div></div>
+      <div class="stat-box"><div class="stat-label">Days Saipan to Pearl Harbor</div><div class="stat-value">18</div><div class="stat-unit">days</div></div>
+      <div class="stat-box"><div class="stat-label">Days Submerged</div><div class="stat-value">1</div><div class="stat-unit">days</div></div>
+    </div>
+
+    <div class="section-label" data-id="T">Factors of Endurance Remaining</div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-label">Torpedoes Remaining</div><div class="stat-value">24</div></div>
+      <div class="stat-box"><div class="stat-label">Fuel Remaining</div><div class="stat-value">6,000</div><div class="stat-unit">gallons</div></div>
+      <div class="stat-box"><div class="stat-label">Provisions Remaining</div><div class="stat-value">15</div><div class="stat-unit">days</div></div>
+      <div class="stat-box"><div class="stat-label">Personnel Factor</div><div class="stat-value">30</div><div class="stat-unit">days</div></div>
+    </div>
+    <p class="narrative" style="font-family:'Share Tech Mono',monospace; font-size:12px; text-indent:0;">Limiting Factor this Patrol — Operation Order.</p>
+
+    <div class="pg-num">— 17 —</div>
+  </div>
+
+  <!-- WEATHER -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Weather / Tidal</div>
+
+    <div class="section-label" data-id="C-W">Weather</div>
+    <p class="narrative">The northeast monsoon was steady in the mouth of the Gulf of Siam, south of Cochin China. Both wind and sea were from the northeast, with wind varying in intensity from about force two to force four. In general, the weather conditions followed closely those as described in coast pilot, with frequent overcast skies, some haziness, and light rain squalls.</p>
+    <p class="narrative">From area to Saipan, heavy weather was encountered almost daily with heavy head seas. Skies were usually overcast.</p>
+
+    <div class="section-label" data-id="D-T">Tidal Information</div>
+    <p class="narrative">In the lower Gulf of Siam the set was to the southwest averaging about 0.9 knots, steady during March. Over near the Malay Coast off Great Redang Island the set was southward about 0.5 knots — corresponding with the coast pilot. South of Great Redang, southerly currents increased to about 1–2 knots along the coast.</p>
+
+    <div class="section-label" data-id="O">Density Layers</div>
+    <p class="narrative">Bathythermograph cards were taken for each dive made on station. The shallow water in the assigned patrol area limited the deepest dive to 150 feet. In both calm seas and seas of force five, the cards — with one exception — were iso-thermal. The one exception was the dive of 7 March 1945 in 37 fathoms of water and with seas and wind of force one. This card showed an iso-ballast to 60 feet, a negative gradient of 1½° from 60 feet to 80 feet, and an iso-ballast from 80 feet to 120 feet. Surface water temperature varied from 80° to 82° F.; air temperature varied from 77° to 84°.</p>
+
+    <div class="pg-num">— 13 —</div>
+  </div>
+
+  <!-- RADAR INTERCEPTIONS -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Enemy Radar Intercepts</div>
+
+    <div class="section-label" data-id="U">Enemy Radar Interceptions (CND Form No. 2)</div>
+
+    <div class="radar-entry">
+      <span class="radar-entry-num">1</span>
+      <div class="kv"><span class="kv-key">Date:</span><span class="kv-val">13 March 1945 — 1317102</span></div>
+      <div class="kv"><span class="kv-key">Position:</span><span class="kv-val">Lat. 7° 14.59' N., Long. 103° 45.61' E.</span></div>
+      <div class="kv"><span class="kv-key">Source:</span><span class="kv-val">Unknown</span></div>
+      <div class="kv"><span class="kv-key">Intercept Equip:</span><span class="kv-val">APR-1 & SPL-1</span></div>
+      <div class="kv"><span class="kv-key">Frequency:</span><span class="kv-val">108 MHz</span></div>
+      <div class="kv"><span class="kv-key">PRF:</span><span class="kv-val">300</span></div>
+      <div class="kv"><span class="kv-key">Pulse Width:</span><span class="kv-val">15 ys (Approx.)</span></div>
+      <div class="kv"><span class="kv-key">Polarization:</span><span class="kv-val">Horizontal</span></div>
+      <div class="kv"><span class="kv-key">Sweep Rate:</span><span class="kv-val">~4 RPM, but irregular</span></div>
+      <div class="kv"><span class="kv-key">Remarks:</span><span class="kv-val">None</span></div>
+    </div>
+
+    <div class="radar-entry">
+      <span class="radar-entry-num">2</span>
+      <div class="kv"><span class="kv-key">Date:</span><span class="kv-val">23 March 1945 — 2313392</span></div>
+      <div class="kv"><span class="kv-key">Position:</span><span class="kv-val">Lat. 5° 10.5' N., Long. 105° 02' E.</span></div>
+      <div class="kv"><span class="kv-key">Source:</span><span class="kv-val">Airborne</span></div>
+      <div class="kv"><span class="kv-key">Intercept Equip:</span><span class="kv-val">APR-1 & SPL-1</span></div>
+      <div class="kv"><span class="kv-key">Frequency:</span><span class="kv-val">148 MHz</span></div>
+      <div class="kv"><span class="kv-key">PRF:</span><span class="kv-val">1000</span></div>
+      <div class="kv"><span class="kv-key">Pulse Width:</span><span class="kv-val">~15 ys</span></div>
+      <div class="kv"><span class="kv-key">Polarization:</span><span class="kv-val">Horizontal</span></div>
+      <div class="kv"><span class="kv-key">Sweep Rate:</span><span class="kv-val">Keying</span></div>
+      <div class="kv"><span class="kv-key">Remarks:</span><span class="kv-val">Aircraft. Had SD contact at 20 miles a few minutes later.</span></div>
+    </div>
+
+    <div class="radar-entry">
+      <span class="radar-entry-num">3</span>
+      <div class="kv"><span class="kv-key">Date:</span><span class="kv-val">28 March 1945 — 2812005</span></div>
+      <div class="kv"><span class="kv-key">Position:</span><span class="kv-val">Lat. 20° 01.3' N., Long. 117° 19.7' E.</span></div>
+      <div class="kv"><span class="kv-key">Source:</span><span class="kv-val">Unknown</span></div>
+      <div class="kv"><span class="kv-key">Intercept Equip:</span><span class="kv-val">APR-1 & SPL-1</span></div>
+      <div class="kv"><span class="kv-key">Frequency:</span><span class="kv-val">175 MHz</span></div>
+      <div class="kv"><span class="kv-key">PRF:</span><span class="kv-val">60</span></div>
+      <div class="kv"><span class="kv-key">Pulse Width:</span><span class="kv-val">6 ys</span></div>
+      <div class="kv"><span class="kv-key">Polarization:</span><span class="kv-val">Horizontal</span></div>
+      <div class="kv"><span class="kv-key">Sweep Rate:</span><span class="kv-val">None</span></div>
+      <div class="kv"><span class="kv-key">Remarks:</span><span class="kv-val">Possibly a BN.</span></div>
+    </div>
+
+    <div class="pg-num">— 18 / 19 —</div>
+  </div>
+
+  <!-- NARRATIVE / REMARKS -->
+  <div class="doc-page">
+    <div class="page-header">U.S.S. PAMPANITO (SS383) &nbsp;///&nbsp; Report of Sixth War Patrol &nbsp;///&nbsp; Commanding Officer's Remarks</div>
+
+    <div class="section-label" data-id="V">Remarks</div>
+    <p class="narrative">Since Pampanito had spent her last patrol in Area D-2 and had made its only two contacts on enemy convoys well to seaward of the mouth of the Gulf of Siam, and yet knowing that some of the northbound traffic moved well inside the Gulf, it was considered both wise and feasible for the pack to endeavor to maintain an east-west patrol line in this area to cover the most likely routes for shipping both inshore and to seaward. In order to do this thoroughly, surface cruising during daylight was almost a necessity. This method was used during the first part of patrol with no contacts.</p>
+
+    <p class="narrative">Pampanito, having had only a short run from Subic to the area, had ample fuel to continue surface patrolling during daylight the remainder of the patrol, while the other boats were not so well-supplied, having come up from Fremantle. So it was requested that our southern boundary of area be extended from 6° N. to 5° N., in order to give a shorter and more compact east-west patrol line from the Malay Coast eastward and allow part-time submerged patrolling for the other boats. This request was granted and at the same time Caiman was ordered to join the pack.</p>
+
+    <p class="narrative">An east-west staggered patrol line was thus established between Latitudes 5° and 6° N. from the Malay Coast eastward for about 150 miles. The two boats inshore on this line remained submerged during daylight to avoid detection by aircraft while the two boats to seaward maintained surface cruising. It was while using this plan that Sealion sank an unescorted tanker off the coast at night, and Pampanito made its only contact with a high-speed destroyer — though unable to close for an attack. These were the only two contacts made by the Pack prior to leaving the patrol area. While in the area, Pampanito remained on the surface at all times, except when diving for plane contacts and for one day while effecting repairs to the gyro compass, in order to maintain radio guard and coordinate Wolf Pack disposition in case of contacts.</p>
+
+    <div class="section-label" data-id="J">Anti-Submarine Measures & Evasion Tactics</div>
+    <p class="narrative">Other than the SJ contact at extreme range on a possible high-speed destroyer the night of 18 March 1945, the only contacts were with enemy planes. These occurred almost daily — both for Pampanito and for the other boats in the pack. Due to intermittent cloudy skies, very seldom were we able to have sight contact prior to diving. At no time did any of these planes close fast, nor did they attempt to drive home an attack on any of us — although we are certain we were sighted more than once. The intermittent cloudy skies and sometimes hazy weather made it expedient to use an intermittent sweep on SD radar during daylight hours (5-second sweep every 2–3 minutes) and it worked fine as far as detecting enemy planes, but Commanding Officer is positive it was also a "Dead give-away" as to location, and that the Japanese kept Pampanito pretty well spotted in both night and day by their detecting equipment.</p>
+
+    <div class="pg-num">— 20 —</div>
+  </div>
+
+</div>
+
+<div class="doc-footer">
+  U.S.S. PAMPANITO (SS-383) &nbsp;///&nbsp; SIXTH WAR PATROL &nbsp;///&nbsp; 28 FEBRUARY – 24 APRIL 1945 &nbsp;///&nbsp; DECLASSIFIED
+</div>
+<!-- PATROL-BODY-END -->
+  </article>
+  <script src="/web/site-footer.js"></script>
+  <script src="/web/site-header.js"></script>
+  <script>
+    SiteFooter.render();
+    SiteHeader.render({
+      title: 'First Patrol',
+    });
+  </script>
+</body>
+</html>

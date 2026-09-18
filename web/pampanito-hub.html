@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>USS Pampanito</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .hub-card {
+      display: flex;
+      align-items: flex-start;
+      padding: 24px;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      margin-bottom: 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .hub-card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .hub-body { flex: 1; min-width: 0; }
+
+    .hub-body h2 { margin: 0 0 4px; font-size: 20px; }
+
+    .hub-body p {
+      margin: 0;
+      font-size: 14px;
+      color: #c9d1d9;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <a class="hub-card" href="/web/pampanito-patrols.html">
+      <div class="hub-body">
+        <h2>Patrols</h2>
+        <p>Explore the six war patrols Pampanito conducted in the Pacific during World War II.</p>
+      </div>
+    </a>
+    <a class="hub-card" href="/web/askthedocent.html">
+      <div class="hub-body">
+        <h2>Ask the Docent</h2>
+        <p>Ask a question out loud, or type it, and hear an answer drawn from the ship's history.</p>
+      </div>
+    </a>
+  </main>
+
+  <script src="/web/site-footer.js"></script>
+  <script src="/web/site-header.js"></script>
+  <script>
+    SiteFooter.render();
+    SiteHeader.render({
+      title:    'USS Pampanito',
+      subtitle: 'SS-383 · Balao-class Fleet Submarine · Pier 45, San Francisco',
+      feedback: 'Have a correction or something to add?',
+    });
+  </script>
+</body>
+
+</html>

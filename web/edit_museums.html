@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Museums</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .toplink, .btn {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .toplink {
+      border: 1px solid #30363d;
+      color: #e6edf3;
+    }
+
+    .toplink:hover { border-color: #58a6ff; }
+
+    .btn {
+      border: none;
+      background: #58a6ff;
+      color: #08111b;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn:hover:not(:disabled) { background: #79b8ff; }
+
+    .btn:disabled { opacity: 0.6; cursor: wait; }
+
+    .btn.is-clean:not(:disabled) {
+      background: #30363d;
+      color: #8b949e;
+      cursor: not-allowed;
+    }
+
+    .btn.is-clean:not(:disabled):hover { background: #30363d; }
+
+    #btn-help {
+      margin-left: auto;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 13px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    #btn-help:hover { background: #30363d; color: #c9d1d9; }
+
+    #status {
+      display: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    #status.show { display: block; }
+    #status.info  { background: #0f2744; border: 1px solid #245487; color: #cfe8ff; }
+    #status.success { background: #0f2d1f; border: 1px solid #2a6b46; color: #d3f4df; }
+    #status.error { background: #3a1518; border: 1px solid #7d2d33; color: #ffd7d9; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 { margin: 0; font-size: 24px; }
+
+    .museum-list { display: grid; gap: 12px; }
+
+    .museum-card {
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      background: #0d1117;
+      padding: 20px;
+    }
+
+    .museum-card h3 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+
+    .museum-card .designation {
+      font-size: 13px;
+      color: #8b949e;
+      margin-bottom: 6px;
+    }
+
+    .museum-card .location {
+      font-size: 13px;
+      color: #8b949e;
+      margin-bottom: 8px;
+    }
+
+    .museum-card .description {
+      font-size: 14px;
+      color: #c9d1d9;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .museum-card .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+      background: #21262d;
+      color: #e6edf3;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .action-btn:hover:not(:disabled) { background: #30363d; }
+    .action-btn:disabled { opacity: 0.6; cursor: wait; }
+
+    .action-btn.danger {
+      background: #35161a;
+      border-color: #6c2f37;
+      color: #ffccd2;
+    }
+
+    .action-btn.danger:hover:not(:disabled) { background: #482026; }
+
+    .empty-state {
+      border: 1px dashed #30363d;
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      color: #8b949e;
+    }
+
+    .loading { color: #8b949e; text-align: center; padding: 18px 0; }
+
+    /* Modal */
+    #modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 400;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 24px;
+      overflow-y: auto;
+    }
+
+    #modal-backdrop.open { display: flex; }
+
+    #modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      width: min(100%, 640px);
+      padding: 28px 32px 32px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    #modal h2 { margin: 0 0 20px; font-size: 22px; }
+
+    #modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    #modal-close:hover { color: #e6edf3; }
+
+    .field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #c9d1d9;
+      margin-bottom: 6px;
+    }
+
+    .field-label .optional { font-weight: 400; color: #8b949e; }
+
+    .modal-input, .modal-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+      font-size: 14px;
+      font-family: inherit;
+      margin-bottom: 14px;
+    }
+
+    .modal-input:focus, .modal-textarea:focus {
+      outline: none;
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88,166,255,0.15);
+    }
+
+    .modal-textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .modal-status { font-size: 13px; color: #8b949e; flex: 1; }
+    .modal-status.ok  { color: #3fb950; }
+    .modal-status.err { color: #f85149; }
+
+    /* Help modal */
+    #help-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #help-backdrop.open { display: flex; }
+
+    #help-modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      max-width: 640px;
+      width: min(100%, 640px);
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    #help-modal h1 { margin: 0 0 12px; font-size: 26px; }
+    #help-modal p, #help-modal li { color: #8b949e; line-height: 1.7; }
+    #help-modal ul { padding-left: 18px; margin: 14px 0 0; }
+    #help-modal li + li { margin-top: 6px; }
+
+    #help-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    #help-close:hover { color: #e6edf3; }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="topbar">
+      <a class="toplink" href="/web/edit.html">&#8592; Editor Hub</a>
+      <button id="btn-help" type="button">Help</button>
+    </div>
+
+    <div id="status" aria-live="polite"></div>
+
+    <div class="section-head">
+      <h2>Museums</h2>
+      <button class="btn" id="add-btn" type="button">Add Museum</button>
+    </div>
+
+    <div id="museum-list" class="museum-list loading">Loading museums…</div>
+  </main>
+
+  <!-- Add / Edit modal -->
+  <div id="modal-backdrop" aria-hidden="true">
+    <div id="modal" role="dialog" aria-modal="true">
+      <button id="modal-close" type="button" aria-label="Close">&times;</button>
+      <h2 id="modal-title">Add Museum</h2>
+
+      <label class="field-label" for="f-name">Name</label>
+      <input class="modal-input" id="f-name" type="text" placeholder="e.g. USS Pampanito" autocomplete="off">
+
+      <label class="field-label" for="f-designation">Designation <span class="optional">(optional)</span></label>
+      <input class="modal-input" id="f-designation" type="text" placeholder="e.g. SS-383 · Balao-class Fleet Submarine" autocomplete="off">
+
+      <label class="field-label" for="f-location">Location <span class="optional">(optional)</span></label>
+      <input class="modal-input" id="f-location" type="text" placeholder="e.g. Pier 45, San Francisco, CA" autocomplete="off">
+
+      <label class="field-label" for="f-url">URL <span class="optional">(optional)</span></label>
+      <input class="modal-input" id="f-url" type="text" placeholder="e.g. https://maritime.org/ship/pampanito/" autocomplete="off">
+
+      <label class="field-label" for="f-description">Description <span class="optional">(optional)</span></label>
+      <textarea class="modal-textarea" id="f-description" placeholder="Brief description shown on the public page…"></textarea>
+
+      <div class="modal-footer">
+        <button class="btn" id="modal-save-btn" type="button">Save</button>
+        <span class="modal-status" id="modal-status"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help modal -->
+  <div id="help-backdrop" aria-hidden="true">
+    <div id="help-modal" role="dialog" aria-modal="true">
+      <button id="help-close" type="button" aria-label="Close help">&times;</button>
+      <h1>Museums</h1>
+      <p>Manage the list of submarine museums displayed on the public Museums page.</p>
+      <ul>
+        <li>Click <strong>Add Museum</strong> to create a new entry.</li>
+        <li>Click <strong>Edit</strong> on any card to update its details.</li>
+        <li>Click <strong>Delete</strong> to permanently remove a museum.</li>
+        <li>All fields except Name are optional.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+    let museums = [];
+    let editingId = null;
+    let initialSnapshot = '';
+
+    const FIELD_IDS = ['f-name', 'f-designation', 'f-location', 'f-url', 'f-description'];
+
+    function currentSnapshot() {
+      return FIELD_IDS.map(id => document.getElementById(id).value).join('\u0001');
+    }
+
+    function updateSaveEnabled() {
+      const btn = document.getElementById('modal-save-btn');
+      const dirty = currentSnapshot() !== initialSnapshot;
+      btn.classList.toggle('is-clean', !dirty);
+    }
+
+    function setStatus(msg, type = 'info') {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = `show ${type}`;
+    }
+
+    function clearStatus() {
+      const el = document.getElementById('status');
+      el.textContent = '';
+      el.className = '';
+    }
+
+    function escHtml(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function sendJson(url, options = {}) {
+      const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        throw new Error(payload.detail || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    function renderList() {
+      const el = document.getElementById('museum-list');
+      el.className = 'museum-list';
+      if (!museums.length) {
+        el.innerHTML = '<div class="empty-state">No museums yet. Click Add Museum to get started.</div>';
+        return;
+      }
+      el.innerHTML = museums.map(m => `
+        <div class="museum-card">
+          <h3>${escHtml(m.name)}</h3>
+          ${m.designation ? `<div class="designation">${escHtml(m.designation)}</div>` : ''}
+          ${m.location    ? `<div class="location">📍 ${escHtml(m.location)}</div>` : ''}
+          ${m.description ? `<div class="description">${escHtml(m.description)}</div>` : ''}
+          <div class="card-actions">
+            <button class="action-btn edit-btn" type="button" data-id="${m.id}">Edit</button>
+            <button class="action-btn danger delete-btn" type="button" data-id="${m.id}">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadMuseums() {
+      try {
+        museums = await sendJson(`${API}/api/museums`);
+        renderList();
+      } catch (e) {
+        document.getElementById('museum-list').className = 'museum-list';
+        document.getElementById('museum-list').innerHTML = '<div class="empty-state">Unable to load museums.</div>';
+        setStatus(e.message, 'error');
+      }
+    }
+
+    function openModal(museum = null) {
+      editingId = museum ? museum.id : null;
+      document.getElementById('modal-title').textContent = museum ? 'Edit Museum' : 'Add Museum';
+      document.getElementById('f-name').value        = museum?.name        ?? '';
+      document.getElementById('f-designation').value = museum?.designation ?? '';
+      document.getElementById('f-location').value    = museum?.location    ?? '';
+      document.getElementById('f-url').value         = museum?.url         ?? '';
+      document.getElementById('f-description').value = museum?.description ?? '';
+      document.getElementById('modal-status').textContent = '';
+      document.getElementById('modal-status').className = 'modal-status';
+      initialSnapshot = currentSnapshot();
+      updateSaveEnabled();
+      document.getElementById('modal-backdrop').classList.add('open');
+      document.getElementById('modal-backdrop').setAttribute('aria-hidden', 'false');
+      document.getElementById('f-name').focus();
+    }
+
+    function closeModal() {
+      document.getElementById('modal-backdrop').classList.remove('open');
+      document.getElementById('modal-backdrop').setAttribute('aria-hidden', 'true');
+    }
+
+    document.getElementById('add-btn').addEventListener('click', () => openModal());
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-backdrop').addEventListener('click', e => {
+      if (e.target.id === 'modal-backdrop') closeModal();
+    });
+
+    document.getElementById('museum-list').addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const id = parseInt(btn.dataset.id);
+      if (btn.classList.contains('edit-btn')) {
+        openModal(museums.find(m => m.id === id));
+      } else if (btn.classList.contains('delete-btn')) {
+        deleteMuseum(id);
+      }
+    });
+
+    document.getElementById('modal-save-btn').addEventListener('click', () => {
+      if (document.getElementById('modal-save-btn').classList.contains('is-clean')) return;
+      saveMuseum();
+    });
+    document.getElementById('f-name').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !document.getElementById('modal-save-btn').classList.contains('is-clean')) {
+        saveMuseum();
+      }
+    });
+    FIELD_IDS.forEach(id => {
+      document.getElementById(id).addEventListener('input', updateSaveEnabled);
+    });
+
+    async function saveMuseum() {
+      const statusEl = document.getElementById('modal-status');
+      const name = document.getElementById('f-name').value.trim();
+      if (!name) {
+        statusEl.textContent = 'Name is required.';
+        statusEl.className = 'modal-status err';
+        return;
+      }
+      const payload = {
+        name,
+        designation: document.getElementById('f-designation').value.trim(),
+        location:    document.getElementById('f-location').value.trim(),
+        url:         document.getElementById('f-url').value.trim(),
+        description: document.getElementById('f-description').value.trim(),
+      };
+      statusEl.textContent = 'Saving…';
+      statusEl.className = 'modal-status';
+      try {
+        if (editingId) {
+          await sendJson(`${API}/admin/museums/${editingId}`, { method: 'PUT', body: JSON.stringify(payload) });
+        } else {
+          await sendJson(`${API}/admin/museums`, { method: 'POST', body: JSON.stringify(payload) });
+        }
+        closeModal();
+        await loadMuseums();
+        setStatus(editingId ? 'Museum updated.' : 'Museum added.', 'success');
+        setTimeout(clearStatus, 3000);
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+        statusEl.className = 'modal-status err';
+      }
+    }
+
+    async function deleteMuseum(id) {
+      const museum = museums.find(m => m.id === id);
+      if (!window.confirm(`Delete "${museum?.name}"?`)) return;
+      try {
+        await sendJson(`${API}/admin/museums/${id}`, { method: 'DELETE' });
+        await loadMuseums();
+        setStatus('Museum deleted.', 'success');
+        setTimeout(clearStatus, 3000);
+      } catch (e) {
+        setStatus(e.message, 'error');
+      }
+    }
+
+    loadMuseums();
+  </script>
+
+  <script>
+    document.getElementById('btn-help').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.add('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'false');
+    });
+    document.getElementById('help-close').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.remove('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+    });
+    document.getElementById('help-backdrop').addEventListener('click', e => {
+      if (e.target.id === 'help-backdrop') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+        closeModal();
+      }
+    });
+  </script>
+  <script src="/web/admin-env-banner.js"></script>
+</body>
+
+</html>

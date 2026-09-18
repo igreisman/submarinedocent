@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ Editor — SubmarineDocent</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* ---- Header ---- */
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e6edf3;
+      flex-shrink: 0;
+    }
+
+    header .subtitle {
+      color: #8b949e;
+      font-size: 12px;
+    }
+
+    header a.back-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      color: #e6edf3;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 0 14px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    header a.back-link:hover { border-color: #58a6ff; }
+
+    #btn-help {
+      margin-left: auto;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 5px 14px;
+      flex-shrink: 0;
+    }
+
+    #btn-help:hover {
+      background: #30363d;
+      color: #c9d1d9;
+    }
+
+    .site-warning {
+      background: #3b2f12;
+      border-bottom: 1px solid #6f5b28;
+      color: #f4e6b8;
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .site-warning strong {
+      color: #fff3cd;
+    }
+
+    /* ---- Help modal ---- */
+    #help-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #help-backdrop.open {
+      display: flex;
+    }
+
+    #help-modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      max-width: 660px;
+      width: calc(100% - 48px);
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    #help-modal h2 {
+      font-size: 17px;
+      color: #e6edf3;
+      margin-bottom: 18px;
+    }
+
+    #help-modal h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #58a6ff;
+      margin: 18px 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    #help-modal p,
+    #help-modal li {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #c9d1d9;
+    }
+
+    #help-modal ul {
+      padding-left: 18px;
+      margin-top: 4px;
+    }
+
+    #help-modal li {
+      margin-bottom: 4px;
+    }
+
+    #help-modal code {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      font-size: 12px;
+      padding: 1px 6px;
+      color: #e6edf3;
+    }
+
+    #help-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    #help-close:hover {
+      color: #e6edf3;
+    }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .step-num {
+      background: #1f6feb;
+      border-radius: 50%;
+      color: #fff;
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      width: 20px;
+      margin-top: 2px;
+    }
+
+    .step p {
+      margin: 0;
+    }
+
+    /* ---- Toolbar ---- */
+    #toolbar {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 10px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #search {
+      flex: 1;
+      min-width: 200px;
+      max-width: 340px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+
+    #search:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    .filter-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 5px 12px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .filter-btn:hover {
+      background: #30363d;
+    }
+
+    .filter-btn.active {
+      background: #1f6feb;
+      border-color: #1f6feb;
+      color: #fff;
+    }
+
+    #btn-new {
+      background: #238636;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      white-space: nowrap;
+    }
+
+    #btn-new:hover {
+      background: #2ea043;
+    }
+
+
+
+    #stats {
+      margin-left: auto;
+      color: #8b949e;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    /* ---- Main layout ---- */
+    #main {
+      display: flex;
+      height: calc(100vh - 93px);
+      overflow: hidden;
+    }
+
+    /* ---- Entry list ---- */
+    #list-panel {
+      width: 360px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      border-right: 1px solid #30363d;
+    }
+
+    .entry-item {
+      border-bottom: 1px solid #21262d;
+      cursor: pointer;
+      padding: 10px 14px;
+      transition: background 0.1s;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .entry-item:hover {
+      background: #161b22;
+    }
+
+    .entry-item.selected {
+      background: #1c2128;
+      border-left: 3px solid #1f6feb;
+      padding-left: 11px;
+    }
+
+    .prefix-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      text-transform: uppercase;
+    }
+
+    .badge-faq {
+      background: #3a2e1e;
+      color: #e3b341;
+    }
+
+    .badge-der {
+      background: #1f3a5f;
+      color: #79c0ff;
+    }
+
+    .badge-pam {
+      background: #3a1e5f;
+      color: #d2a8ff;
+    }
+
+    .badge-fix {
+      background: #1e3a2e;
+      color: #56d364;
+    }
+
+    .badge-unk {
+      background: #21262d;
+      color: #8b949e;
+    }
+
+    .entry-title {
+      font-size: 13px;
+      color: #c9d1d9;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .entry-id {
+      font-size: 10px;
+      color: #8b949e;
+      margin-top: 2px;
+    }
+
+    /* ---- Edit panel ---- */
+    #edit-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 860px;
+    }
+
+    #edit-panel.empty {
+      align-items: center;
+      justify-content: center;
+      color: #8b949e;
+    }
+
+    #edit-panel.empty .empty-msg {
+      text-align: center;
+    }
+
+    #edit-panel.empty .empty-msg h2 {
+      font-size: 18px;
+      color: #30363d;
+      margin-bottom: 8px;
+    }
+
+    #edit-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #edit-chunk-id {
+      font-size: 13px;
+      font-weight: 600;
+      color: #8b949e;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    #edit-title {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e6edf3;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 8px 12px;
+      resize: none;
+      font-family: inherit;
+    }
+
+    #edit-title:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    .field-help {
+      color: #8b949e;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 6px;
+    }
+
+    .editor-shell {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: min(70vh, 720px);
+    }
+
+    .editor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #30363d;
+      background: #161b22;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .editor-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 6px 10px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .editor-btn:hover {
+      background: #30363d;
+    }
+
+    .editor-btn.active {
+      color: #58a6ff;
+      border-color: #58a6ff;
+    }
+
+    .editor-divider {
+      width: 1px;
+      height: 24px;
+      background: #30363d;
+      margin: 0 2px;
+    }
+
+    #edit-html-editor,
+    #edit-html-source {
+      width: 100%;
+      min-height: 0;
+      flex: 1 1 auto;
+      background: #0d1117;
+      color: #c9d1d9;
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 12px 14px;
+      overflow-y: auto;
+    }
+
+    #edit-html-editor {
+      outline: none;
+    }
+
+    #edit-html-editor.drag-over,
+    #edit-html-source.drag-over {
+      outline: 2px dashed #58a6ff;
+      outline-offset: -2px;
+      background: #11203a;
+    }
+
+    #edit-html-editor:empty::before {
+      content: attr(data-placeholder);
+      color: #6e7681;
+    }
+
+    #edit-html-editor p,
+    #edit-html-editor ul,
+    #edit-html-editor ol,
+    #edit-html-editor blockquote {
+      margin-top: 12px;
+    }
+
+    #edit-html-editor>*:first-child {
+      margin-top: 0;
+    }
+
+    #edit-html-editor table {
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    #edit-html-editor th,
+    #edit-html-editor td {
+      border: 1px solid #30363d;
+      padding: 2px 10px;
+      vertical-align: middle;
+      line-height: 1.4;
+      text-align: left;
+    }
+
+    #edit-html-editor td p,
+    #edit-html-editor th p {
+      margin: 0;
+    }
+
+    #edit-html-editor th {
+      background: #161b22;
+      font-weight: 600;
+    }
+
+    #edit-html-editor ul,
+    #edit-html-editor ol {
+      padding-left: 22px;
+    }
+
+    #edit-html-editor a {
+      color: #58a6ff;
+    }
+
+    #edit-html-source {
+      display: none;
+      border: none;
+      border-top: 1px solid #30363d;
+      font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      line-height: 1.6;
+      outline: none;
+      resize: none;
+    }
+
+    .editor-shell.source-mode #edit-html-editor {
+      display: none;
+    }
+
+    .editor-shell.source-mode #edit-html-source {
+      display: block;
+    }
+
+    #edit-category {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      font-size: 13px;
+      padding: 6px 10px;
+      max-width: 360px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    #edit-category:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    #edit-category option {
+      background: #0d1117;
+      color: #c9d1d9;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 16px;
+      transition: opacity 0.15s;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .btn-save {
+      background: #1f6feb;
+      color: #fff;
+    }
+
+    .btn-save:hover:not(:disabled) {
+      background: #388bfd;
+    }
+
+    .btn-discard {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+    }
+
+    .btn-discard:hover:not(:disabled) {
+      background: #30363d;
+    }
+
+    .btn-delete {
+      background: #21262d;
+      color: #f85149;
+      border: 1px solid #f85149;
+    }
+
+    .btn-delete:hover:not(:disabled) {
+      background: #6e1a1a;
+      color: #fff;
+    }
+
+    .status-msg {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .status-ok {
+      background: #1e3a2e;
+      color: #56d364;
+    }
+
+    .status-err {
+      background: #3a1e1e;
+      color: #f85149;
+    }
+
+    /* ---- Loading overlay ---- */
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 17, 23, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      font-size: 16px;
+      color: #8b949e;
+    }
+
+    #loading.hidden {
+      display: none;
+    }
+
+    /* ---- Scrollbar ---- */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="site-warning"><strong>Work in progress:</strong> this site is still being developed, and some content and
+    historical data remain unverified.</div>
+
+  <div id="loading">Loading FAQ corpus&hellip;</div>
+
+  <header>
+    <a class="back-link" href="/web/edit.html">&#8592; Editor Hub</a>
+    <button id="btn-help">Help</button>
+  </header>
+
+  <!-- Help modal -->
+  <div id="help-backdrop">
+    <div id="help-modal" role="dialog" aria-modal="true" aria-label="Help">
+      <button id="help-close" aria-label="Close help">&times;</button>
+      <h2>How to use the FAQ Editor</h2>
+
+      <h3>Purpose</h3>
+      <p>Add new FAQ entries or edit existing ones. Changes are saved directly to the corpus &mdash; no scripts, no
+        terminal, no coding needed.</p>
+
+      <h3>Entry types</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span class="prefix-badge badge-faq">faq</span>
+          <p><strong>faq_NNN</strong> &mdash; Main curated FAQ entries used by the docent AI. Edit and add to these most
+            often.</p>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span class="prefix-badge badge-der">der</span>
+          <p><strong>der_NNN</strong> &mdash; AI-derived from dieselsubs.com. Use the FAQ Review tool to promote these.
+          </p>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span class="prefix-badge badge-pam">pam</span>
+          <p><strong>pam_NNN</strong> &mdash; AI-generated. May contain factual errors &mdash; review carefully.</p>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span class="prefix-badge badge-fix">fix</span>
+          <p><strong>fix_NNN</strong> &mdash; AI-generated entries corrected by an expert reviewer.</p>
+        </div>
+      </div>
+
+      <h3>Adding a new FAQ</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>Click <strong>+ New FAQ</strong> in the toolbar.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>Type the <strong>Title</strong> &mdash; phrase it as a question, e.g. <em>How deep could a submarine
+            dive?</em></p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>Type the <strong>Answer HTML</strong>. You can use tags like <code>&lt;p&gt;</code>,
+          <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, lists, and links.
+        </p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p>Click <strong>Save</strong>. The entry is assigned the next <code>faq_NNN</code> ID automatically.</p>
+      </div>
+
+      <h3>Editing an existing FAQ</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>Use the <strong>filter buttons</strong> and <strong>search box</strong> to find the entry.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>Click it in the list to open the editor on the right.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>Edit the Title and/or Answer HTML, then click <strong>Save changes</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p>Click <strong>Discard edits</strong> to undo all changes before saving.</p>
+      </div>
+
+      <h3>Tips</h3>
+      <ul>
+        <li>Use the <strong>faq_</strong> filter to see only the main curated entries.</li>
+        <li>The stats bar (top right) shows how many entries match the current filter.</li>
+        <li>If you navigate away with unsaved changes, the browser will warn you.</li>
+        <li>To promote a <code>pam_</code>, <code>der_</code>, or <code>fix_</code> entry to <code>faq_NNN</code>, use
+          the <strong><a href="/web/review.html" style="color:#58a6ff">FAQ Review</a></strong> tool.</li>
+        <li>To see the public FAQ page (which replaced dieselsubs.com), visit <strong><a href="/web/faqs.html"
+              style="color:#58a6ff">faqs.html</a></strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="toolbar">
+    <input id="search" type="search" placeholder="Search by title or text&hellip;" autocomplete="off" />
+
+    <button class="filter-btn active" data-prefix="all">All</button>
+    <button class="filter-btn" data-prefix="faq">faq_</button>
+    <button class="filter-btn" data-prefix="der">der_</button>
+    <button class="filter-btn" data-prefix="pam">pam_</button>
+    <button class="filter-btn" data-prefix="fix">fix_</button>
+
+    <button id="btn-new">+ New FAQ</button>
+
+    <span id="stats">&mdash; entries</span>
+  </div>
+
+  <div id="main">
+    <div id="list-panel"></div>
+    <div id="edit-panel" class="empty">
+      <div class="empty-msg">
+        <h2>Select a FAQ to edit</h2>
+        <p>Pick an entry from the list, or click <strong>+ New FAQ</strong> to create one.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    const API = '';
+    const DEFAULT_CATEGORIES = [
+      'Attacks and Battles, Small and Large',
+      'Crews Aboard US Subs in WW2',
+      'Diving and Surfacing',
+      'Hull and Compartments',
+      'Japanese Submarines',
+      'Life Aboard US WW2 Subs',
+      'Operating US Subs in WW2',
+      'Torpedoes',
+      'US WW2 Subs in General',
+    ];
+    let allFaqs = [];
+    let faqCategories = [...DEFAULT_CATEGORIES];
+    let filtered = [];
+    let selected = null;   // entry object being edited; null when composing a new FAQ
+    let isNew = false;
+    let dirty = false;
+    let activePrefix = 'all';
+    let searchVal = '';
+
+    function setFaqCategories(names) {
+      const seen = new Set();
+      faqCategories = (Array.isArray(names) ? names : DEFAULT_CATEGORIES)
+        .map(name => (name || '').trim())
+        .filter(name => {
+          if (!name || seen.has(name)) return false;
+          seen.add(name);
+          return true;
+        });
+      if (faqCategories.length === 0) {
+        faqCategories = [...DEFAULT_CATEGORIES];
+      }
+    }
+
+    function getCategoryNames(selectedCategory) {
+      const category = (selectedCategory || '').trim();
+      if (category && !faqCategories.includes(category)) {
+        return [...faqCategories, category];
+      }
+      return faqCategories;
+    }
+
+    // ── Load ────────────────────────────────────────────────────────────────────
+    async function init() {
+      try {
+        const [faqRes, categoryRes] = await Promise.all([
+          fetch(`${API}/admin/faqs`),
+          fetch(`${API}/api/faq-categories`).catch(() => null),
+        ]);
+        if (!faqRes.ok) throw new Error(`HTTP ${faqRes.status}`);
+        allFaqs = await faqRes.json();
+        if (categoryRes && categoryRes.ok) {
+          const categories = await categoryRes.json();
+          setFaqCategories(categories.map(entry => entry.title));
+        } else {
+          setFaqCategories(DEFAULT_CATEGORIES);
+        }
+        applyFilter();
+        document.getElementById('loading').classList.add('hidden');
+      } catch (e) {
+        document.getElementById('loading').textContent = `Error loading FAQs: ${e.message}`;
+      }
+    }
+
+    // ── Filter ──────────────────────────────────────────────────────────────────
+    function applyFilter() {
+      const q = searchVal.trim().toLowerCase();
+      filtered = allFaqs.filter(e => {
+        const prefix = (e.chunk_id || '').split('_')[0];
+        if (activePrefix !== 'all' && prefix !== activePrefix) return false;
+        if (q) {
+          const hay = ((e.title || '') + ' ' + (e.text || '')).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+      renderList();
+      updateStats();
+    }
+
+    function updateStats() {
+      document.getElementById('stats').textContent =
+        `${filtered.length} shown \u00b7 ${allFaqs.length} total`;
+    }
+
+    // ── Render list ─────────────────────────────────────────────────────────────
+    function renderList() {
+      const panel = document.getElementById('list-panel');
+      panel.innerHTML = '';
+      if (filtered.length === 0) {
+        panel.innerHTML = '<div style="padding:16px;color:#8b949e;font-size:13px">No results.</div>';
+        return;
+      }
+      filtered.forEach(e => {
+        const prefix = (e.chunk_id || '').split('_')[0];
+        const badgeClass = ['faq', 'der', 'pam', 'fix'].includes(prefix) ? `badge-${prefix}` : 'badge-unk';
+        const div = document.createElement('div');
+        div.className = 'entry-item' +
+          (selected && !isNew && e.chunk_id === selected.chunk_id ? ' selected' : '');
+        div.dataset.id = e.chunk_id;
+        div.innerHTML = `
+        <span class="prefix-badge ${badgeClass}">${esc(prefix)}</span>
+        <div>
+          <div class="entry-title">${esc(e.title || e.chunk_id)}</div>
+          <div class="entry-id">${esc(e.chunk_id)}</div>
+        </div>`;
+        div.addEventListener('click', () => selectEntry(e));
+        panel.appendChild(div);
+      });
+    }
+
+    // ── Select ──────────────────────────────────────────────────────────────────
+    function selectEntry(e) {
+      if (dirty && !confirm('You have unsaved changes. Discard them?')) return;
+      selected = e;
+      isNew = false;
+      dirty = false;
+      renderList();
+      renderEdit(e.title, e.text, e.chunk_id, e.category);
+    }
+
+    // ── New FAQ ─────────────────────────────────────────────────────────────────
+    document.getElementById('btn-new').addEventListener('click', () => {
+      if (dirty && !confirm('You have unsaved changes. Discard them?')) return;
+      selected = null;
+      isNew = true;
+      dirty = false;
+      renderList();
+      renderEdit('', '', null, '');
+    });
+
+    // ── Render editor ───────────────────────────────────────────────────────────
+    function renderEdit(title, text, chunkId, category) {
+      category = category || '';
+      const allCats = getCategoryNames(category);
+      const catOpts = '<option value="">\u2014 Uncategorized \u2014</option>' +
+        allCats.map(c => `<option value="${esc(c)}"${c === category ? ' selected' : ''}>${esc(c)}</option>`).join('') +
+        '<option value="__new__">\u2795 New category\u2026</option>';
+      const prefix = chunkId ? chunkId.split('_')[0] : 'new';
+      const badgeClass = ['faq', 'der', 'pam', 'fix'].includes(prefix) ? `badge-${prefix}` : 'badge-unk';
+      const panel = document.getElementById('edit-panel');
+      panel.className = '';
+      panel.innerHTML = `
+      <div id="edit-header">
+        <span class="prefix-badge ${badgeClass}">${esc(prefix)}</span>
+        <span id="edit-chunk-id">${chunkId ? esc(chunkId) : 'new faq_\u2026'}</span>
+      </div>
+      <div>
+        <div class="field-label">Title / Question</div>
+        <textarea id="edit-title" rows="2" placeholder="e.g. How deep could a submarine dive?">${esc(title)}</textarea>
+      </div>
+      <div>
+        <div class="field-label">Category</div>
+        <select id="edit-category">${catOpts}</select>
+      </div>
+      <div>
+        <div class="field-label">Answer HTML</div>
+        <div class="field-help">Use the toolbar for rich editing or switch to source mode to edit raw HTML directly. <strong>Upload</strong> (or drag a file onto the answer box) embeds an image, pulls Word (.docx) content inline, or links other documents (PDF, Office, text) — max 25&nbsp;MB.</div>
+        <div class="editor-shell" id="answer-editor-shell">
+          <div class="editor-toolbar">
+            <button type="button" class="editor-btn" data-cmd="bold"><strong>B</strong></button>
+            <button type="button" class="editor-btn" data-cmd="italic"><em>I</em></button>
+            <button type="button" class="editor-btn" data-cmd="underline"><u>U</u></button>
+            <span class="editor-divider"></span>
+            <button type="button" class="editor-btn" data-block="p">P</button>
+            <button type="button" class="editor-btn" data-block="h3">H3</button>
+            <button type="button" class="editor-btn" data-cmd="insertUnorderedList">• List</button>
+            <button type="button" class="editor-btn" data-cmd="insertOrderedList">1. List</button>
+            <button type="button" class="editor-btn" data-cmd="formatBlock" data-value="blockquote">Quote</button>
+            <span class="editor-divider"></span>
+            <button type="button" class="editor-btn" data-action="link">Link</button>
+            <button type="button" class="editor-btn" data-action="upload">Upload</button>
+            <button type="button" class="editor-btn" data-action="source" id="btn-source-toggle">Source</button>
+          </div>
+          <div id="edit-html-editor" contenteditable="true" data-placeholder="Write the full answer here…"></div>
+          <textarea id="edit-html-source" placeholder="Write the raw HTML here…"></textarea>
+          <input type="file" id="faq-upload-input" style="display:none"
+            accept="image/*,.pdf,.txt,.md,.rtf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt">
+        </div>
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-save" id="btn-save">Save${chunkId ? ' changes' : ''}</button>
+        <button class="btn btn-discard" id="btn-discard">Discard edits</button>
+        ${chunkId ? '<button class="btn btn-delete" id="btn-delete">Delete entry</button>' : ''}
+        <span id="action-status" class="status-msg" style="display:none"></span>
+      </div>`;
+
+      document.getElementById('edit-title').addEventListener('input', () => { dirty = true; });
+      document.getElementById('edit-category').addEventListener('change', e => {
+        if (e.target.value === '__new__') {
+          const name = prompt('New category name:');
+          if (name && name.trim()) {
+            const trimmed = name.trim();
+            if (!faqCategories.includes(trimmed)) {
+              faqCategories = [...faqCategories, trimmed];
+            }
+            // Add option before the "＋ New category…" sentinel and select it
+            const sel = e.target;
+            const sentinel = sel.querySelector('option[value="__new__"]');
+            const opt = document.createElement('option');
+            opt.value = trimmed;
+            opt.textContent = trimmed;
+            sel.insertBefore(opt, sentinel);
+            sel.value = trimmed;
+          } else {
+            // Cancelled — revert to previous value
+            e.target.value = category;
+          }
+        }
+        dirty = true;
+      });
+      const editor = document.getElementById('edit-html-editor');
+      const source = document.getElementById('edit-html-source');
+      const initialHtml = decodeStoredHtml(text || '');
+      editor.innerHTML = initialHtml;
+      source.value = normalizeAnswerHtml(initialHtml);
+      editor.addEventListener('input', () => {
+        dirty = true;
+        syncSourceFromEditor();
+      });
+      source.addEventListener('input', () => {
+        dirty = true;
+      });
+      panel.querySelectorAll('.editor-btn[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', () => runEditorCommand(btn));
+      });
+      panel.querySelectorAll('.editor-btn[data-block]').forEach(btn => {
+        btn.addEventListener('click', () => applyBlockFormat(btn.dataset.block));
+      });
+      panel.querySelectorAll('.editor-btn[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => handleEditorAction(btn.dataset.action));
+      });
+      const uploadInput = panel.querySelector('#faq-upload-input');
+      if (uploadInput) {
+        uploadInput.addEventListener('change', () => handleFaqUpload(uploadInput));
+      }
+      // Drag-and-drop a file onto the answer editor (or source box) to upload it.
+      panel.querySelectorAll('#edit-html-editor, #edit-html-source').forEach(zone => {
+        zone.addEventListener('dragover', e => {
+          if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            zone.classList.add('drag-over');
+          }
+        });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+        zone.addEventListener('drop', async e => {
+          const files = e.dataTransfer && e.dataTransfer.files;
+          if (!files || !files.length) return;
+          e.preventDefault();           // stop the browser from opening/saving the file
+          zone.classList.remove('drag-over');
+          for (const file of files) {
+            await uploadFaqFile(file);
+          }
+        });
+      });
+      document.getElementById('btn-save').addEventListener('click', saveEntry);
+      document.getElementById('btn-discard').addEventListener('click', () => {
+        if (!dirty || confirm('Discard unsaved changes?')) {
+          dirty = false;
+          if (isNew) {
+            isNew = false; selected = null;
+            renderList();
+            const ep = document.getElementById('edit-panel');
+            ep.className = 'empty';
+            ep.innerHTML = '<div class="empty-msg"><h2>Select a FAQ to edit</h2><p>Pick an entry from the list, or click <strong>+ New FAQ</strong> to create one.</p></div>';
+          } else {
+            renderEdit(selected.title, selected.text, selected.chunk_id, selected.category);
+          }
+        }
+      });
+      if (chunkId) {
+        document.getElementById('btn-delete').addEventListener('click', deleteEntry);
+      }
+      if (!chunkId) document.getElementById('edit-title').focus();
+    }
+
+    function normalizeAnswerHtml(html) {
+      const cleaned = normalizeRichHtml(String(html || '').trim());
+      return ['<br>', '<div><br></div>', '<p><br></p>'].includes(cleaned) ? '' : cleaned;
+    }
+
+    function decodeStoredHtml(text) {
+      const value = String(text || '');
+      if (!/[&](?:lt|gt|amp|quot|nbsp|#39);/i.test(value)) return value;
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = value;
+      return textarea.value;
+    }
+
+    function normalizeRichHtml(html) {
+      const value = decodeStoredHtml(String(html || '').trim());
+      if (!value) return '';
+
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = value;
+
+      wrapper.querySelectorAll('span.ql-ui').forEach(node => node.remove());
+      wrapper.querySelectorAll('[data-row]').forEach(node => node.removeAttribute('data-row'));
+      wrapper.querySelectorAll('[style="color: black;"]').forEach(node => node.removeAttribute('style'));
+
+      wrapper.querySelectorAll('[class]').forEach(node => {
+        const classes = Array.from(node.classList);
+        let indentLevel = 0;
+        classes.forEach(cls => {
+          if (cls === 'ql-align-right') node.style.textAlign = 'right';
+          if (cls === 'ql-align-center') node.style.textAlign = 'center';
+          if (cls === 'ql-align-justify') node.style.textAlign = 'justify';
+          if (cls.startsWith('ql-indent-')) {
+            indentLevel = Number.parseInt(cls.slice('ql-indent-'.length), 10) || 0;
+          }
+        });
+        if (indentLevel > 0) node.style.marginLeft = `${indentLevel * 3}em`;
+        node.className = classes.filter(cls => !cls.startsWith('ql-')).join(' ');
+        if (!node.className) node.removeAttribute('class');
+      });
+
+      wrapper.querySelectorAll('ol').forEach(list => {
+        const items = Array.from(list.children).filter(node => node.tagName === 'LI');
+        const allBullets = items.length > 0 && items.every(item => item.getAttribute('data-list') === 'bullet');
+        if (allBullets) {
+          const ul = document.createElement('ul');
+          while (list.firstChild) {
+            const child = list.firstChild;
+            if (child.nodeType === Node.ELEMENT_NODE && child.hasAttribute('data-list')) {
+              child.removeAttribute('data-list');
+            }
+            ul.appendChild(child);
+          }
+          list.replaceWith(ul);
+          return;
+        }
+        items.forEach(item => item.removeAttribute('data-list'));
+      });
+
+      wrapper.querySelectorAll('ul > li[data-list], ol > li[data-list]').forEach(item => item.removeAttribute('data-list'));
+
+      while (wrapper.firstElementChild && wrapper.firstElementChild.matches('p') && !wrapper.firstElementChild.textContent.trim() && !wrapper.firstElementChild.querySelector('img,video,table,iframe')) {
+        wrapper.firstElementChild.remove();
+      }
+      while (wrapper.lastElementChild && wrapper.lastElementChild.matches('p') && !wrapper.lastElementChild.textContent.trim() && !wrapper.lastElementChild.querySelector('img,video,table,iframe')) {
+        wrapper.lastElementChild.remove();
+      }
+
+      return wrapper.innerHTML.trim();
+    }
+
+    function getEditorNodes() {
+      return {
+        shell: document.getElementById('answer-editor-shell'),
+        editor: document.getElementById('edit-html-editor'),
+        source: document.getElementById('edit-html-source'),
+        sourceBtn: document.getElementById('btn-source-toggle'),
+      };
+    }
+
+    function syncSourceFromEditor() {
+      const { editor, source } = getEditorNodes();
+      if (!editor || !source) return;
+      source.value = normalizeAnswerHtml(editor.innerHTML);
+    }
+
+    function syncEditorFromSource() {
+      const { editor, source } = getEditorNodes();
+      if (!editor || !source) return;
+      editor.innerHTML = normalizeAnswerHtml(source.value);
+    }
+
+    function isSourceMode() {
+      const { shell } = getEditorNodes();
+      return shell ? shell.classList.contains('source-mode') : false;
+    }
+
+    function toggleSourceMode() {
+      const { shell, source, editor, sourceBtn } = getEditorNodes();
+      if (!shell || !source || !editor || !sourceBtn) return;
+      const nextIsSource = !shell.classList.contains('source-mode');
+      if (nextIsSource) {
+        syncSourceFromEditor();
+        shell.classList.add('source-mode');
+        sourceBtn.classList.add('active');
+        source.focus();
+      } else {
+        syncEditorFromSource();
+        shell.classList.remove('source-mode');
+        sourceBtn.classList.remove('active');
+        editor.focus();
+      }
+    }
+
+    function focusHtmlEditor() {
+      const { editor } = getEditorNodes();
+      if (!editor) return false;
+      if (isSourceMode()) toggleSourceMode();
+      editor.focus();
+      return true;
+    }
+
+    function runEditorCommand(btn) {
+      if (!focusHtmlEditor()) return;
+      document.execCommand(btn.dataset.cmd, false, btn.dataset.value || null);
+      syncSourceFromEditor();
+      dirty = true;
+    }
+
+    function applyBlockFormat(tagName) {
+      if (!focusHtmlEditor()) return;
+      document.execCommand('formatBlock', false, tagName);
+      syncSourceFromEditor();
+      dirty = true;
+    }
+
+    function handleEditorAction(action) {
+      if (action === 'source') {
+        toggleSourceMode();
+        return;
+      }
+      if (action === 'link') {
+        if (!focusHtmlEditor()) return;
+        const url = prompt('Link URL:');
+        if (!url) return;
+        document.execCommand('createLink', false, url.trim());
+        syncSourceFromEditor();
+        dirty = true;
+        return;
+      }
+      if (action === 'upload') {
+        const input = document.getElementById('faq-upload-input');
+        if (input) input.click();
+      }
+    }
+
+    function escAttr(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function handleFaqUpload(input) {
+      const file = input.files && input.files[0];
+      input.value = '';  // allow re-uploading the same file later
+      uploadFaqFile(file);
+    }
+
+    async function uploadFaqFile(file) {
+      if (!file) return;
+      if (!focusHtmlEditor()) return;
+      setActionStatus(`Uploading ${file.name}…`, '');
+      try {
+        const body = new FormData();
+        body.append('file', file);
+        const res = await fetch(`${API}/admin/faq-uploads`, { method: 'POST', body });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+        const url = escAttr(data.url);
+        const name = escAttr(data.filename || file.name);
+        let snippet;
+        if (data.is_docx && data.html) {
+          snippet = data.html;            // Word content converted to inline HTML
+        } else if (data.is_image) {
+          snippet = `<img src="${url}" alt="${name}" style="max-width:100%;height:auto;">`;
+        } else {
+          snippet = `<a href="${url}" target="_blank" rel="noopener">${name}</a>`;
+        }
+        focusHtmlEditor();
+        document.execCommand('insertHTML', false, snippet);
+        syncSourceFromEditor();
+        dirty = true;
+        const how = (data.is_docx && data.html) ? 'Inserted content from'
+          : data.is_image ? 'Inserted image' : 'Linked';
+        setActionStatus(`${how} ${data.filename || file.name}`, 'ok');
+      } catch (e) {
+        setActionStatus(`Upload failed: ${e.message}`, 'err');
+      }
+    }
+
+    // ── Save ────────────────────────────────────────────────────────────────────
+    async function saveEntry() {
+      const title = document.getElementById('edit-title').value.trim();
+      const text = (() => {
+        if (isSourceMode()) {
+          return document.getElementById('edit-html-source').value.trim();
+        }
+        syncSourceFromEditor();
+        return document.getElementById('edit-html-source').value.trim();
+      })();
+      const category = document.getElementById('edit-category').value;
+      if (!title) { setActionStatus('Title is required.', 'err'); return; }
+      if (!text) { setActionStatus('Answer HTML is required.', 'err'); return; }
+      setBtns(false); setActionStatus('');
+      try {
+        let res;
+        if (isNew) {
+          res = await fetch(`${API}/admin/faq`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, text, category }),
+          });
+        } else {
+          res = await fetch(`${API}/admin/faq/${encodeURIComponent(selected.chunk_id)}`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, text, category }),
+          });
+        }
+        if (!res.ok) throw new Error((await res.json()).detail || `HTTP ${res.status}`);
+        const data = await res.json();
+        dirty = false;
+
+        // Refresh list
+        const lr = await fetch(`${API}/admin/faqs`);
+        allFaqs = await lr.json();
+
+        if (isNew) {
+          isNew = false;
+          selected = allFaqs.find(e => e.chunk_id === data.chunk_id) || { chunk_id: data.chunk_id, title, text, category };
+          applyFilter();
+          renderEdit(selected.title, selected.text, selected.chunk_id, selected.category);
+          setActionStatus(`Created ${data.chunk_id}`, 'ok');
+        } else {
+          selected.title = title; selected.text = text; selected.category = category;
+          applyFilter();
+          setActionStatus('Saved.', 'ok');
+        }
+      } catch (e) {
+        setActionStatus(`Error: ${e.message}`, 'err');
+      } finally {
+        setBtns(true);
+      }
+    }
+
+    // ── Delete ──────────────────────────────────────────────────────────────────
+    async function deleteEntry() {
+      if (!selected) return;
+      if (!confirm(`Permanently delete "${selected.title || selected.chunk_id}"?\n\nThis cannot be undone.`)) return;
+      setBtns(false); setActionStatus('');
+      try {
+        const res = await fetch(`${API}/admin/faq/${encodeURIComponent(selected.chunk_id)}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error((await res.json()).detail || `HTTP ${res.status}`);
+        allFaqs = allFaqs.filter(e => e.chunk_id !== selected.chunk_id);
+        selected = null; dirty = false;
+        applyFilter();
+        const ep = document.getElementById('edit-panel');
+        ep.className = 'empty';
+        ep.innerHTML = '<div class="empty-msg"><h2>Entry deleted</h2><p>Select another entry or create a new one.</p></div>';
+      } catch (e) {
+        setActionStatus(`Error: ${e.message}`, 'err');
+        setBtns(true);
+      }
+    }
+
+    // ── Helpers ─────────────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function setActionStatus(msg, type) {
+      const el = document.getElementById('action-status');
+      if (!el) return;
+      if (!msg) { el.style.display = 'none'; return; }
+      el.style.display = ''; el.className = 'status-msg status-' + (type || 'ok'); el.textContent = msg;
+    }
+    function setBtns(enabled) {
+      ['btn-save', 'btn-discard', 'btn-delete'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.disabled = !enabled;
+      });
+    }
+
+    // ── Event wiring ──────────────────────────────────────────────────────────
+    document.getElementById('search').addEventListener('input', e => { searchVal = e.target.value; applyFilter(); });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activePrefix = btn.dataset.prefix;
+        applyFilter();
+      });
+    });
+
+    window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+    // ── Help modal ────────────────────────────────────────────────────────────
+    const helpBackdrop = document.getElementById('help-backdrop');
+    document.getElementById('btn-help').addEventListener('click', () => helpBackdrop.classList.add('open'));
+    document.getElementById('help-close').addEventListener('click', () => helpBackdrop.classList.remove('open'));
+    helpBackdrop.addEventListener('click', e => { if (e.target === helpBackdrop) helpBackdrop.classList.remove('open'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') helpBackdrop.classList.remove('open'); });
+
+    init();
+  </script>
+  <script src="/web/admin-env-banner.js"></script>
+</body>
+
+</html>

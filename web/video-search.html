@@ -1,0 +1,1955 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search Videos</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f7fb;
+      color: #1d2734;
+      min-height: 100vh;
+    }
+
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 20px 64px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    /* A wide basis so the two nowrap buttons push themselves onto their own
+       row on a phone rather than squeezing the field down to nothing. */
+    .search-input-wrap {
+      position: relative;
+      flex: 1 1 260px;
+      min-width: 0;
+    }
+
+    #video-search-input {
+      width: 100%;
+      border: 1px solid #dbe3ee;
+      border-radius: 10px;
+      background: #fff;
+      color: #1d2734;
+      padding: 12px 40px 12px 14px;
+      font: inherit;
+      font-size: 16px;
+    }
+
+    /* WebKit's own clear button does the same job as .search-clear, and two of
+       them side by side is just confusing. Ours stays because Firefox draws no
+       native one at all. */
+    #video-search-input::-webkit-search-cancel-button,
+    #video-search-input::-webkit-search-decoration {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    #video-search-input:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+    }
+
+    .search-clear {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      border: 0;
+      background: #e6eefc;
+      color: #163a73;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .search-clear:hover {
+      background: #d8e7ff;
+    }
+
+    .play-all-note {
+      /* Same indent as the result count, so the two read as one column. */
+      padding-left: 15px;
+      margin: -16px 0 20px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #6a737d;
+    }
+
+    .play-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      border: 1px solid #23528f;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #2b65b3, #23528f);
+      color: #fff;
+      padding: 12px 16px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .play-all:hover {
+      background: linear-gradient(180deg, #3170c4, #26599b);
+    }
+
+    .play-all:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+    }
+
+    .play-all-icon {
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .video-queue-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      color: #d7e2f2;
+      font-size: 12px;
+    }
+
+    .video-queue-btn {
+      border: 0;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      font-size: 17px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .video-queue-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .video-queue-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    .video-queue-position {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .save-results {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      border: 1px solid #c4d8fb;
+      border-radius: 10px;
+      background: #fff;
+      color: #1d4e8f;
+      padding: 12px 14px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .save-results:hover {
+      background: #f2f7ff;
+    }
+
+    .save-results:focus-visible,
+    .playlist-action:focus-visible,
+    .card-save:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+    }
+
+    .name-form {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid #c4d8fb;
+      border-radius: 10px;
+      background: #f2f7ff;
+    }
+
+    .name-form input {
+      flex: 1 1 200px;
+      min-width: 0;
+      border: 1px solid #dbe3ee;
+      border-radius: 8px;
+      background: #fff;
+      padding: 9px 10px;
+      font: inherit;
+      font-size: 14px;
+    }
+
+    .name-form button {
+      border: 1px solid #23528f;
+      border-radius: 8px;
+      background: #2b65b3;
+      color: #fff;
+      padding: 9px 14px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .name-form button.is-secondary {
+      border-color: #dbe3ee;
+      background: #fff;
+      color: #55637a;
+    }
+
+    .playlists {
+      margin-bottom: 24px;
+      border: 1px solid #dbe3ee;
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .playlists-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #eef2f7;
+      background: #f8fbff;
+    }
+
+    .playlists-head h2 {
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #44506a;
+    }
+
+    .playlists-note {
+      font-size: 12px;
+      color: #6a737d;
+    }
+
+    .playlist-row {
+      padding: 12px 14px;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .playlist-row:first-child {
+      border-top: 0;
+    }
+
+    .playlist-main {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+    }
+
+    .playlist-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #14213d;
+      margin-right: auto;
+      word-break: break-word;
+    }
+
+    .playlist-count {
+      font-size: 12px;
+      color: #6a737d;
+      font-weight: 400;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+
+    .playlist-action {
+      border: 1px solid #dbe3ee;
+      border-radius: 8px;
+      background: #fff;
+      color: #3d6fa5;
+      padding: 6px 10px;
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.2;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .playlist-action:hover:not(:disabled) {
+      background: #f2f7ff;
+    }
+
+    .playlist-action:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .playlist-action.is-play {
+      border-color: #23528f;
+      background: #2b65b3;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .playlist-action.is-play:hover:not(:disabled) {
+      background: #3170c4;
+    }
+
+    .playlist-action.is-danger {
+      color: #a4343a;
+    }
+
+    .playlist-items {
+      list-style: none;
+      margin: 10px 0 0;
+      padding: 0;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .playlist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f4f7fb;
+      font-size: 14px;
+      color: #33415c;
+    }
+
+    .playlist-item-pos {
+      color: #8a95a6;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      flex: 0 0 22px;
+    }
+
+    .playlist-item-title {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .playlist-item.is-missing .playlist-item-title {
+      color: #8a95a6;
+      font-style: italic;
+    }
+
+    /* touch-action:none on the handle alone: a finger starting anywhere else
+       on the row still scrolls the page. */
+    .playlist-item-handle {
+      border: 0;
+      background: none;
+      color: #a3adbb;
+      font-size: 13px;
+      letter-spacing: -2px;
+      line-height: 1;
+      padding: 4px 2px;
+      cursor: grab;
+      touch-action: none;
+      flex: 0 0 auto;
+    }
+
+    .playlist-item-handle:hover {
+      color: #55637a;
+    }
+
+    .playlist-item-handle:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    .playlist-items.is-dragging {
+      user-select: none;
+      cursor: grabbing;
+    }
+
+    .playlist-items.is-dragging .playlist-item-handle {
+      cursor: grabbing;
+    }
+
+    .playlist-item.is-dragging {
+      position: relative;
+      z-index: 2;
+      background: #f2f7ff;
+      border-radius: 8px;
+      border-bottom-color: transparent;
+      box-shadow: 0 8px 20px rgba(20, 35, 60, 0.18);
+    }
+
+    .playlist-order-hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #6a737d;
+    }
+
+    .playlist-item-remove {
+      border: 0;
+      background: none;
+      color: #a4343a;
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px 6px;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .playlist-warning {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #8a5a00;
+    }
+
+    .card-save {
+      border: 1px solid #c4d8fb;
+      border-radius: 999px;
+      background: #fff;
+      color: #1d4e8f;
+      padding: 4px 11px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    .card-save:hover {
+      background: #f2f7ff;
+    }
+
+    .card-picker {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #c4d8fb;
+      border-radius: 10px;
+      background: #f8fbff;
+    }
+
+    .card-picker-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #44506a;
+      margin-bottom: 8px;
+    }
+
+    .card-picker-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .card-picker-option {
+      border: 1px solid #c4d8fb;
+      border-radius: 999px;
+      background: #fff;
+      color: #1d4e8f;
+      padding: 6px 12px;
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    .card-picker-option:hover:not(:disabled) {
+      background: #e6eefc;
+    }
+
+    .card-picker-option:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .card-picker-new {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .card-picker-new input {
+      flex: 1 1 160px;
+      min-width: 0;
+      border: 1px solid #dbe3ee;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font: inherit;
+      font-size: 13px;
+    }
+
+    .card-picker-new button {
+      border: 1px solid #23528f;
+      border-radius: 8px;
+      background: #2b65b3;
+      color: #fff;
+      padding: 7px 12px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .search-meta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      /* Lines the count up with the text inside the search field: its 1px
+         border plus 14px of padding. */
+      padding-left: 15px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #55637a;
+    }
+
+    .search-meta a {
+      color: #3d6fa5;
+    }
+
+    mark {
+      background: #fdf0b4;
+      color: inherit;
+      border-radius: 3px;
+      padding: 0 1px;
+    }
+
+    .video-card {
+      background: #fff;
+      border: 1px solid #e1e7ef;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 2px rgba(20, 35, 60, 0.05);
+    }
+
+    .video-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      align-items: start;
+      padding: 14px;
+    }
+
+    .video-thumb {
+      display: block;
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 0;
+      cursor: pointer;
+      background: #0b1220;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 16 / 9;
+    }
+
+    .video-thumb:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+    }
+
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-thumb-fallback {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #2b65b3, #17315c);
+      color: #fff;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .video-thumb-play {
+      position: absolute;
+      inset: auto auto 10px 10px;
+      background: rgba(0, 0, 0, 0.72);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1;
+      padding: 7px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .video-body {
+      display: block;
+      padding: 2px 2px 4px;
+    }
+
+    .video-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.3;
+      color: #14213d;
+    }
+
+    .video-tags {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: -2px 0 12px;
+    }
+
+    .video-channel {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #c4d8fb;
+      background: linear-gradient(135deg, #e6eefc, #d8e7ff);
+      color: #163a73;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .video-channel::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #2b65b3;
+      box-shadow: 0 0 0 2px rgba(43, 101, 179, 0.2);
+      flex: 0 0 7px;
+    }
+
+    .video-channel a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .video-channel a:hover,
+    .video-channel a:focus-visible {
+      text-decoration: underline;
+    }
+
+    .video-duration {
+      font-variant-numeric: tabular-nums;
+      opacity: 0.8;
+    }
+
+    .video-duration::before {
+      content: "\00b7";
+      margin-right: 7px;
+      opacity: 0.6;
+    }
+
+    .video-category {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #e1e7ef;
+      background: #f4f7fb;
+      color: #55637a;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .video-description {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #33415c;
+      white-space: pre-wrap;
+    }
+
+    .video-description-full {
+      display: none;
+    }
+
+    .video-description-wrap.is-expanded .video-description-snippet {
+      display: none;
+    }
+
+    .video-description-wrap.is-expanded .video-description-full {
+      display: block;
+    }
+
+    .video-description-wrap.is-expanded .video-more {
+      display: none;
+    }
+
+    .video-more {
+      border: 0;
+      background: none;
+      color: #2b65b3;
+      font-size: 13px;
+      line-height: 1.2;
+      padding: 4px 0 0;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .video-more:hover {
+      text-decoration: underline;
+    }
+
+    .state {
+      background: #fff;
+      border: 1px solid #e1e7ef;
+      border-radius: 10px;
+      padding: 32px 24px;
+      text-align: center;
+      color: #55637a;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #1d2734;
+      font-size: 16px;
+    }
+
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 9, 18, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1000;
+    }
+
+    .video-modal.is-open {
+      display: flex;
+    }
+
+    .video-modal-dialog {
+      width: min(980px, 100%);
+      background: #0c1320;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .video-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #f4f7fb;
+    }
+
+    .video-modal-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.3;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .video-modal-close {
+      border: 0;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .video-modal-player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
+    .video-modal-player iframe,
+    .video-modal-player video {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    @media (max-width: 720px) {
+      .video-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .video-modal {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <input id="video-search-input" type="search" autocomplete="off" spellcheck="false"
+          placeholder="Search by title, description, channel, or category" aria-label="Search videos">
+        <button type="button" id="video-search-clear" class="search-clear" aria-label="Clear search" hidden>&times;</button>
+      </div>
+      <button type="button" id="play-all" class="play-all" hidden>
+        <span class="play-all-icon" aria-hidden="true">&#9654;</span><span id="play-all-label">Play all</span>
+      </button>
+      <button type="button" id="save-results" class="save-results" hidden>
+        <span aria-hidden="true">&plus;</span><span id="save-results-label">Save as playlist</span>
+      </button>
+    </div>
+    <form id="new-playlist-form" class="name-form" hidden>
+      <input type="text" id="new-playlist-name" maxlength="80" autocomplete="off"
+        placeholder="Playlist name" aria-label="Playlist name">
+      <button type="submit">Create playlist</button>
+      <button type="button" class="is-secondary" id="new-playlist-cancel">Cancel</button>
+    </form>
+    <div class="search-meta">
+      <span id="video-search-count" aria-live="polite">Loading&hellip;</span>
+      <a href="/web/videos.html">Browse videos by category &rarr;</a>
+    </div>
+    <section id="playlists" class="playlists" hidden aria-label="Saved playlists">
+      <div class="playlists-head">
+        <h2>My playlists</h2>
+        <span class="playlists-note">Saved in this browser only &mdash; not shared or uploaded</span>
+      </div>
+      <div id="playlist-rows"></div>
+    </section>
+    <div id="play-all-note" class="play-all-note" hidden></div>
+    <div id="video-results">
+      <div class="state">Loading&hellip;</div>
+    </div>
+  </main>
+
+  <div id="video-modal" class="video-modal" aria-hidden="true">
+    <div class="video-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
+      <div class="video-modal-head">
+        <h2 id="video-modal-title" class="video-modal-title"></h2>
+        <div id="video-queue-nav" class="video-queue-nav" hidden>
+          <button id="video-prev" class="video-queue-btn" type="button" aria-label="Previous video">&lsaquo;</button>
+          <span id="video-queue-position" class="video-queue-position" aria-live="polite"></span>
+          <button id="video-next" class="video-queue-btn" type="button" aria-label="Next video">&rsaquo;</button>
+        </div>
+        <button id="video-modal-close" class="video-modal-close" type="button" aria-label="Close video">&times;</button>
+      </div>
+      <div id="video-modal-player" class="video-modal-player"></div>
+    </div>
+  </div>
+
+  <script src="/web/site-header.js"></script>
+  <script>
+    SiteHeader.render({
+      title: 'Search Videos',
+      subtitle: 'Search every video in the collection by title, description, channel, or category.',
+      feedback: 'Know of a video we should include, or hold the rights to one you\'d like to share?',
+    });
+
+    const esc = s => String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    const results = document.getElementById('video-results');
+    const countEl = document.getElementById('video-search-count');
+    const input = document.getElementById('video-search-input');
+    const clearBtn = document.getElementById('video-search-clear');
+    const modal = document.getElementById('video-modal');
+    const modalTitle = document.getElementById('video-modal-title');
+    const modalPlayer = document.getElementById('video-modal-player');
+    const modalClose = document.getElementById('video-modal-close');
+    const queueNav = document.getElementById('video-queue-nav');
+    const queuePosition = document.getElementById('video-queue-position');
+    const prevBtn = document.getElementById('video-prev');
+    const nextBtn = document.getElementById('video-next');
+    const playAllBtn = document.getElementById('play-all');
+    const playAllLabel = document.getElementById('play-all-label');
+    const playAllNote = document.getElementById('play-all-note');
+    const saveResultsBtn = document.getElementById('save-results');
+    const saveResultsLabel = document.getElementById('save-results-label');
+    const newPlaylistForm = document.getElementById('new-playlist-form');
+    const newPlaylistName = document.getElementById('new-playlist-name');
+    const newPlaylistCancel = document.getElementById('new-playlist-cancel');
+    const playlistsPanel = document.getElementById('playlists');
+    const playlistRows = document.getElementById('playlist-rows');
+
+    const playableVideos = [];
+    let entries = [];
+
+    // Only http(s) reaches an iframe src. Records are hand-maintained in
+    // videos.jsonl, and a malformed or hostile URL should render nothing
+    // rather than become an embed.
+    const isSafeUrl = u => /^https?:\/\//i.test(String(u || ''));
+
+    const youtubeId = u => {
+      const s = String(u || '');
+      const m = s.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+      return m ? m[1] : '';
+    };
+
+    // The channel travels under different keys depending on how old the record
+    // is, and so does the description.
+    const channelNameOf = v => {
+      const video = v.video || {};
+      return (video.channel_name || v.channel_name || video.credit || '').trim();
+    };
+
+    const descriptionOf = v => {
+      const video = v.video || {};
+      return (v.description || v.video_description || video.caption || '').trim();
+    };
+
+    function thumbnailMarkup(v) {
+      const video = v.video || {};
+      const explicitThumb = video.thumbnail_url || video.thumb_url || video.poster_url;
+      if (isSafeUrl(explicitThumb)) {
+        return `<img src="${esc(explicitThumb)}" alt="Thumbnail for ${esc(v.title || 'video')}">`;
+      }
+
+      const yid = youtubeId(video.embed_url);
+      if (yid) {
+        return `<img src="https://img.youtube.com/vi/${esc(yid)}/hqdefault.jpg" alt="Thumbnail for ${esc(v.title || 'video')}">`;
+      }
+
+      return `<div class="video-thumb-fallback">Video Preview</div>`;
+    }
+
+    // ── Playlists ────────────────────────────────────────────────────────────
+    // Playlists live in this browser only. Nothing is sent anywhere, which also
+    // means they do not follow a visitor to another device.
+    const STORE_KEY = 'submarinedocent.video-playlists.v1';
+    let playlists = [];
+    let entriesByKey = new Map();
+    let expandedPlaylist = '';
+
+    function loadPlaylists() {
+      // A private window, a browser set to block site data, or a half-written
+      // value from an older version should all leave the page usable.
+      try {
+        const raw = window.localStorage.getItem(STORE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        const list = Array.isArray(parsed) ? parsed : (parsed && parsed.playlists);
+        if (!Array.isArray(list)) return [];
+        return list
+          .filter(p => p && typeof p.name === 'string' && Array.isArray(p.items))
+          .map(p => ({
+            id: String(p.id || `pl_${Math.random().toString(36).slice(2)}`),
+            name: String(p.name),
+            created: Number(p.created) || Date.now(),
+            items: p.items
+              .filter(it => it && it.key)
+              .map(it => ({ key: String(it.key), title: String(it.title || '') })),
+          }));
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function persistPlaylists() {
+      try {
+        window.localStorage.setItem(STORE_KEY, JSON.stringify({ v: 1, playlists }));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // Items are stored as ids, not as playable URLs. A video pulled from the
+    // API -- rights withdrawn, record deleted -- must stop being playable from
+    // a saved playlist too, so the entry has to be found in the live data.
+    function resolvePlaylist(playlist) {
+      const resolved = playlist.items.map(item => ({
+        item,
+        entry: entriesByKey.get(item.key) || null,
+      }));
+      return {
+        resolved,
+        playable: resolved.filter(r => r.entry).map(r => r.entry),
+        missing: resolved.filter(r => !r.entry).length,
+      };
+    }
+
+    function playlistByIdx(id) {
+      return playlists.findIndex(p => p.id === id);
+    }
+
+    function uniqueName(desired) {
+      const base = desired.trim() || 'Untitled playlist';
+      if (!playlists.some(p => p.name === base)) return base;
+      let n = 2;
+      while (playlists.some(p => p.name === `${base} (${n})`)) n += 1;
+      return `${base} (${n})`;
+    }
+
+    function createPlaylist(name, entriesToAdd) {
+      const playlist = {
+        id: `pl_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+        name: uniqueName(name),
+        created: Date.now(),
+        items: (entriesToAdd || []).map(e => ({ key: e.key, title: e.title })),
+      };
+      playlists.unshift(playlist);
+      const stored = persistPlaylists();
+      renderPlaylists(stored ? '' : 'Your browser is blocking local storage, so this playlist will disappear when you leave.');
+      return playlist;
+    }
+
+    function renderPlaylists(warning) {
+      playlistsPanel.hidden = !playlists.length;
+      if (!playlists.length) {
+        playlistRows.innerHTML = '';
+        return;
+      }
+
+      playlistRows.innerHTML = playlists.map(playlist => {
+        const { resolved, playable, missing } = resolvePlaylist(playlist);
+        const open = expandedPlaylist === playlist.id;
+        const count = playlist.items.length;
+
+        const items = open
+          ? `<div class="playlist-order-hint">Videos play in this order &mdash; drag a row to change it.</div>
+             <ul class="playlist-items">${resolved.map((r, i) => `
+              <li class="playlist-item${r.entry ? '' : ' is-missing'}" data-playlist="${esc(playlist.id)}" data-item-key="${esc(r.item.key)}">
+                <button type="button" class="playlist-item-handle" data-drag-handle
+                  aria-label="Reorder ${esc(r.item.title || 'this video')}. Drag, or use the arrow keys."
+                  title="Drag to reorder">&#8942;&#8942;</button>
+                <span class="playlist-item-pos">${i + 1}</span>
+                <span class="playlist-item-title">${esc(r.entry ? r.entry.title : (r.item.title || 'Untitled video'))}${r.entry ? '' : ' &mdash; no longer available'}</span>
+                <button type="button" class="playlist-item-remove" data-remove-item="${esc(playlist.id)}" data-item-key="${esc(r.item.key)}" aria-label="Remove from playlist">&times;</button>
+              </li>`).join('')}</ul>`
+          : '';
+
+        const note = missing
+          ? `<div class="playlist-warning">${missing} video${missing === 1 ? ' is' : 's are'} no longer available and will be skipped.</div>`
+          : '';
+
+        return `
+          <div class="playlist-row">
+            <div class="playlist-main">
+              <span class="playlist-name">${esc(playlist.name)}<span class="playlist-count">${count} video${count === 1 ? '' : 's'}</span></span>
+              <button type="button" class="playlist-action is-play" data-play-playlist="${esc(playlist.id)}"${playable.length ? '' : ' disabled'}>&#9654; Play</button>
+              <button type="button" class="playlist-action" data-toggle-playlist="${esc(playlist.id)}">${open ? 'Hide' : 'Show'}</button>
+              <button type="button" class="playlist-action" data-rename-playlist="${esc(playlist.id)}">Rename</button>
+              <button type="button" class="playlist-action is-danger" data-delete-playlist="${esc(playlist.id)}">Delete</button>
+            </div>
+            ${note}
+            ${items}
+          </div>`;
+      }).join('');
+
+      if (warning) {
+        playlistRows.insertAdjacentHTML('afterbegin', `<div class="playlist-row"><div class="playlist-warning">${esc(warning)}</div></div>`);
+      }
+    }
+
+    // The queue is a snapshot of the results as they stood when playback
+    // started, so a later re-render cannot renumber what is playing.
+    let queue = [];
+    let queueIndex = -1;
+    // Set by "Play all". Clicking a single result gives that result plus
+    // Prev/Next, but nothing starts playing on its own afterwards.
+    let continuous = false;
+    let queueName = '';
+    let ytPlayer = null;
+    let ytApiPromise = null;
+
+    const isYouTube = url => /(?:youtube|youtube-nocookie)\.com\/embed\//i.test(String(url || ''));
+
+    const withParams = (url, params) => {
+      const joiner = url.includes('?') ? '&' : '?';
+      return url + joiner + params;
+    };
+
+    // Loaded only when someone actually starts a queue. Browsing and playing a
+    // single video stay free of any third-party script, and the player iframe
+    // itself still points at youtube-nocookie.
+    function loadYouTubeApi() {
+      if (ytApiPromise) return ytApiPromise;
+      ytApiPromise = new Promise((resolve, reject) => {
+        if (window.YT && window.YT.Player) {
+          resolve(window.YT);
+          return;
+        }
+        const previous = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = () => {
+          if (typeof previous === 'function') previous();
+          resolve(window.YT);
+        };
+        const script = document.createElement('script');
+        script.src = 'https://www.youtube.com/iframe_api';
+        script.onerror = () => reject(new Error('YouTube player API unavailable'));
+        document.head.appendChild(script);
+      });
+      return ytApiPromise;
+    }
+
+    function iframeHtml(videoData, autoplay) {
+      let src = videoData.embed_url;
+      if (autoplay && isYouTube(src)) {
+        src = withParams(src, `autoplay=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`);
+      }
+      return `<iframe id="video-modal-frame" src="${esc(src)}" title="${esc(videoData.title || 'Video')}" loading="eager" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+    }
+
+    function teardownPlayer() {
+      if (ytPlayer && typeof ytPlayer.destroy === 'function') {
+        try { ytPlayer.destroy(); } catch (e) { /* player already gone */ }
+      }
+      ytPlayer = null;
+      modalPlayer.innerHTML = '';
+    }
+
+    function mountPlayer(videoData, autoplay) {
+      teardownPlayer();
+
+      if (videoData.kind === 'file') {
+        modalPlayer.innerHTML = `<video src="${esc(videoData.embed_url)}" controls preload="metadata" playsinline autoplay title="${esc(videoData.title || 'Video')}"></video>`;
+        const el = modalPlayer.querySelector('video');
+        if (el && continuous) el.addEventListener('ended', playNext);
+        return;
+      }
+
+      modalPlayer.innerHTML = iframeHtml(videoData, autoplay);
+      if (!continuous || !isYouTube(videoData.embed_url)) return;
+
+      // Without the iframe API a YouTube embed gives no "ended" signal, so the
+      // queue would stall on the first video. If the API cannot load, the embed
+      // still plays and the Next button still works by hand.
+      const frame = document.getElementById('video-modal-frame');
+      const startedAt = queueIndex;
+      loadYouTubeApi().then(YT => {
+        if (queueIndex !== startedAt || !frame.isConnected) return;
+        ytPlayer = new YT.Player(frame, {
+          events: {
+            onStateChange: e => {
+              if (e.data === YT.PlayerState.ENDED && queueIndex === startedAt) playNext();
+            },
+          },
+        });
+      }).catch(() => { /* manual Next still advances the queue */ });
+    }
+
+    function updateQueueNav() {
+      const many = queue.length > 1;
+      queueNav.hidden = !many;
+      if (!many) return;
+      const position = `${queueIndex + 1} of ${queue.length}`;
+      queuePosition.textContent = queueName ? `${queueName} \u00b7 ${position}` : position;
+      prevBtn.disabled = queueIndex <= 0;
+      nextBtn.disabled = queueIndex >= queue.length - 1;
+    }
+
+    function playAt(index, autoplay) {
+      if (index < 0 || index >= queue.length) return;
+      queueIndex = index;
+      const videoData = queue[index];
+      modalTitle.textContent = videoData.title || 'Video';
+      mountPlayer(videoData, autoplay);
+      updateQueueNav();
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      modalClose.focus();
+    }
+
+    function playNext() {
+      // Stopping on the last video rather than closing leaves the visitor
+      // looking at what they just watched instead of at a page that jumped.
+      if (queueIndex + 1 < queue.length) playAt(queueIndex + 1, true);
+      else updateQueueNav();
+    }
+
+    // startIndex onward is what plays; the earlier results stay reachable
+    // through the Previous button.
+    function startQueue(list, startIndex, playThrough, label) {
+      queue = list.slice();
+      continuous = playThrough;
+      queueName = label || '';
+      playAt(startIndex, playThrough);
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      teardownPlayer();
+      queue = [];
+      queueIndex = -1;
+      continuous = false;
+      queueName = '';
+      queueNav.hidden = true;
+    }
+
+    const escapeRegex = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Every word has to land somewhere in the record, but each word is scored by
+    // the field it lands in, so a title hit outranks a passing mention deep in a
+    // description.
+    const FIELD_WEIGHTS = [
+      ['title', 6],
+      ['channel', 3],
+      ['categories', 2],
+      ['tags', 2],
+      ['description', 1],
+    ];
+
+    function scoreEntry(entry, tokens, phrase) {
+      let score = 0;
+      for (const token of tokens) {
+        let hit = 0;
+        for (const [field, weight] of FIELD_WEIGHTS) {
+          const haystack = entry.search[field];
+          if (!haystack || !haystack.includes(token)) continue;
+          hit = Math.max(hit, weight);
+          // A word that starts a title is a stronger signal than one buried in
+          // the middle of it.
+          if (field === 'title' && haystack.startsWith(token)) hit += 2;
+        }
+        if (!hit) return 0;
+        score += hit;
+      }
+      if (phrase && entry.search.title.includes(phrase)) score += 8;
+      return score;
+    }
+
+    function highlight(text, tokens) {
+      const raw = String(text ?? '');
+      if (!tokens.length) return esc(raw);
+      const re = new RegExp('(' + tokens.map(escapeRegex).join('|') + ')', 'gi');
+      let out = '';
+      let last = 0;
+      let m;
+      while ((m = re.exec(raw)) !== null) {
+        out += esc(raw.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>';
+        last = m.index + m[0].length;
+        if (m.index === re.lastIndex) re.lastIndex += 1;
+      }
+      return out + esc(raw.slice(last));
+    }
+
+    const SNIPPET_LEN = 260;
+
+    // A match can sit hundreds of words into a description, so the snippet is a
+    // window around the first hit rather than the opening sentence.
+    function snippetOf(text, tokens) {
+      const raw = String(text ?? '');
+      if (raw.length <= SNIPPET_LEN) return { text: raw, truncated: false };
+
+      let at = 0;
+      if (tokens.length) {
+        const re = new RegExp(tokens.map(escapeRegex).join('|'), 'i');
+        const m = raw.match(re);
+        if (m && m.index > 90) at = m.index - 90;
+      }
+      if (at) {
+        // Start on a word boundary so the snippet does not open mid-word.
+        const space = raw.indexOf(' ', at);
+        if (space > -1 && space - at < 30) at = space + 1;
+      }
+
+      let end = at + SNIPPET_LEN;
+      if (end < raw.length) {
+        const space = raw.lastIndexOf(' ', end);
+        if (space > at) end = space;
+      }
+      const clipped = raw.slice(at, end);
+      return {
+        text: (at ? '\u2026' : '') + clipped + (end < raw.length ? '\u2026' : ''),
+        truncated: true,
+      };
+    }
+
+    function cardHtml(entry, tokens) {
+      // The entry itself goes into the queue, so a result and a playlist item
+      // are the same shape by the time they reach the player.
+      const index = playableVideos.push(entry) - 1;
+
+      const title = entry.title
+        ? `<h2 class="video-title">${highlight(entry.title, tokens)}</h2>`
+        : '';
+
+      const channelInner = entry.channel
+        ? (entry.channelUrl && isSafeUrl(entry.channelUrl)
+          ? `<a href="${esc(entry.channelUrl)}" target="_blank" rel="noopener noreferrer">${highlight(entry.channel, tokens)}</a>`
+          : highlight(entry.channel, tokens))
+        : '';
+      const duration = entry.duration
+        ? `<span class="video-duration" aria-label="Running time ${esc(entry.duration)}">${esc(entry.duration)}</span>`
+        : '';
+      const channel = (entry.channel || entry.duration)
+        ? `<span class="video-channel">${channelInner}${duration}</span>`
+        : '';
+      const categories = entry.categories
+        .map(c => `<span class="video-category">${highlight(c, tokens)}</span>`)
+        .join('');
+      const save = `<button type="button" class="card-save" data-save-key="${esc(entry.key)}">+ Save</button>`;
+      const tagRow = `<div class="video-tags">${channel}${categories}${save}</div>`;
+
+      let description = '';
+      if (entry.description) {
+        const snippet = snippetOf(entry.description, tokens);
+        description = snippet.truncated
+          ? `<div class="video-description-wrap">
+               <p class="video-description video-description-snippet">${highlight(snippet.text, tokens)}</p>
+               <p class="video-description video-description-full">${highlight(entry.description, tokens)}</p>
+               <button type="button" class="video-more" aria-label="Show full description">more ...</button>
+             </div>`
+          : `<p class="video-description">${highlight(entry.description, tokens)}</p>`;
+      }
+
+      return `
+        <article class="video-card">
+          <div class="video-layout">
+            <button type="button" class="video-thumb" data-video-index="${index}" aria-label="Play ${esc(entry.title || 'video')}">
+              ${entry.thumbnail}
+              <span class="video-thumb-play">Play</span>
+            </button>
+            <div class="video-body">
+              ${title}
+              ${tagRow}
+              ${description}
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function render() {
+      const raw = input.value.trim();
+      const tokens = raw.toLowerCase().split(/\s+/).filter(Boolean);
+      const phrase = tokens.length > 1 ? raw.toLowerCase() : '';
+      clearBtn.hidden = !raw;
+
+      // Card indexes are handed out during render, so stale entries from the
+      // previous query must not linger.
+      playableVideos.length = 0;
+
+      const matches = tokens.length
+        ? entries
+          .map(entry => ({ entry, score: scoreEntry(entry, tokens, phrase) }))
+          .filter(m => m.score > 0)
+          .sort((a, b) => b.score - a.score || a.entry.order - b.entry.order)
+          .map(m => m.entry)
+        : entries;
+
+      countEl.textContent = tokens.length
+        ? `${matches.length} of ${entries.length} video${entries.length === 1 ? '' : 's'} match "${raw}"`
+        : `${entries.length} video${entries.length === 1 ? '' : 's'}`;
+
+      // A pending "save these results" name field refers to the results that
+      // were on screen when it opened; a new query invalidates that.
+      if (nameFormMode && nameFormMode.type === 'new') closeNameForm();
+
+      if (!matches.length) {
+        playAllBtn.hidden = true;
+        saveResultsBtn.hidden = true;
+        playAllNote.hidden = true;
+        results.innerHTML = `
+          <div class="state">
+            <strong>No videos match "${esc(raw)}"</strong>
+            Try a shorter phrase, a boat name, or the name of a channel.
+          </div>`;
+        return;
+      }
+
+      results.innerHTML = matches.map(entry => cardHtml(entry, tokens)).join('');
+      playAllBtn.hidden = playableVideos.length < 2;
+      updatePlayAll();
+      saveResultsBtn.hidden = false;
+      saveResultsLabel.textContent = tokens.length
+        ? `Save these ${playableVideos.length} as playlist`
+        : 'Save as playlist';
+    }
+
+    // The button says where it is about to send you, and the note accounts for
+    // anything the handoff cannot carry.
+    function updatePlayAll() {
+      const total = playableVideos.length;
+      const ytIds = youtubeIdsIn(playableVideos);
+      const sending = Math.min(ytIds.length, YT_BATCH);
+      const hosted = total - ytIds.length;
+      const notes = [];
+
+      if (!ytIds.length) {
+        playAllLabel.textContent = `Play all ${total}`;
+        playAllBtn.title = '';
+      } else {
+        playAllLabel.textContent = sending < ytIds.length
+          ? `Play first ${sending} on YouTube \u2197`
+          : `Play all ${sending} on YouTube \u2197`;
+        playAllBtn.title = 'Opens YouTube in a new tab';
+        if (sending < ytIds.length) {
+          notes.push(`YouTube takes ${YT_BATCH} at a time, so the first ${YT_BATCH} will open.`);
+        }
+        if (hosted) {
+          notes.push(`${hosted} video${hosted === 1 ? '' : 's'} we host ourselves cannot play on YouTube \u2014 use Play on ${hosted === 1 ? 'its card' : 'their cards'}.`);
+        }
+      }
+
+      playAllNote.hidden = !notes.length;
+      playAllNote.textContent = notes.join(' ');
+    }
+
+    function syncUrl() {
+      const value = input.value.trim();
+      const url = new URL(window.location.href);
+      if (value) {
+        url.searchParams.set('q', value);
+      } else {
+        url.searchParams.delete('q');
+      }
+      window.history.replaceState({}, '', url);
+    }
+
+    input.addEventListener('input', () => {
+      syncUrl();
+      render();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      syncUrl();
+      render();
+      input.focus();
+    });
+
+    results.addEventListener('click', e => {
+      const more = e.target.closest('.video-more');
+      if (more) {
+        const wrap = more.closest('.video-description-wrap');
+        if (wrap) wrap.classList.add('is-expanded');
+        return;
+      }
+
+      const trigger = e.target.closest('[data-video-index]');
+      if (!trigger) return;
+      const idx = Number(trigger.getAttribute('data-video-index'));
+      if (!Number.isInteger(idx) || !playableVideos[idx]) return;
+      // Playing one result still builds the queue, so Next runs on through the
+      // rest of the matches from wherever the visitor started.
+      startQueue(playableVideos, idx, false);
+    });
+
+    // YouTube's watch_videos endpoint turns a list of ids into a temporary
+    // playlist and redirects to it, so the whole result set plays through on
+    // YouTube itself -- where the channel gets the view -- instead of inside an
+    // embed here. It takes 50 ids at a time.
+    const YT_BATCH = 50;
+
+    function youtubeIdsIn(list) {
+      return list.map(v => youtubeId(v.embed_url)).filter(Boolean);
+    }
+
+    playAllBtn.addEventListener('click', () => {
+      if (!playableVideos.length) return;
+      const ids = youtubeIdsIn(playableVideos).slice(0, YT_BATCH);
+      if (ids.length) {
+        // Opened straight from the click so it is not taken for a popup.
+        window.open(`https://www.youtube.com/watch_videos?video_ids=${ids.join(',')}`,
+          '_blank', 'noopener');
+        return;
+      }
+      // Nothing in these results lives on YouTube -- the videos we host
+      // ourselves still play here.
+      startQueue(playableVideos, 0, true);
+    });
+
+    prevBtn.addEventListener('click', () => playAt(queueIndex - 1, true));
+    nextBtn.addEventListener('click', () => playAt(queueIndex + 1, true));
+
+    // ── Playlist interactions ────────────────────────────────────────────────
+    // The name field does double duty: naming a new playlist from the current
+    // results, and renaming an existing one.
+    let nameFormMode = null;
+
+    function openNameForm(mode) {
+      nameFormMode = mode;
+      newPlaylistForm.hidden = false;
+      newPlaylistName.value = mode.type === 'rename' ? mode.currentName : '';
+      newPlaylistName.placeholder = mode.type === 'rename' ? 'New name' : 'Playlist name';
+      newPlaylistName.focus();
+      newPlaylistName.select();
+    }
+
+    function closeNameForm() {
+      nameFormMode = null;
+      newPlaylistForm.hidden = true;
+      newPlaylistName.value = '';
+    }
+
+    saveResultsBtn.addEventListener('click', () => {
+      if (!playableVideos.length) return;
+      if (nameFormMode && nameFormMode.type === 'new') {
+        closeNameForm();
+        return;
+      }
+      openNameForm({ type: 'new', entries: playableVideos.slice() });
+    });
+
+    newPlaylistCancel.addEventListener('click', closeNameForm);
+
+    newPlaylistForm.addEventListener('submit', e => {
+      e.preventDefault();
+      if (!nameFormMode) return;
+      const name = newPlaylistName.value.trim();
+      if (!name) {
+        newPlaylistName.focus();
+        return;
+      }
+
+      if (nameFormMode.type === 'rename') {
+        const idx = playlistByIdx(nameFormMode.id);
+        if (idx > -1) {
+          playlists[idx].name = name;
+          persistPlaylists();
+          renderPlaylists();
+        }
+      } else {
+        createPlaylist(name, nameFormMode.entries);
+      }
+      closeNameForm();
+    });
+
+    playlistRows.addEventListener('click', e => {
+      const playBtn = e.target.closest('[data-play-playlist]');
+      if (playBtn) {
+        const playlist = playlists[playlistByIdx(playBtn.getAttribute('data-play-playlist'))];
+        if (!playlist) return;
+        const { playable } = resolvePlaylist(playlist);
+        if (playable.length) startQueue(playable, 0, true, playlist.name);
+        return;
+      }
+
+      const toggle = e.target.closest('[data-toggle-playlist]');
+      if (toggle) {
+        const id = toggle.getAttribute('data-toggle-playlist');
+        expandedPlaylist = expandedPlaylist === id ? '' : id;
+        renderPlaylists();
+        return;
+      }
+
+      const rename = e.target.closest('[data-rename-playlist]');
+      if (rename) {
+        const playlist = playlists[playlistByIdx(rename.getAttribute('data-rename-playlist'))];
+        if (playlist) openNameForm({ type: 'rename', id: playlist.id, currentName: playlist.name });
+        return;
+      }
+
+      const del = e.target.closest('[data-delete-playlist]');
+      if (del) {
+        const id = del.getAttribute('data-delete-playlist');
+        const playlist = playlists[playlistByIdx(id)];
+        if (!playlist) return;
+        // Deleting is the one action here that cannot be undone from the page.
+        if (!window.confirm(`Delete the playlist "${playlist.name}"?`)) return;
+        playlists = playlists.filter(p => p.id !== id);
+        if (expandedPlaylist === id) expandedPlaylist = '';
+        if (nameFormMode && nameFormMode.id === id) closeNameForm();
+        persistPlaylists();
+        renderPlaylists();
+        return;
+      }
+
+      const removeItem = e.target.closest('[data-remove-item]');
+      if (removeItem) {
+        const id = removeItem.getAttribute('data-remove-item');
+        const key = removeItem.getAttribute('data-item-key');
+        const idx = playlistByIdx(id);
+        if (idx < 0) return;
+        playlists[idx].items = playlists[idx].items.filter(it => it.key !== key);
+        persistPlaylists();
+        renderPlaylists();
+      }
+    });
+
+    // ── Reordering ───────────────────────────────────────────────────────────
+    // Pointer events rather than HTML5 drag-and-drop: the same code path then
+    // covers mouse, touch and pen, where dragstart/drop never fire on a phone.
+    let drag = null;
+
+    function moveItem(playlistId, key, toIndex) {
+      const idx = playlistByIdx(playlistId);
+      if (idx < 0) return false;
+      const items = playlists[idx].items;
+      const from = items.findIndex(it => it.key === key);
+      if (from < 0 || toIndex < 0 || toIndex >= items.length || toIndex === from) return false;
+      items.splice(toIndex, 0, items.splice(from, 1)[0]);
+      persistPlaylists();
+      return true;
+    }
+
+    function focusHandle(playlistId, key) {
+      const row = playlistRows.querySelector(
+        `.playlist-item[data-playlist="${cssEscape(playlistId)}"][data-item-key="${cssEscape(key)}"]`);
+      const handle = row && row.querySelector('[data-drag-handle]');
+      if (handle) handle.focus();
+    }
+
+    // Keys come from video ids and, for older records, embed URLs, so they can
+    // carry characters a selector would choke on.
+    const cssEscape = value => (window.CSS && CSS.escape)
+      ? CSS.escape(value)
+      : String(value).replace(/["\\]/g, '\\$&');
+
+    function renumber(list) {
+      Array.from(list.children).forEach((li, i) => {
+        const pos = li.querySelector('.playlist-item-pos');
+        if (pos) pos.textContent = String(i + 1);
+      });
+    }
+
+    // Measured fresh on every move, so a DOM reorder mid-drag cannot make the
+    // row drift away from the pointer.
+    function positionDragged(clientY) {
+      drag.el.style.transform = '';
+      const natural = drag.el.getBoundingClientRect().top;
+      drag.el.style.transform = `translateY(${clientY - drag.grabOffset - natural}px)`;
+    }
+
+    function reorderUnderPointer(clientY) {
+      const dragged = drag.el;
+      const draggedTop = clientY - drag.grabOffset;
+      const draggedCenter = draggedTop + dragged.offsetHeight / 2;
+
+      for (const other of Array.from(drag.list.children)) {
+        if (other === dragged) continue;
+        const rect = other.getBoundingClientRect();
+        const center = rect.top + rect.height / 2;
+        const draggedIsAfter = Boolean(
+          other.compareDocumentPosition(dragged) & Node.DOCUMENT_POSITION_FOLLOWING);
+        if (draggedCenter < center && draggedIsAfter) {
+          drag.list.insertBefore(dragged, other);
+          return true;
+        }
+        if (draggedCenter > center && !draggedIsAfter) {
+          drag.list.insertBefore(dragged, other.nextSibling);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function endDrag(commit) {
+      if (!drag) return;
+      const { el, list, playlistId, key } = drag;
+      el.style.transform = '';
+      el.classList.remove('is-dragging');
+      list.classList.remove('is-dragging');
+      const toIndex = Array.from(list.children).indexOf(el);
+      const moved = drag.moved;
+      drag = null;
+
+      if (commit && moved) moveItem(playlistId, key, toIndex);
+      renderPlaylists();
+      focusHandle(playlistId, key);
+    }
+
+    playlistRows.addEventListener('pointerdown', e => {
+      const handle = e.target.closest('[data-drag-handle]');
+      // A mouse can grab the row anywhere; a finger needs the handle, or the
+      // page could no longer be scrolled past a playlist.
+      const row = handle
+        ? handle.closest('.playlist-item')
+        : (e.pointerType === 'mouse' && !e.target.closest('button')
+          ? e.target.closest('.playlist-item')
+          : null);
+      if (!row || e.button > 0) return;
+
+      const list = row.parentElement;
+      if (!list || !list.classList.contains('playlist-items')) return;
+
+      e.preventDefault();
+      drag = {
+        el: row,
+        list,
+        playlistId: row.getAttribute('data-playlist'),
+        key: row.getAttribute('data-item-key'),
+        grabOffset: e.clientY - row.getBoundingClientRect().top,
+        pointerId: e.pointerId,
+        moved: false,
+      };
+      row.classList.add('is-dragging');
+      list.classList.add('is-dragging');
+      // Capture keeps the moves coming when the pointer leaves the row, but a
+      // pointer released between the event and this call makes it throw.
+      try {
+        if (row.setPointerCapture) row.setPointerCapture(e.pointerId);
+      } catch (err) { /* uncaptured drags still track while over the list */ }
+      positionDragged(e.clientY);
+    });
+
+    playlistRows.addEventListener('pointermove', e => {
+      if (!drag || e.pointerId !== drag.pointerId) return;
+      e.preventDefault();
+      if (reorderUnderPointer(e.clientY)) {
+        drag.moved = true;
+        renumber(drag.list);
+      }
+      positionDragged(e.clientY);
+    });
+
+    playlistRows.addEventListener('pointerup', e => {
+      if (!drag || e.pointerId !== drag.pointerId) return;
+      endDrag(true);
+    });
+
+    playlistRows.addEventListener('pointercancel', e => {
+      if (!drag || e.pointerId !== drag.pointerId) return;
+      endDrag(false);
+    });
+
+    // Dragging is unusable without a pointer, so the handle also answers to the
+    // arrow keys.
+    playlistRows.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      const handle = e.target.closest('[data-drag-handle]');
+      if (!handle) return;
+      const row = handle.closest('.playlist-item');
+      if (!row) return;
+
+      e.preventDefault();
+      const playlistId = row.getAttribute('data-playlist');
+      const key = row.getAttribute('data-item-key');
+      const at = Array.from(row.parentElement.children).indexOf(row);
+      if (!moveItem(playlistId, key, at + (e.key === 'ArrowUp' ? -1 : 1))) return;
+      renderPlaylists();
+      focusHandle(playlistId, key);
+    });
+
+    function pickerHtml(entryKey) {
+      const options = playlists.length
+        ? playlists.map(playlist => {
+          const has = playlist.items.some(it => it.key === entryKey);
+          return `<button type="button" class="card-picker-option" data-add-to="${esc(playlist.id)}" data-entry-key="${esc(entryKey)}"${has ? ' disabled' : ''}>${has ? '&check; ' : '+ '}${esc(playlist.name)}</button>`;
+        }).join('')
+        : '<span class="playlists-note">No playlists yet &mdash; name one below.</span>';
+
+      return `
+        <div class="card-picker" data-picker-for="${esc(entryKey)}">
+          <div class="card-picker-title">Add to playlist</div>
+          <div class="card-picker-list">${options}</div>
+          <div class="card-picker-new">
+            <input type="text" maxlength="80" autocomplete="off" placeholder="New playlist name"
+              aria-label="New playlist name" data-picker-name="${esc(entryKey)}">
+            <button type="button" data-picker-create="${esc(entryKey)}">Create &amp; add</button>
+          </div>
+        </div>`;
+    }
+
+    function closePickers() {
+      results.querySelectorAll('.card-picker').forEach(el => el.remove());
+    }
+
+    function addToPlaylist(playlistId, entryKey) {
+      const idx = playlistByIdx(playlistId);
+      const entry = entriesByKey.get(entryKey);
+      if (idx < 0 || !entry) return;
+      if (playlists[idx].items.some(it => it.key === entryKey)) return;
+      playlists[idx].items.push({ key: entry.key, title: entry.title });
+      persistPlaylists();
+      renderPlaylists();
+    }
+
+    results.addEventListener('click', e => {
+      const saveBtn = e.target.closest('[data-save-key]');
+      if (saveBtn) {
+        const key = saveBtn.getAttribute('data-save-key');
+        const body = saveBtn.closest('.video-body');
+        const existing = body && body.querySelector('.card-picker');
+        closePickers();
+        if (!existing && body) {
+          body.insertAdjacentHTML('beforeend', pickerHtml(key));
+          const input = body.querySelector('[data-picker-name]');
+          if (input) input.focus();
+        }
+        return;
+      }
+
+      const addBtn = e.target.closest('[data-add-to]');
+      if (addBtn) {
+        addToPlaylist(addBtn.getAttribute('data-add-to'), addBtn.getAttribute('data-entry-key'));
+        const key = addBtn.getAttribute('data-entry-key');
+        const picker = addBtn.closest('.card-picker');
+        // Redraw in place so the just-used playlist shows as already holding it.
+        if (picker) picker.outerHTML = pickerHtml(key);
+        return;
+      }
+
+      const createBtn = e.target.closest('[data-picker-create]');
+      if (createBtn) {
+        const key = createBtn.getAttribute('data-picker-create');
+        const picker = createBtn.closest('.card-picker');
+        const input = picker && picker.querySelector('[data-picker-name]');
+        const name = input ? input.value.trim() : '';
+        const entry = entriesByKey.get(key);
+        if (!name || !entry) {
+          if (input) input.focus();
+          return;
+        }
+        createPlaylist(name, [entry]);
+        if (picker) picker.outerHTML = pickerHtml(key);
+      }
+    });
+
+    results.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const input = e.target.closest('[data-picker-name]');
+      if (!input) return;
+      e.preventDefault();
+      const picker = input.closest('.card-picker');
+      const createBtn = picker && picker.querySelector('[data-picker-create]');
+      if (createBtn) createBtn.click();
+    });
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      // A drag holds no focus of its own, so the cancel key has to be caught
+      // at the document.
+      if (drag) {
+        endDrag(false);
+        return;
+      }
+      if (modal.classList.contains('is-open')) closeModal();
+    });
+
+    // /api/videos is grouped by category and repeats a cross-listed video once
+    // per group, so the groups are flattened back into one record per video.
+    function flatten(groups) {
+      const byKey = new Map();
+      let order = 0;
+      (groups || []).forEach(group => {
+        (group.videos || []).forEach(v => {
+          const video = v.video || {};
+          if (!isSafeUrl(video.embed_url)) return;
+          const key = String(v.id || video.embed_url);
+          const category = String(group.category || v.category || '').trim();
+          const existing = byKey.get(key);
+          if (existing) {
+            if (category && !existing.categories.includes(category)) {
+              existing.categories.push(category);
+            }
+            return;
+          }
+
+          const title = String(v.title || '').trim();
+          const channel = channelNameOf(v);
+          const description = descriptionOf(v);
+          const tags = String(v.tags || '').trim();
+          byKey.set(key, {
+            key,
+            order: order++,
+            title,
+            channel,
+            channelUrl: (video.channel_url || v.channel_url || video.credit_url || v.video_credit_url || '').trim(),
+            description,
+            duration: String(v.duration || '').trim(),
+            categories: category ? [category] : [],
+            kind: video.kind,
+            embed_url: video.embed_url,
+            thumbnail: thumbnailMarkup(v),
+            search: {
+              title: title.toLowerCase(),
+              channel: channel.toLowerCase(),
+              description: description.toLowerCase(),
+              tags: tags.toLowerCase(),
+              categories: '',
+            },
+          });
+        });
+      });
+
+      const flat = Array.from(byKey.values());
+      flat.forEach(entry => {
+        entry.search.categories = entry.categories.join(' ').toLowerCase();
+      });
+      return flat;
+    }
+
+    input.value = new URLSearchParams(window.location.search).get('q') || '';
+
+    fetch('/api/videos')
+      .then(r => {
+        if (!r.ok) throw new Error('Server returned ' + r.status);
+        return r.json();
+      })
+      .then(groups => {
+        entries = flatten(groups);
+        entriesByKey = new Map(entries.map(entry => [entry.key, entry]));
+        // Playlists are read only after the live data is in hand, so a stored
+        // item can be matched against what is actually playable right now.
+        playlists = loadPlaylists();
+        renderPlaylists();
+        render();
+      })
+      .catch(err => {
+        countEl.textContent = 'Unable to load videos';
+        results.innerHTML = `<div class="state"><strong>Unable to load videos</strong>${esc(err.message)}</div>`;
+      });
+  </script>
+</body>
+
+</html>

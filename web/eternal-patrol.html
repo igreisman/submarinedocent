@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submarines on Eternal Patrol</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f8fa;
+      color: #24292e;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+      margin-bottom: 32px;
+    }
+
+    .card-header {
+      background: #0366d6;
+      color: #fff;
+      border-radius: 12px 12px 0 0;
+      padding: 18px 24px;
+      font-size: 1.25em;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-body {
+      padding: 24px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #f5faff;
+      border-radius: 8px;
+      flex: 1;
+      text-align: center;
+      padding: 24px 0;
+    }
+
+    .stat-num {
+      font-size: 2.2em;
+      font-weight: 800;
+      color: #0366d6;
+    }
+
+    .stat-label {
+      color: #555;
+      font-size: 1.1em;
+      margin-top: 6px;
+    }
+
+    .filter-bar {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      padding: 18px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-end;
+    }
+
+    .filter-bar label {
+      font-weight: 600;
+      color: #586069;
+      margin-bottom: 6px;
+    }
+
+    .filter-bar select,
+    .filter-bar input {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #d1d5da;
+      font-size: 15px;
+    }
+
+    .era-header {
+      font-size: 1.15em;
+      font-weight: 700;
+      color: #0366d6;
+      margin: 32px 0 12px 0;
+    }
+
+    .boat-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    .boat-table th,
+    .boat-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e1e4e8;
+    }
+
+    .boat-table td:nth-child(2),
+    .boat-table th:nth-child(2) {
+      min-width: 120px;
+      width: 140px;
+      white-space: nowrap;
+    }
+
+    .boat-table th {
+      background: #f3f6fa;
+      color: #222;
+      font-weight: 700;
+    }
+
+    .boat-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .boat-link {
+      color: #0366d6;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .boat-link:hover {
+      text-decoration: underline;
+    }
+
+    .alert {
+      background: #eaf6ff;
+      color: #0366d6;
+      border-radius: 8px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
+      font-size: 1.1em;
+    }
+
+  </style>
+</head>
+
+<body data-enable-glossary-tooltips="true">
+
+  <div class="container">
+    <div class="card">
+      <div class="card-header">About the Tolling of the Boats</div>
+      <div class="card-body">
+        <!-- About text from PHP page, static for now -->
+        <p>Each Memorial Day, United States Submarine Veterans read the list of the boats lost in World War 2. It is
+          called with the "Tolling of the Boats." The reading of the names of the lost boats typically includes the
+          number of sailors lost with each one. Since the ceremony was created by WW2 sub vets, the focus was on their
+          era. Recently, as more of the sub vets are from post WW2 service, the list has included the four submarines
+          that we have lost since the war. Although they were not lost in active combat, we acknowledge that these
+          sailors also gave their lives in the service of their country.</p>
+        <p>However, this reading has not usually included the submarines we lost prior to WW2. We had an average of one
+          submarine incident (sinking or grounding) every 27 months from the time of the USS Holland purchase in 1900
+          until the outbreak of WW2 in 1941. However, a number of those boats sank without loss of life and were
+          salvaged and recommissioned. Therefore, we made an arbitrary decision about which boats to include in our list
+          of those lost prior to WW2. We only included the eleven US Navy submarines lost prior to WW2 with loss of life
+          or where the boat was not salvaged. The boats we did not include are listed in an appendix.</p>
+        <p><strong>So how did this particular project come about?</strong><br>This project came about for the USS
+          Pampanito (SS-383), at the maritime museum in San Francisco. The Mare Island base of the USSVI sub vets
+          normally holds their "Tolling of the Boats" at the Pampanito. This document is an effort to make the list more
+          inclusive and to give it more texture, more depth and, hopefully, make it more interesting. Although this
+          document is too lengthy to be read in full at the ceremony, we hope it might provide more information for
+          anyone who might be interested.</p>
+        <p>Some of the stories of the lost submarines are interesting or particularly tragic. Most of them had
+          interesting histories prior to their last patrols. That is the sort of thing we wanted to convey. For example,
+          one boat rescued gold bars and silver coins from banks in the Philippines, only to have one gold bar go
+          "missing" on the way home. One submarine sank a Japanese carrier but wasn't immediately aware of it. The
+          submarine was long gone before the carrier went down. The stories of the sister ships USS Squalus/Sailfish and
+          the USS Sculpin are particularly ironic and sad. There was also the frequent tension between what captains
+          thought they sank and what they got credit for in the postwar audit.</p>
+        <p><strong>How is the document organized?</strong><br>The prewar losses that met our criteria are listed in
+          section 1. Section 2 details the WW2 losses and postwar losses are in section 3. The listings are generally in
+          order of the dates the boats were lost. That isn't an exact sort since we still don't always know the exact
+          dates of the losses.</p>
+        <p>For each listing, we start with basic information about the boat such as the class and building shipyard.
+          Next, we describe the last patrol and what we know about the submarine's loss. Then we go back and summarize
+          its prior history.</p>
+        <p>The officers' photographs, unless otherwise noted, are those of the last commanding officers. Although the
+          majority of the captains, and their crews, were lost when the boat went down, not all perished. In two cases,
+          the captains are listed with two different boats. In four cases the boats went aground and the entire crews
+          were rescued. In a few more cases, captains were on the bridge when the boat was sunk and they, along with a
+          few other crew members were able to make it to safety.</p>
+        <p>The pictures of the submarines, again unless otherwise noted, are those of the lost boats. Obviously, there
+          may not be much difference between boats of the same classes, but there are huge differences between our first
+          class of submarines, such as the A-7, and the nuclear-powered boats. Manitowoc boats were launched sideways
+          and that process looks very different. Therefore, we included the photos of many of the boats.</p>
+        <p>Like so many other professions, sailors - particularly on submarines - speak a very odd language. Hopefully,
+          Appendix B translates most of that jargon into a reasonable version of English.</p>
+        <p><strong>Thanks.</strong><br>My thanks go to Diane Cooper for the idea which we then expanded. Her guidance
+          and suggestions throughout were most helpful. Suggestions and reminders from others are also appreciated.</p>
+        <p>The greatest thanks go to my wife, Sue, for putting up with my strange obsession. A benefit of this project
+          may have been to get me out of her hair a couple days per week. However, I do realize that I still try her
+          patience at times.</p>
+        <p><strong>Dedication.</strong><br>This is dedicated to all submariners, particularly those who gave their lives
+          for their countries, in times of war and in keeping the peace.</p>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-boats">--</div>
+        <div class="stat-label">Total Submarines Lost</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-lives">--</div>
+        <div class="stat-label">Lives Lost</div>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <div>
+        <label for="era">Filter by Era</label>
+        <select id="era">
+          <option value="all">All Eras</option>
+          <option value="pre-ww2">Pre WW2</option>
+          <option value="ww2">WW2</option>
+          <option value="post-ww2">Post WW2</option>
+        </select>
+      </div>
+      <div>
+        <label for="search">Search by Name or Designation</label>
+        <input type="text" id="search" placeholder="e.g., USS Shark or SS-174">
+      </div>
+    </div>
+    <div class="era-header">Submarines Lost WW2</div>
+    <table class="boat-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Hull #</th>
+          <th>Date Lost</th>
+          <th>Cause</th>
+          <th>Lost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dynamic rows will be inserted here -->
+      </tbody>
+    </table>
+    <div class="alert">No submarines found matching your criteria.</div>
+    <script>
+      async function fetchSubmarines() {
+        // Try API endpoint first, fallback to static file
+        let response;
+        try {
+          response = await fetch('/api/eternal-patrol');
+          if (!response.ok) throw new Error('API not available');
+          return await response.json();
+        } catch {
+          response = await fetch('../corpora/eternal_patrol.jsonl');
+          const text = await response.text();
+          return text.trim().split('\n').map(line => JSON.parse(line));
+        }
+      }
+
+      function computeStats(data) {
+        const totalBoats = data.length;
+        const totalLives = data.reduce((sum, boat) => {
+          // Some entries have text, some have numbers
+          if (typeof boat.fatalities_num === 'number') return sum + boat.fatalities_num;
+          if (typeof boat.fatalities_text === 'string') {
+            const match = boat.fatalities_text.match(/\d+/g);
+            if (match) return sum + match.map(Number).reduce((a, b) => a + b, 0);
+          }
+          return sum;
+        }, 0);
+        return { totalBoats, totalLives };
+      }
+
+      function renderStats(data) {
+        const stats = computeStats(data);
+        document.getElementById('stat-boats').textContent = stats.totalBoats;
+        document.getElementById('stat-lives').textContent = stats.totalLives.toLocaleString();
+      }
+
+      function filterData(data, era, search) {
+        return data.filter(boat => {
+          const eraMatch = (era === 'all') || (boat.era === era || (era === 'pre-ww2' && boat.era === 'pre-wwii'));
+          const searchMatch = !search || (
+            boat.name.toLowerCase().includes(search) ||
+            boat.designation.toLowerCase().includes(search) ||
+            boat.boat_number.toLowerCase().includes(search)
+          );
+          return eraMatch && searchMatch;
+        });
+      }
+
+      function renderTable(data) {
+        const tbody = document.querySelector('.boat-table tbody');
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+          document.querySelector('.alert').style.display = 'block';
+          return;
+        }
+        document.querySelector('.alert').style.display = 'none';
+        // Sort by date_lost_sort ascending
+        const sorted = data.slice().sort((a, b) => {
+          if (!a.date_lost_sort) return 1;
+          if (!b.date_lost_sort) return -1;
+          return a.date_lost_sort.localeCompare(b.date_lost_sort);
+        });
+        sorted.forEach(boat => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+              <td><a href="#" class="boat-link" title="${boat.designation}" data-boat-id="${boat.id}">USS ${boat.name}</a></td>
+              <td>${boat.boat_number}</td>
+              <td>${boat.date_lost}</td>
+              <td>${boat.cause}</td>
+              <td>${boat.fatalities_text}</td>
+            `;
+          tbody.appendChild(tr);
+        });
+        // Add click listeners for modal
+        document.querySelectorAll('.boat-link[data-boat-id]').forEach(link => {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const boatId = this.getAttribute('data-boat-id');
+            const boat = sorted.find(b => b.id == boatId);
+            if (boat) showBoatModal(boat);
+          });
+        });
+      }
+
+      // Modal rendering
+      function showBoatModal(boat) {
+        // Remove any existing modal
+        const oldModal = document.getElementById('boat-modal');
+        if (oldModal) oldModal.remove();
+        const imgPath = (src) => {
+          if (!src) return '';
+          if (src.startsWith('/web/') || src.startsWith('http://') || src.startsWith('https://')) {
+            return src;
+          }
+          if (src.startsWith('images/')) {
+            return `/web/${src}`;
+          }
+          return src;
+        };
+        // Photographs are third-party, used with credit. The credit renders with
+          // the image, or the image does not render at all.
+          const creditHtml = (text) => {
+            if (!text) return '';
+            const safe = String(text)
+              .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `<div style="font-size:0.8em;color:#777;margin-top:4px;">${safe}</div>`;
+          };
+          let galleryHtml = '';
+        for (let i = 1; i <= 4; i += 1) {
+          const image = boat[`image${i}`];
+          if (!image) {
+            continue;
+          }
+          const subtitle = boat[`image${i}_subtitle`] || '';
+          galleryHtml += `
+            <div style="display:grid;gap:8px;">
+              <img src="${imgPath(image)}" alt="Gallery image ${i}" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;background:#f6f8fa;">
+              ${subtitle ? `<div style="font-size:0.95em;color:#555;line-height:1.5;">${subtitle.replace(/\n/g, '<br>')}</div>` : ''}
+                ${creditHtml(boat[`image${i}_credit`])}
+            </div>
+          `;
+        }
+        const modal = document.createElement('div');
+        modal.id = 'boat-modal';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+        modal.style.background = 'rgba(0,0,0,0.18)';
+        modal.style.zIndex = '9999';
+        modal.innerHTML = `
+            <div style="background:#fff;max-width:700px;height:80vh;margin:60px auto;padding:32px 24px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.13);position:relative;overflow-y:auto;display:flex;flex-direction:column;">
+              <button style="position:absolute;top:18px;right:18px;font-size:1.5em;background:none;border:none;color:#888;cursor:pointer;" onclick="document.getElementById('boat-modal').remove()">&times;</button>
+              <div style="font-size:1.4em;font-weight:700;color:#b59f3b;margin-bottom:6px;">USS ${boat.designation}</div>
+              <div style="font-size:1.1em;color:#555;margin-bottom:8px;">${boat.name}</div>
+              <div style="color:#888;font-size:1em;margin-bottom:12px;">${boat.date_lost}</div>
+              <hr style="margin-bottom:18px;">
+              <div style="display:flex;gap:18px;margin-bottom:18px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:180px;">
+                  <div><b>Hull Number:</b> ${boat.designation}</div>
+                  <div><b>Last Captain:</b> ${boat.last_captain}</div>
+                  <div><b>Fatalities:</b> ${boat.fatalities_num}</div>
+                </div>
+                <div style="flex:1;min-width:180px;">
+                  <div><b>Date Lost:</b> ${boat.date_lost}</div>
+                  <div><b>Location:</b> ${boat.location}</div>
+                  <div><b>Cause:</b> ${boat.cause}</div>
+                </div>
+              </div>
+              <div style="margin-bottom:18px;">
+                <div style="font-weight:600;margin-bottom:6px;">Construction</div>
+                <div style="color:#333;font-size:1em;">${boat.construction ? boat.construction.replace(/\n/g, '<br>') : 'No construction data available.'}</div>
+              </div>
+              <div style="margin-bottom:18px;">
+                <div style="font-weight:600;margin-bottom:6px;">Loss Narrative</div>
+                <div style="color:#333;font-size:1em;">${boat.loss_narrative.replace(/\n/g, '<br>')}</div>
+              </div>
+              ${galleryHtml ? `
+              <div style="margin-bottom:18px;">
+                <div style="font-weight:600;margin-bottom:10px;">Gallery</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">${galleryHtml}</div>
+              </div>
+              ` : ''}
+              <div style="margin-bottom:18px;">
+                <div style="font-weight:600;margin-bottom:6px;">Submarine Photo</div>
+                <img src="${imgPath(boat.photo_boat)}" alt="Submarine Photo" style="max-width:220px;max-height:140px;border-radius:6px;background:#f6f8fa;">
+                  ${creditHtml(boat.photo_boat_credit)}
+              </div>
+              <div>
+                <div style="font-weight:600;margin-bottom:6px;">Captain Photo</div>
+                <img src="${imgPath(boat.photo_captain)}" alt="Captain Photo" style="max-width:120px;max-height:140px;border-radius:6px;background:#f6f8fa;">
+                  ${creditHtml(boat.photo_captain_credit)}
+              </div>
+            </div>
+          `;
+        document.body.appendChild(modal);
+      }
+
+      async function main() {
+        const data = await fetchSubmarines();
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('era')) {
+          document.getElementById('era').value = params.get('era');
+        }
+        if (params.get('q')) {
+          document.getElementById('search').value = params.get('q');
+        }
+
+        function update() {
+          const era = document.getElementById('era').value;
+          const search = document.getElementById('search').value.trim().toLowerCase();
+          const filtered = filterData(data, era, search);
+          renderStats(filtered);
+          renderTable(filtered);
+        }
+
+        document.getElementById('era').addEventListener('change', update);
+        document.getElementById('search').addEventListener('input', update);
+        update();
+      }
+      main();
+    </script>
+  </div>
+  <script src="/web/glossary-tooltips.js"></script>
+  <script src="/web/site-footer.js"></script>
+  <script src="/web/site-header.js"></script>
+  <script>
+    SiteFooter.render({
+      onCopy: () => {
+        const url = new URL(window.location.href);
+        const era = document.getElementById('era').value;
+        const search = document.getElementById('search').value.trim();
+        url.searchParams.delete('era');
+        url.searchParams.delete('q');
+        if (era && era !== 'all') url.searchParams.set('era', era);
+        if (search) url.searchParams.set('q', search);
+        return navigator.clipboard.writeText(url.toString());
+      },
+    });
+    SiteHeader.render({
+      title:    'Submarines on Eternal Patrol',
+      subtitle: 'Honoring the brave men and vessels lost in service to their nation — those who never returned from the deep.',
+      feedback: 'Have a correction or additional information?',
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Submarine Museums</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .museum-search {
+      margin-bottom: 24px;
+      padding: 18px;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .museum-search-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #e6edf3;
+    }
+
+    .museum-search-copy {
+      margin: 0 0 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #8b949e;
+    }
+
+    .museum-search-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .museum-search-input {
+      flex: 1 1 280px;
+      min-width: 0;
+      padding: 11px 13px;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+      font: inherit;
+    }
+
+    .museum-search-input::placeholder {
+      color: #6e7681;
+    }
+
+    .museum-search-btn {
+      padding: 11px 16px;
+      border-radius: 999px;
+      border: 1px solid #388bfd;
+      background: #1f6feb;
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .museum-search-btn:hover {
+      background: #388bfd;
+      border-color: #58a6ff;
+    }
+
+    .museum-search-btn.secondary {
+      border-color: #30363d;
+      background: transparent;
+      color: #c9d1d9;
+    }
+
+    .museum-search-status {
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #8b949e;
+      min-height: 1.4em;
+    }
+
+    .museum-search-status.error {
+      color: #ffb3ba;
+    }
+
+    .museum-distance {
+      margin: 10px 0 0;
+      font-size: 12px;
+      color: #8fb6e8;
+    }
+
+    .museum-card {
+      display: flex;
+      align-items: flex-start;
+      padding: 24px;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+      margin-bottom: 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .museum-card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .museum-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .museum-body h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+    }
+
+    .museum-body .designation {
+      font-size: 13px;
+      color: #8b949e;
+      margin-bottom: 10px;
+    }
+
+    .museum-body p {
+      margin: 0;
+      font-size: 14px;
+      color: #c9d1d9;
+      line-height: 1.6;
+    }
+
+    .museum-related-link {
+      display: inline-block;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #8fb6e8;
+      text-decoration: none;
+    }
+
+    .museum-related-link:hover {
+      text-decoration: underline;
+    }
+
+    .museum-related-byline {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #8b949e;
+    }
+
+    .museum-related-byline a {
+      color: #8fb6e8;
+      text-decoration: none;
+    }
+
+    .museum-related-byline a:hover {
+      text-decoration: underline;
+    }
+
+    .museum-related-section {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-top: 1px solid rgba(88, 166, 255, 0.32);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(31, 111, 235, 0.12), rgba(13, 17, 23, 0.12));
+      box-shadow: inset 0 1px 0 rgba(143, 182, 232, 0.12);
+    }
+
+    .museum-related-kicker {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8fb6e8;
+    }
+
+    .museum-related-items {
+      display: grid;
+      gap: 10px;
+    }
+
+    .museum-pages {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #21262d;
+      display: grid;
+      gap: 10px;
+    }
+
+    .museum-pages .museum-pages {
+      margin-top: 10px;
+      padding-top: 10px;
+      padding-left: 14px;
+      border-top: none;
+      border-left: 2px solid #21262d;
+    }
+
+    .museum-name-link {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+
+    .museum-name-link:hover {
+      text-decoration: underline;
+    }
+
+    .museum-name-link .ext-arrow {
+      font-size: 0.65em;
+      vertical-align: middle;
+      margin-left: 4px;
+      opacity: 0.85;
+    }
+
+    .museum-tour-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding: 9px 16px;
+      background: #1f6feb;
+      border: 1px solid #388bfd;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .museum-tour-link:hover {
+      background: #388bfd;
+      border-color: #58a6ff;
+    }
+
+    .museum-page-link {
+      display: block;
+      padding: 14px 16px;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .museum-page-link:hover {
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .museum-page-link .page-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .faq-badge {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #0f2744;
+      border: 1px solid #245487;
+      color: #cfe8ff;
+    }
+
+    .museum-page-link .page-desc {
+      font-size: 13px;
+      color: #8b949e;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .detail-breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #8b949e;
+    }
+
+    .detail-breadcrumb a {
+      color: #58a6ff;
+      text-decoration: none;
+      padding: 4px 6px;
+      border-radius: 6px;
+    }
+
+    .detail-breadcrumb a:hover {
+      background: #161b22;
+    }
+
+    .detail-breadcrumb .sep {
+      color: #484f58;
+    }
+
+    .detail-breadcrumb .current {
+      color: #e6edf3;
+      padding: 4px 6px;
+    }
+
+    .detail-content {
+      font-size: 15px;
+      color: #c9d1d9;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+    }
+
+    .detail-content-frame {
+      width: 100%;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      background: #fff;
+      margin-bottom: 20px;
+      min-height: 300px;
+    }
+
+    .detail-attachments {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .attachment-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #58a6ff;
+      text-decoration: none;
+      background: #161b22;
+      width: fit-content;
+      max-width: 100%;
+      transition: border-color 0.15s;
+    }
+
+    .attachment-link:hover {
+      border-color: #58a6ff;
+    }
+
+    .attachment-link .ext {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8b949e;
+      background: #0d1117;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .detail-title {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    .detail-desc {
+      color: #8b949e;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0 0 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <main id="main">
+  </main>
+
+  <script src="/web/site-footer.js"></script>
+  <script src="/web/site-header.js"></script>
+  <script>
+    SiteFooter.render();
+    SiteHeader.render({
+      title: 'Submarine Museums',
+      subtitle: 'Preserved submarines and maritime museums open to the public, where you can step aboard and experience history firsthand.',
+      feedback: 'Know of a submarine museum we should add? Have a correction?',
+    });
+
+    const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const main = document.getElementById('main');
+    const MUSEUM_ARTICLE_LINKS = {
+      19: [
+        {
+          url: 'https://www.smithsonianmag.com/smart-news/historic-submarine-restoration-reveals-a-hidden-connection-to-a-lost-sister-ship-that-sank-during-world-war-ii-180989340/',
+          label: 'Read the Smithsonian story about Silversides and the lost USS Trigger',
+          authorLabel: 'Sarah Kuta',
+          authorUrl: 'https://www.smithsonianmag.com/author/sarah-kuta/',
+        },
+      ],
+    };
+    const MUSEUM_COORDS = {
+      1: { lat: 37.8099878, lon: -122.4164446 },
+      2: { lat: 32.8566831, lon: -79.9590478 },
+      3: { lat: 43.0820215, lon: -70.7673667 },
+      4: { lat: 35.7945926, lon: -95.3107443 },
+      5: { lat: 39.9458707, lon: -75.1404868 },
+      6: { lat: 45.5083494, lon: -122.6656619 },
+      7: { lat: 21.3674843, lon: -157.9384488 },
+      8: { lat: 29.3342146, lon: -94.7789227 },
+      9: { lat: 44.0927599, lon: -87.6557269 },
+      10: { lat: 41.5101229, lon: -81.691597 },
+      11: { lat: 42.8764906, lon: -78.8785352 },
+      12: { lat: 32.7205652, lon: -117.1735538 },
+      13: { lat: 30.684373, lon: -88.0153161 },
+      14: { lat: 40.7650467, lon: -73.9998318 },
+      15: { lat: 41.7053275, lon: -71.1633887 },
+      16: { lat: 41.3874649, lon: -72.087071 },
+      17: { lat: 34.7521943, lon: -92.2669633 },
+      18: { lat: 40.44563, lon: -80.017931 },
+      19: { lat: 43.2298094, lon: -86.3322372 },
+      20: { lat: 39.2855672, lon: -76.6109828 },
+    };
+
+    let allMuseums = [];
+    let pagesByMuseumId = {};
+    let museumSearch = {
+      query: '',
+      status: '',
+      statusKind: '',
+      results: null,
+      resolvedLabel: '',
+      loading: false,
+    };
+
+    function getPageId() {
+      return new URLSearchParams(location.search).get('page');
+    }
+
+    function navigate(pageId) {
+      const url = pageId ? `?page=${pageId}` : location.pathname;
+      history.pushState(null, '', url);
+      renderView();
+    }
+
+    function findPage(pageId) {
+      const id = parseInt(pageId, 10);
+      for (const pages of Object.values(pagesByMuseumId)) {
+        const p = pages.find(pg => pg.id === id);
+        if (p) return p;
+      }
+      return null;
+    }
+
+    function findMuseum(museumId) {
+      return allMuseums.find(m => m.id === museumId) || null;
+    }
+
+    function museumSearchHtml() {
+      const resultsNote = museumSearch.results && museumSearch.resolvedLabel
+        ? `Showing the 3 closest museums to ${esc(museumSearch.resolvedLabel)}.`
+        : 'Enter a ZIP code or a city and state to find the three closest museums.';
+      const statusClass = museumSearch.statusKind === 'error' ? 'museum-search-status error' : 'museum-search-status';
+      return `<section class="museum-search">
+        <h2 class="museum-search-title">Find Museums Near You</h2>
+        <p class="museum-search-copy">${resultsNote}</p>
+        <form class="museum-search-form" id="museumSearchForm">
+          <input class="museum-search-input" id="museumSearchInput" name="museumSearch" type="text" autocomplete="postal-code address-level2 address-level1" placeholder="ZIP code or city, state" value="${esc(museumSearch.query)}" />
+          <button class="museum-search-btn" type="submit">Find closest 3</button>
+          ${museumSearch.results ? '<button class="museum-search-btn secondary" type="button" data-clear-search="1">Show all museums</button>' : ''}
+        </form>
+        <div class="${statusClass}">${esc(museumSearch.status)}</div>
+      </section>`;
+    }
+
+    function distanceMiles(lat1, lon1, lat2, lon2) {
+      const toRad = deg => deg * Math.PI / 180;
+      const earthRadiusMiles = 3958.8;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2
+        + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return earthRadiusMiles * c;
+    }
+
+    function geocodeQuery(query) {
+      const url = new URL('https://nominatim.openstreetmap.org/search');
+      url.searchParams.set('format', 'jsonv2');
+      url.searchParams.set('limit', '1');
+      url.searchParams.set('countrycodes', 'us');
+      url.searchParams.set('q', query);
+      url.searchParams.set('email', 'submarinedocent@example.com');
+      return fetch(url.toString(), {
+        headers: { 'Accept': 'application/json' },
+      }).then(async (res) => {
+        if (!res.ok) throw new Error(`Location lookup failed (${res.status})`);
+        const results = await res.json();
+        if (!results.length) return null;
+        return {
+          lat: Number(results[0].lat),
+          lon: Number(results[0].lon),
+          label: results[0].display_name || query,
+        };
+      });
+    }
+
+    async function runMuseumSearch(query) {
+      museumSearch.query = query.trim();
+      museumSearch.statusKind = '';
+      museumSearch.status = 'Finding nearby museums…';
+      museumSearch.loading = true;
+      renderView();
+      try {
+        const target = await geocodeQuery(museumSearch.query);
+        if (!target) {
+          museumSearch.results = null;
+          museumSearch.resolvedLabel = '';
+          museumSearch.statusKind = 'error';
+          museumSearch.status = 'Could not find that location. Try a ZIP code or city and state.';
+          museumSearch.loading = false;
+          renderView();
+          return;
+        }
+        museumSearch.results = allMuseums
+          .map(m => {
+            const coords = MUSEUM_COORDS[m.id];
+            if (!coords) return null;
+            return {
+              museum: m,
+              distanceMiles: distanceMiles(target.lat, target.lon, coords.lat, coords.lon),
+            };
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.distanceMiles - b.distanceMiles)
+          .slice(0, 3);
+        museumSearch.resolvedLabel = target.label;
+        museumSearch.status = museumSearch.results.length
+          ? ''
+          : 'No museums could be ranked for that location.';
+        museumSearch.statusKind = museumSearch.results.length ? '' : 'error';
+      } catch (err) {
+        museumSearch.results = null;
+        museumSearch.resolvedLabel = '';
+        museumSearch.statusKind = 'error';
+        museumSearch.status = err.message || 'Location lookup failed.';
+      }
+      museumSearch.loading = false;
+      renderView();
+    }
+
+    function clearMuseumSearch() {
+      museumSearch = {
+        query: '',
+        status: '',
+        statusKind: '',
+        results: null,
+        resolvedLabel: '',
+        loading: false,
+      };
+      renderView();
+    }
+
+    function ancestry(page) {
+      const chain = [];
+      let cur = page;
+      while (cur) {
+        chain.unshift(cur);
+        cur = cur.parent_page_id ? findPage(cur.parent_page_id) : null;
+      }
+      return chain;
+    }
+
+    function renderTopPages(pages, museumId) {
+      const roots = pages.filter(p => !p.parent_page_id);
+      if (!roots.length) return '';
+      return `<div class="museum-pages">${roots.map(p => `
+        <a class="museum-page-link" href="?page=${p.id}" data-page="${p.id}">
+          <div class="page-title">
+            <span>${esc(p.title)}</span>
+            ${p.is_faq ? '<span class="faq-badge">FAQs</span>' : ''}
+          </div>
+          ${p.description ? `<p class="page-desc">${esc(p.description)}</p>` : ''}
+        </a>
+      `).join('')}</div>`;
+    }
+
+    function renderMuseumArticles(museumId) {
+      const links = MUSEUM_ARTICLE_LINKS[museumId] || [];
+      if (!links.length) return '';
+      const items = links.map(link => {
+        const byline = link.authorLabel
+          ? `<div class="museum-related-byline">By ${link.authorUrl ? `<a href="${esc(link.authorUrl)}" target="_blank" rel="noopener noreferrer">${esc(link.authorLabel)}</a>` : esc(link.authorLabel)}</div>`
+          : '';
+        return `<div><a class="museum-related-link" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${esc(link.label)}</a>${byline}</div>`;
+      }).join('');
+      return `<section class="museum-related-section" aria-label="Related reading">
+        <p class="museum-related-kicker">Related reading</p>
+        <div class="museum-related-items">${items}</div>
+      </section>`;
+    }
+
+    function isHtml(text) {
+      const t = text.trimStart();
+      return /^<!doctype\s+html/i.test(t) || /^<html[\s>]/i.test(t) || /<\/(p|div|h[1-6]|body|table|ul|ol)>/i.test(t);
+    }
+
+    function renderContent(content) {
+      if (isHtml(content)) {
+        return `<iframe class="detail-content-frame" sandbox="allow-same-origin" srcdoc="${esc(content)}" onload="this.style.height=this.contentDocument.documentElement.scrollHeight+'px'"></iframe>`;
+      }
+      return `<div class="detail-content">${esc(content)}</div>`;
+    }
+
+    function renderAttachments(attachments) {
+      if (!attachments || !attachments.length) return '';
+      return `<div class="detail-attachments">${attachments.map(a => {
+        const ext = (a.filename || '').split('.').pop() || '';
+        return `<a class="attachment-link" href="${esc(a.url)}" target="_blank" rel="noopener">
+          <span class="ext">${esc(ext.toUpperCase())}</span>
+          <span>${esc(a.filename)}</span>
+        </a>`;
+      }).join('')}</div>`;
+    }
+
+    function renderMuseumList() {
+      if (!allMuseums.length) {
+        main.innerHTML = `${museumSearchHtml()}<p style="color:#8b949e;padding:24px 0">No museums listed yet.</p>`;
+        return;
+      }
+      const museumsToRender = museumSearch.results
+        ? museumSearch.results.map(result => ({ ...result.museum, _distanceMiles: result.distanceMiles }))
+        : allMuseums;
+      main.innerHTML = museumSearchHtml() + museumsToRender.map(m => {
+        const pages = pagesByMuseumId[m.id] || [];
+        return `<div class="museum-card">
+          <div class="museum-body">
+            <h2>${m.website
+            ? `<a class="museum-name-link" href="${esc(m.website)}" target="_blank" rel="noopener">${esc(m.name)}<span class="ext-arrow">↗</span></a>`
+            : esc(m.name)}</h2>
+            ${m.designation ? `<div class="designation">${esc(m.designation)}</div>` : ''}
+            ${m.location ? `<div class="designation">${esc(m.location)}</div>` : ''}
+            ${m.description ? `<p>${esc(m.description)}</p>` : ''}
+            ${renderMuseumArticles(m.id)}
+            ${typeof m._distanceMiles === 'number' ? `<div class="museum-distance">${esc(m._distanceMiles.toFixed(0))} miles away</div>` : ''}
+            ${renderTopPages(pages, m.id)}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderPageDetail(pageId) {
+      const page = findPage(pageId);
+      if (!page) { renderMuseumList(); return; }
+      const museum = findMuseum(page.museum_id);
+      const chain = ancestry(page);
+      const pages = pagesByMuseumId[page.museum_id] || [];
+      const children = pages.filter(p => (p.parent_page_id || null) === page.id);
+
+      const crumbs = [`<a href="?" data-page="">Museums</a>`];
+      if (museum) {
+        crumbs.push('<span class="sep">›</span>');
+        crumbs.push(`<a href="?" data-page="">${esc(museum.name)}</a>`);
+      }
+      chain.forEach((p, i) => {
+        crumbs.push('<span class="sep">›</span>');
+        if (i === chain.length - 1) {
+          crumbs.push(`<span class="current">${esc(p.title)}</span>`);
+        } else {
+          crumbs.push(`<a href="?page=${p.id}" data-page="${p.id}">${esc(p.title)}</a>`);
+        }
+      });
+
+      const childHtml = children.length ? `
+        <div class="museum-pages">${children.map(c => `
+          <a class="museum-page-link" href="?page=${c.id}" data-page="${c.id}">
+            <div class="page-title">
+              <span>${esc(c.title)}</span>
+              ${c.is_faq ? '<span class="faq-badge">FAQs</span>' : ''}
+            </div>
+            ${c.description ? `<p class="page-desc">${esc(c.description)}</p>` : ''}
+          </a>
+        `).join('')}</div>` : '';
+
+      main.innerHTML = `
+        <nav class="detail-breadcrumb">${crumbs.join('')}</nav>
+        <h1 class="detail-title">${esc(page.title)}</h1>
+        ${page.description ? `<p class="detail-desc">${esc(page.description)}</p>` : ''}
+        ${page.content ? renderContent(page.content) : ''}
+        ${renderAttachments(page.attachments)}
+        ${childHtml}
+      `;
+    }
+
+    function renderView() {
+      const pageId = getPageId();
+      if (pageId) {
+        renderPageDetail(pageId);
+      } else {
+        renderMuseumList();
+      }
+    }
+
+    main.addEventListener('click', (e) => {
+      const link = e.target.closest('[data-page]');
+      if (link) {
+        e.preventDefault();
+        const pid = link.dataset.page;
+        navigate(pid || null);
+        return;
+      }
+      if (e.target.closest('[data-clear-search]')) {
+        e.preventDefault();
+        clearMuseumSearch();
+      }
+    });
+
+    main.addEventListener('submit', (e) => {
+      const form = e.target.closest('#museumSearchForm');
+      if (!form) return;
+      e.preventDefault();
+      const input = form.querySelector('#museumSearchInput');
+      const query = (input && input.value || '').trim();
+      if (!query) {
+        clearMuseumSearch();
+        return;
+      }
+      runMuseumSearch(query);
+    });
+
+    window.addEventListener('popstate', renderView);
+
+    fetch('/api/museums')
+      .then(r => r.json())
+      .then(async (museums) => {
+        allMuseums = museums;
+        const allPages = await Promise.all(
+          museums.map(m => fetch(`/api/museums/${m.id}/pages`).then(r => r.ok ? r.json() : []).catch(() => []))
+        );
+        museums.forEach((m, i) => { pagesByMuseumId[m.id] = allPages[i]; });
+        renderView();
+      })
+      .catch(() => {
+        main.innerHTML = '<p style="color:#8b949e;padding:24px 0">Unable to load museums.</p>';
+      });
+  </script>
+</body>
+
+</html>

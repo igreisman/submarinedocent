@@ -1,0 +1,87 @@
+name: Sample Content Smoke Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start app in sample mode
+        run: |
+          SAMPLE_CONTENT_MODE=true python -m uvicorn api.main:app --host 127.0.0.1 --port 8001 > uvicorn.log 2>&1 &
+          echo $! > uvicorn.pid
+
+      - name: Wait for server
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8001/health > /tmp/health.json; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not become ready"
+          cat uvicorn.log
+          exit 1
+
+      - name: Validate sample-mode health
+        run: |
+          python - <<'PY'
+          import json
+          with open('/tmp/health.json', 'r', encoding='utf-8') as handle:
+              health = json.load(handle)
+          assert health['status'] == 'ok'
+          assert health['sample_content_mode'] is True
+          assert health['faq_chunks'] >= 1
+          assert health['tour_chunks'] >= 1
+          PY
+
+      - name: Validate public APIs
+        run: |
+          python - <<'PY'
+          import json
+          import urllib.request
+
+          def fetch(url: str):
+              with urllib.request.urlopen(url) as response:
+                  return json.load(response)
+
+          faqs = fetch('http://127.0.0.1:8001/api/faqs')
+          incidents = fetch('http://127.0.0.1:8001/api/incidents')
+          eternal_patrol = fetch('http://127.0.0.1:8001/api/eternal-patrol')
+
+          assert isinstance(faqs, list) and faqs
+          assert isinstance(incidents, dict) and incidents['incidents']
+          assert isinstance(eternal_patrol, list) and eternal_patrol
+          PY
+
+      - name: Validate admin stays disabled by default
+        run: |
+          admin_status=$(curl -sS -D /tmp/admin.headers -o /dev/null -w '%{http_code}' http://127.0.0.1:8001/admin/faqs)
+          test "$admin_status" = "503"
+          grep -qi '^www-authenticate: Basic realm="SubmarineDocent Admin"' /tmp/admin.headers
+
+          feedback_status=$(curl -sS -D /tmp/feedback.headers -o /dev/null -w '%{http_code}' http://127.0.0.1:8001/feedback/list)
+          test "$feedback_status" = "503"
+          grep -qi '^www-authenticate: Basic realm="SubmarineDocent Admin"' /tmp/feedback.headers
+
+      - name: Stop app
+        if: always()
+        run: |
+          if [ -f uvicorn.pid ]; then
+            kill "$(cat uvicorn.pid)" || true
+          fi

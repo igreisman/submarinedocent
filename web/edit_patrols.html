@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit War Patrols</title>
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet"
+    integrity="sha384-ecIckRi4QlKYya/FQUbBUjS4qp65jF/J87Guw5uzTbO1C1Jfa/6kYmd6dXUF6D7i" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .shell { max-width: 960px; margin: 0 auto; padding: 32px 24px 56px; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .toplink {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .toplink:hover { border-color: var(--accent); }
+
+    h1 { margin: 0; font-size: 32px; }
+
+    .patrol-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 8px 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .tab:hover { border-color: var(--accent); color: var(--text); }
+
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0d1117;
+      font-weight: 600;
+    }
+
+    .tab .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #3fb950;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .tab.active .dot { background: #0d3d1a; }
+
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { border-color: var(--accent); }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0d1117;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover { background: #79b8ff; border-color: #79b8ff; }
+
+    #status { font-size: 13px; color: var(--muted); }
+    #status.ok { color: #3fb950; }
+    #status.err { color: #f85149; }
+
+    .view-link {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .view-link:hover { color: var(--accent); }
+
+    .editor-wrap {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Quill overrides */
+    .ql-toolbar.ql-snow {
+      background: #f6f8fa;
+      border: none !important;
+      border-bottom: 1px solid #d0d7de !important;
+    }
+
+    .ql-container.ql-snow { border: none !important; }
+
+    #editor {
+      min-height: 520px;
+      background: #fff;
+      color: #1f2328;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    #editor .ql-editor { padding: 20px 24px; min-height: 520px; }
+
+    #html-source {
+      display: none;
+      width: 100%;
+      min-height: 520px;
+      padding: 20px 24px;
+      background: var(--panel);
+      color: var(--text);
+      border: none;
+      font-family: ui-monospace, "SFMono-Regular", monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      resize: vertical;
+    }
+
+    .conversion-notes {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    #help-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #help-backdrop.open { display: flex; }
+
+    #help-modal {
+      background: #161b22;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      max-width: 680px;
+      width: min(100%, 680px);
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    #help-modal h1 { margin: 0 0 12px; font-size: 28px; color: var(--text); }
+    #help-modal p, #help-modal li { color: var(--muted); line-height: 1.7; }
+    #help-modal ul { padding-left: 18px; margin: 14px 0 0; }
+    #help-modal li + li { margin-top: 6px; }
+
+    #help-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    #help-close:hover { color: var(--text); }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="toplink" href="/web/edit.html">&#8592; Editor Hub</a>
+      <h1>War Patrols</h1>
+    </div>
+
+    <div class="patrol-tabs" id="patrol-tabs"></div>
+
+    <div class="toolbar-row">
+      <button class="btn" id="upload-btn">Upload .docx</button>
+      <input type="file" id="docx-input" accept=".docx" style="display:none">
+      <button class="btn" id="upload-html-btn">Upload .html</button>
+      <input type="file" id="html-input" accept=".html,.htm" style="display:none">
+      <button class="btn" id="source-btn">Edit HTML</button>
+      <button class="btn btn-primary" id="save-btn">Save</button>
+      <span id="status"></span>
+      <a id="view-link" class="view-link" href="#" target="_blank" style="display:none">View page &#8599;</a>
+      <button class="btn" id="btn-help" style="margin-left:auto">Help</button>
+    </div>
+
+    <div class="editor-wrap">
+      <div id="editor"></div>
+      <textarea id="html-source" spellcheck="false"></textarea>
+    </div>
+
+    <div class="conversion-notes" id="conversion-notes"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js"
+    integrity="sha384-fWLn06AIo00H32MDcWUZTT+4Ru3OuoYn1DRH0o6JkhDl89YFSF4tJ4odze9bI+4r" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"
+    integrity="sha384-utBUCeG4SYaCm4m7GQZYr8Hy8Fpy3V4KGjBZaf4WTKOcwhCYpt/0PfeEe3HNlwx8" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    const PATROL_NAMES = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+    let currentPatrol = 1;
+    let sourceMode = false;
+    const patrolExists = [false, false, false, false, false];
+
+    const quill = new Quill('#editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['blockquote', 'link'],
+          ['clean'],
+        ],
+      },
+    });
+
+    // Build tabs
+    const tabsEl = document.getElementById('patrol-tabs');
+    PATROL_NAMES.forEach((name, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'tab' + (i === 0 ? ' active' : '');
+      btn.textContent = name;
+      btn.dataset.n = i + 1;
+      btn.addEventListener('click', () => selectPatrol(i + 1));
+      tabsEl.appendChild(btn);
+    });
+
+    function updateTabs() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        const n = parseInt(tab.dataset.n);
+        tab.classList.toggle('active', n === currentPatrol);
+        const existing = tab.querySelector('.dot');
+        if (existing) existing.remove();
+        if (patrolExists[n - 1]) {
+          const dot = document.createElement('span');
+          dot.className = 'dot';
+          dot.title = 'Has saved content';
+          tab.appendChild(dot);
+        }
+      });
+      const viewLink = document.getElementById('view-link');
+      if (patrolExists[currentPatrol - 1]) {
+        viewLink.href = `/web/pampanito-patrol-${currentPatrol}.html`;
+        viewLink.style.display = '';
+      } else {
+        viewLink.style.display = 'none';
+      }
+    }
+
+    function setStatus(msg, type = '') {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = type;
+    }
+
+    function selectPatrol(n) {
+      currentPatrol = n;
+      updateTabs();
+      loadPatrol(n);
+    }
+
+    async function loadPatrol(n) {
+      setStatus('Loading\u2026');
+      try {
+        const res = await fetch(`/admin/patrol/${n}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        patrolExists[n - 1] = data.exists;
+        updateTabs();
+        const html = data.html || '';
+        if (sourceMode) {
+          document.getElementById('html-source').value = html;
+        } else {
+          quill.clipboard.dangerouslyPasteHTML(html);
+        }
+        document.getElementById('conversion-notes').textContent = '';
+        setStatus(data.exists ? 'Loaded' : 'No content yet \u2014 upload a .docx or start typing', data.exists ? 'ok' : '');
+        setTimeout(() => setStatus(''), 3000);
+      } catch (e) {
+        setStatus('Load failed: ' + e.message, 'err');
+      }
+    }
+
+    async function checkAllPatrols() {
+      for (let n = 1; n <= 5; n++) {
+        try {
+          const res = await fetch(`/admin/patrol/${n}`);
+          if (res.ok) {
+            const data = await res.json();
+            patrolExists[n - 1] = data.exists;
+          }
+        } catch {}
+      }
+      updateTabs();
+    }
+
+    // Upload .docx
+    document.getElementById('upload-btn').addEventListener('click', () => {
+      document.getElementById('docx-input').click();
+    });
+
+    document.getElementById('docx-input').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      setStatus('Converting\u2026');
+      const reader = new FileReader();
+      reader.onload = evt => {
+        mammoth.convertToHtml({ arrayBuffer: evt.target.result })
+          .then(result => {
+            if (sourceMode) {
+              document.getElementById('html-source').value = result.value;
+            } else {
+              quill.clipboard.dangerouslyPasteHTML(result.value);
+            }
+            const warnings = result.messages.filter(m => m.type === 'warning');
+            document.getElementById('conversion-notes').textContent =
+              warnings.length
+                ? `${warnings.length} conversion note(s): ${warnings.map(m => m.message).join('; ')}`
+                : '';
+            setStatus('Converted \u2014 review and save', 'ok');
+            setTimeout(() => setStatus(''), 5000);
+          })
+          .catch(err => setStatus('Conversion failed: ' + err.message, 'err'));
+      };
+      reader.readAsArrayBuffer(file);
+      e.target.value = '';
+    });
+
+    // Upload .html
+    document.getElementById('upload-html-btn').addEventListener('click', () => {
+      document.getElementById('html-input').click();
+    });
+
+    document.getElementById('html-input').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      setStatus('Loading\u2026');
+      const reader = new FileReader();
+      reader.onload = evt => {
+        const raw = evt.target.result || '';
+        const styles = (raw.match(/<style[\s\S]*?<\/style>/gi) || []).join('\n');
+        const bodyMatch = raw.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+        const body = bodyMatch ? bodyMatch[1] : raw;
+        const html = (styles ? styles + '\n' : '') + body;
+
+        // Switch to source mode so raw HTML/CSS isn't stripped by the WYSIWYG editor.
+        if (!sourceMode) {
+          sourceMode = true;
+          document.getElementById('editor').style.display = 'none';
+          document.getElementById('html-source').style.display = 'block';
+          document.getElementById('source-btn').textContent = 'Edit WYSIWYG';
+        }
+        document.getElementById('html-source').value = html;
+
+        document.getElementById('conversion-notes').textContent =
+          'Loaded in HTML source view to preserve styles and markup. Toggle to WYSIWYG only if you want Quill to re-sanitize.';
+        setStatus('Loaded \u2014 review and save', 'ok');
+        setTimeout(() => setStatus(''), 5000);
+      };
+      reader.onerror = () => setStatus('Load failed: ' + reader.error.message, 'err');
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    // Toggle source / WYSIWYG
+    document.getElementById('source-btn').addEventListener('click', () => {
+      sourceMode = !sourceMode;
+      const editorEl = document.getElementById('editor');
+      const sourceEl = document.getElementById('html-source');
+      const btn = document.getElementById('source-btn');
+      if (sourceMode) {
+        sourceEl.value = quill.root.innerHTML;
+        editorEl.style.display = 'none';
+        sourceEl.style.display = 'block';
+        btn.textContent = 'Edit WYSIWYG';
+      } else {
+        quill.clipboard.dangerouslyPasteHTML(sourceEl.value);
+        editorEl.style.display = 'block';
+        sourceEl.style.display = 'none';
+        btn.textContent = 'Edit HTML';
+      }
+    });
+
+    // Save
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      setStatus('Saving\u2026');
+      const html = sourceMode
+        ? document.getElementById('html-source').value
+        : quill.root.innerHTML;
+      try {
+        const res = await fetch(`/admin/patrol/${currentPatrol}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+        patrolExists[currentPatrol - 1] = true;
+        updateTabs();
+        setStatus('Saved!', 'ok');
+        setTimeout(() => setStatus(''), 3000);
+      } catch (e) {
+        setStatus('Save failed: ' + e.message, 'err');
+      }
+    });
+
+    // Init
+    checkAllPatrols().then(() => loadPatrol(1));
+
+  </script>
+
+  <div id="help-backdrop" aria-hidden="true">
+    <div id="help-modal" role="dialog" aria-modal="true">
+      <button id="help-close" type="button" aria-label="Close help">&times;</button>
+      <h1>War Patrols</h1>
+      <p>Write and publish the USS Pampanito war patrol pages. Each tab corresponds to one of the five patrols. A green dot on a tab means that patrol already has saved content.</p>
+      <ul>
+        <li><strong>Upload .docx</strong> — converts a Word document to HTML in your browser. No content is sent to any server during conversion.</li>
+        <li><strong>Upload .html</strong> — loads an existing HTML file directly into the editor. If the file has a &lt;body&gt;, only its contents are used.</li>
+        <li><strong>Edit HTML</strong> — toggles between WYSIWYG and raw HTML view. Use HTML view to fix tables or complex formatting.</li>
+        <li><strong>Save</strong> — writes the content directly to the patrol detail page file.</li>
+        <li><strong>View page</strong> — opens the published patrol page in a new tab (appears after first save).</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('btn-help').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.add('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'false');
+    });
+    document.getElementById('help-close').addEventListener('click', () => {
+      document.getElementById('help-backdrop').classList.remove('open');
+      document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+    });
+    document.getElementById('help-backdrop').addEventListener('click', e => {
+      if (e.target.id === 'help-backdrop') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('help-backdrop').classList.remove('open');
+        document.getElementById('help-backdrop').setAttribute('aria-hidden', 'true');
+      }
+    });
+  </script>
+  <script src="/web/admin-env-banner.js"></script>
+</body>
+
+</html>

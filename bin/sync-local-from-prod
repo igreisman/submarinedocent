@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+"""Sync the local editable corpora from the live production site.
+
+Content on submarinedocent is edited directly on the live site and stored on
+Render's /data disk — it never goes through GitHub. This script pulls that
+content down into the local corpora directory (CONTENT_ROOT, default
+corpora_local/) so local dev mirrors production.
+
+It fully syncs the corpora that change via the editors AND whose data can be
+faithfully reconstructed (FAQ, categories, glossary). For the remaining editable
+corpora it only *detects* drift and warns, since their admin APIs are lossy and
+reconstruction isn't validated — ask Claude to sync those by hand if flagged.
+
+Usage:
+    bin/sync-local-from-prod              # sync from submarinedocent.org
+    PROD_URL=https://... bin/sync-local-from-prod
+
+Credentials (ADMIN_USERNAME / ADMIN_PASSWORD) and CONTENT_ROOT are read from
+.env.local at the repo root.
+"""
+import base64
+import json
+import os
+import re
+import sys
+import urllib.request
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROD = os.environ.get("PROD_URL", "https://submarinedocent.org").rstrip("/")
+
+
+def load_env(path):
+    env = {}
+    if not os.path.exists(path):
+        return env
+    for line in open(path):
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        env[k.strip()] = v.strip().strip('"').strip("'")
+    return env
+
+
+ENV = load_env(os.path.join(REPO, ".env.local"))
+USER = ENV.get("ADMIN_USERNAME", "")
+PW = ENV.get("ADMIN_PASSWORD", "")
+if not USER or not PW:
+    sys.exit("ERROR: ADMIN_USERNAME / ADMIN_PASSWORD not found in .env.local")
+
+content_root = ENV.get("CONTENT_ROOT", "corpora_local")
+CORPORA = content_root if os.path.isabs(content_root) else os.path.join(REPO, content_root)
+if not os.path.isdir(CORPORA):
+    sys.exit(f"ERROR: corpora dir not found: {CORPORA}")
+
+AUTH = base64.b64encode(f"{USER}:{PW}".encode()).decode()
+
+
+def get(path, authed=False):
+    r = urllib.request.Request(PROD + path)
+    if authed:
+        r.add_header("Authorization", "Basic " + AUTH)
+    return json.load(urllib.request.urlopen(r, timeout=60))
+
+
+def load(name):
+    fn = os.path.join(CORPORA, name)
+    return fn, [json.loads(l) for l in open(fn) if l.strip()]
+
+
+def write(fn, rows):
+    tmp = fn + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        for e in rows:
+            f.write(json.dumps(e, ensure_ascii=False) + "\n")
+    os.replace(tmp, fn)
+
+
+def make_slug(title):
+    s = re.sub(r"[^a-z0-9\s-]", "", (title or "").lower())
+    return re.sub(r"\s+", "-", s.strip())[:120]
+
+
+def cat_text(title, desc):
+    desc = (desc or "").strip()
+    return f"{title}\n\n{desc}" if desc else title
+
+
+def merge(rows, prod, idkey, edit_fields, build_new):
+    """Update editable fields on existing rows, append new, drop removed."""
+    locm = {str(e.get(idkey)): e for e in rows}
+    prod_ids = {str(p.get(idkey)) for p in prod}
+    updated = added = 0
+    for e in rows:
+        p = next((x for x in prod if str(x.get(idkey)) == str(e.get(idkey))), None)
+        if p and any((e.get(f) or "") != (p.get(f) or "") for f in edit_fields):
+            e.update(build_new(p, e))
+            updated += 1
+    for p in prod:
+        if str(p.get(idkey)) not in locm:
+            rows.append(build_new(p, None))
+            added += 1
+    before = len(rows)
+    rows = [e for e in rows if str(e.get(idkey)) in prod_ids]
+    return rows, updated, added, before - len(rows)
+
+
+# ---------------- FAQ ----------------
+def build_faq(p, existing):
+    if existing is not None:
+        return {k: p.get(k) for k in ("title", "text", "category", "display_order")}
+    title = p.get("title") or ""
+    return {
+        "chunk_id": p["chunk_id"], "doc_type": "dieselsubs_faq", "source": "manual_editor",
+        "display_citation": f"SubmarineDocent FAQ — {title}", "title": title,
+        "text": p.get("text") or "", "category": p.get("category") or "",
+        "slug": make_slug(title), "topic_tags": [], "authority_level": "reference_faq",
+        "era": "ww2", "platform": ["us_diesel_electric_submarines"],
+        "display_order": p.get("display_order"),
+    }
+
+
+fn, rows = load("dieselsubs_faq_corpus.jsonl")
+rows, u, a, r = merge(rows, get("/admin/faqs", True), "chunk_id",
+                      ["title", "text", "category", "display_order"], build_faq)
+write(fn, rows)
+print(f"FAQ:        updated={u} added={a} removed={r} total={len(rows)}")
+
+
+# ---------------- Categories ----------------
+def build_cat(p, existing):
+    title = p.get("title") or ""
+    base = existing.copy() if existing else {}
+    base.update({
+        "chunk_id": p.get("chunk_id") or f"faq_category_{p.get('category_id')}",
+        "doc_type": base.get("doc_type", "dieselsubs_faq_category"),
+        "source": base.get("source", "manual_editor"),
+        "category_id": p.get("category_id"), "title": title,
+        "slug": p.get("slug") or make_slug(title), "description": p.get("description") or "",
+        "text": cat_text(title, p.get("description")), "sort_order": p.get("sort_order"),
+        "era": base.get("era", "ww2"),
+        "platform": base.get("platform", ["us_diesel_electric_submarines"]),
+        "display_citation": f"SubmarineDocent FAQ Category — {title}",
+    })
+    return base
+
+
+fn, rows = load("dieselsubs_faq_categories.jsonl")
+rows, u, a, r = merge(rows, get("/api/faq-categories"), "chunk_id",
+                      ["title", "description", "slug", "sort_order"], build_cat)
+rows.sort(key=lambda e: (int(e.get("sort_order") or 0), (e.get("title") or "").lower()))
+write(fn, rows)
+print(f"Categories: updated={u} added={a} removed={r} total={len(rows)}")
+
+
+# ---------------- Glossary (API is full-fidelity) ----------------
+def build_gl(p, existing):
+    return {"id": p.get("id"), "term": p.get("term"), "definition": p.get("definition")}
+
+
+fn, rows = load("dieselsubs_glossary.jsonl")
+rows, u, a, r = merge(rows, get("/api/glossary"), "id", ["term", "definition"], build_gl)
+write(fn, rows)
+print(f"Glossary:   updated={u} added={a} removed={r} total={len(rows)}")
+
+
+# ---------------- Drift detection for corpora we don't auto-sync ----------------
+def drift(name, file, prod, idkey, fields):
+    _, rows = load(file)
+    pm = {str(e.get(idkey)): e for e in prod}
+    lm = {str(e.get(idkey)): e for e in rows}
+    changed = [k for k in set(pm) & set(lm)
+               if any((pm[k].get(f) or "") != (lm[k].get(f) or "") for f in fields)]
+    d = len(changed) + len(set(pm) ^ set(lm))
+    if d:
+        print(f"  ! {name}: {d} difference(s) — prod={len(pm)} local={len(lm)}. "
+              f"Ask Claude to sync {file} by hand.")
+    return d
+
+
+print("\nChecking corpora that are not auto-synced:")
+extra = 0
+extra += drift("museums", "museums.jsonl", get("/api/museums"), "id",
+               ["name", "city", "state", "country", "url", "description"])
+extra += drift("incidents", "incidents.jsonl", get("/admin/incidents", True), "id",
+               ["submarine_name", "description", "notes", "status", "date"])
+extra += drift("moh-recipients", "moh_recipients.jsonl", get("/api/moh-recipients"), "id",
+               ["name", "citation", "rank", "boat"])
+extra += drift("eternal-patrol", "eternal_patrol.jsonl", get("/admin/eternal-patrol", True),
+               "id", ["boat", "narrative", "summary"])
+if not extra:
+    print("  all clear — nothing else drifted.")
+
+print(f"\nDone. Local corpora ({os.path.relpath(CORPORA, REPO)}/) synced from {PROD}.")
+print("Restart the local server (./start_https.sh) to load the refreshed data.")

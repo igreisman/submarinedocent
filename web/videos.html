@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Videos</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f7fb;
+      color: #1d2734;
+      min-height: 100vh;
+    }
+
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 20px 64px;
+    }
+
+    .video-toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-bottom: 24px;
+    }
+
+    .video-filter {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .video-filter label {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #44506a;
+    }
+
+    .video-filter select {
+      flex: 1 1 240px;
+      min-width: 0;
+      max-width: 420px;
+      border: 1px solid #dbe3ee;
+      border-radius: 10px;
+      background: #fff;
+      color: #1d2734;
+      padding: 9px 10px;
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .video-filter select:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+    }
+
+    .video-filter-count {
+      font-size: 13px;
+      color: #55637a;
+    }
+
+    .video-filter-link {
+      margin-left: auto;
+      font-size: 13px;
+      color: #3d6fa5;
+      white-space: nowrap;
+    }
+
+    .video-group {
+      margin-bottom: 36px;
+    }
+
+    .video-group-head {
+      margin: 0 0 10px;
+    }
+
+    .video-group-toggle {
+      width: 100%;
+      border: 1px solid #dbe3ee;
+      border-radius: 10px;
+      background: #fff;
+      color: #1d2734;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .video-group-toggle:hover {
+      background: #f8fbff;
+    }
+
+    .video-group-toggle:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+    }
+
+    .video-group-sign {
+      width: 24px;
+      text-align: center;
+      font-size: 22px;
+      line-height: 1;
+      color: #2b65b3;
+      flex: 0 0 24px;
+    }
+
+    .video-group-title {
+      margin: 0;
+      font-size: 15px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #44506a;
+    }
+
+    .video-group-videos {
+      display: none;
+    }
+
+    .video-group.is-open .video-group-videos {
+      display: block;
+    }
+
+    .video-card {
+      background: #fff;
+      border: 1px solid #e1e7ef;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 2px rgba(20, 35, 60, 0.05);
+    }
+
+    .video-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      align-items: start;
+      padding: 14px;
+    }
+
+    .video-thumb {
+      display: block;
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 0;
+      cursor: pointer;
+      background: #0b1220;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 16 / 9;
+    }
+
+    .video-thumb:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+    }
+
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-thumb-fallback {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #2b65b3, #17315c);
+      color: #fff;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .video-thumb-play {
+      position: absolute;
+      inset: auto auto 10px 10px;
+      background: rgba(0, 0, 0, 0.72);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1;
+      padding: 7px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .video-frame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      display: block;
+    }
+
+    .video-frame iframe,
+    .video-frame video {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .video-body {
+      display: block;
+      padding: 2px 2px 4px;
+    }
+
+    .video-detail-block {
+      display: block;
+    }
+
+    .video-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.3;
+      color: #14213d;
+    }
+
+    .video-channel {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: -2px 0 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #c4d8fb;
+      background: linear-gradient(135deg, #e6eefc, #d8e7ff);
+      color: #163a73;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .video-channel a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .video-channel a:hover,
+    .video-channel a:focus-visible {
+      text-decoration: underline;
+    }
+
+    .video-duration {
+      font-variant-numeric: tabular-nums;
+      opacity: 0.8;
+    }
+
+    .video-duration::before {
+      content: "\00b7";
+      margin-right: 7px;
+      opacity: 0.6;
+    }
+
+    .video-channel::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #2b65b3;
+      box-shadow: 0 0 0 2px rgba(43, 101, 179, 0.2);
+      flex: 0 0 7px;
+    }
+
+    .video-description {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #33415c;
+      white-space: pre-wrap;
+    }
+
+    .video-description-wrap {
+      position: relative;
+    }
+
+    .video-description.is-clamped {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+      max-height: calc(1.6em * 3);
+      padding-right: 76px;
+    }
+
+    .video-more {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      border: 0;
+      background: #fff;
+      color: #2b65b3;
+      font-size: 13px;
+      line-height: 1.2;
+      padding: 1px 0 1px 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .video-more:hover {
+      text-decoration: underline;
+    }
+
+    .video-description-wrap.is-expanded .video-description {
+      display: block;
+      overflow: visible;
+      max-height: none;
+      padding-right: 0;
+    }
+
+    .video-description-wrap.is-expanded .video-more {
+      display: none;
+    }
+
+    .video-meta {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #eef2f7;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #6a737d;
+    }
+
+    .video-meta.is-collapsed {
+      display: none;
+    }
+
+    .video-meta a {
+      color: #3d6fa5;
+    }
+
+    .video-rights {
+      margin-top: 3px;
+      font-style: italic;
+    }
+
+    .debug-banner {
+      margin: 0 0 16px;
+      padding: 7px 12px;
+      border: 1px solid #cfe0ff;
+      border-radius: 999px;
+      background: #edf5ff;
+      color: #1f4f8a;
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .debug-banner::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3f8fef;
+      box-shadow: 0 0 0 3px rgba(63, 143, 239, 0.18);
+      flex: 0 0 7px;
+    }
+
+    .state {
+      background: #fff;
+      border: 1px solid #e1e7ef;
+      border-radius: 10px;
+      padding: 32px 24px;
+      text-align: center;
+      color: #55637a;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #1d2734;
+      font-size: 16px;
+    }
+
+    .video-filter-tips {
+      border: 0;
+      background: none;
+      padding: 0;
+      font: inherit;
+      font-size: 13px;
+      color: #3d6fa5;
+      text-decoration: underline;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .video-filter-tips:hover {
+      color: #23528f;
+    }
+
+    .video-filter-tips:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+      border-radius: 3px;
+    }
+
+    .tutorial {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 9, 18, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1100;
+    }
+
+    .tutorial.is-open {
+      display: flex;
+    }
+
+    .tutorial-card {
+      width: min(460px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 22px 18px;
+      box-shadow: 0 20px 44px rgba(5, 9, 18, 0.4);
+    }
+
+    .tutorial-card:focus {
+      outline: none;
+    }
+
+    .tutorial-step {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2b65b3;
+      margin-bottom: 6px;
+    }
+
+    .tutorial-title {
+      margin: 0 0 10px;
+      font-size: 19px;
+      line-height: 1.3;
+      color: #14213d;
+    }
+
+    .tutorial-body {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #33415c;
+    }
+
+    .tutorial-body p {
+      margin: 0 0 10px;
+    }
+
+    .tutorial-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .tutorial-body strong {
+      color: #14213d;
+    }
+
+    .tutorial-chip {
+      display: inline-block;
+      border: 1px solid #c4d8fb;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #1d4e8f;
+      padding: 1px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tutorial-dots {
+      display: flex;
+      gap: 6px;
+      margin: 18px 0 14px;
+    }
+
+    .tutorial-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #d7e0ec;
+    }
+
+    .tutorial-dot.is-current {
+      background: #2b65b3;
+    }
+
+    .tutorial-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tutorial-actions-right {
+      display: inline-flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .tutorial-link {
+      border: 0;
+      background: none;
+      padding: 0;
+      font: inherit;
+      font-size: 14px;
+      color: #3d6fa5;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .tutorial-btn {
+      border: 1px solid #23528f;
+      border-radius: 9px;
+      background: #2b65b3;
+      color: #fff;
+      padding: 9px 16px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tutorial-btn:hover {
+      background: #3170c4;
+    }
+
+    .tutorial-btn.is-secondary {
+      border-color: #dbe3ee;
+      background: #fff;
+      color: #55637a;
+    }
+
+    .tutorial-btn.is-secondary:hover {
+      background: #f2f7ff;
+    }
+
+    .tutorial-btn:focus-visible,
+    .tutorial-link:focus-visible {
+      outline: 3px solid #2b65b3;
+      outline-offset: 2px;
+    }
+
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 9, 18, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1000;
+    }
+
+    .video-modal.is-open {
+      display: flex;
+    }
+
+    .video-modal-dialog {
+      width: min(980px, 100%);
+      background: #0c1320;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .video-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #f4f7fb;
+    }
+
+    .video-modal-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .video-modal-close {
+      border: 0;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .video-modal-player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
+    .video-modal-player iframe,
+    .video-modal-player video {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    @media (max-width: 720px) {
+      .video-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .video-modal {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div id="debug-banner" class="debug-banner" aria-live="polite" hidden>Debug: loading</div>
+    <div class="video-toolbar">
+      <div id="video-filter" class="video-filter" hidden>
+        <label for="channel-filter">Channel</label>
+        <select id="channel-filter">
+          <option value="">All channels</option>
+        </select>
+        <span id="channel-filter-count" class="video-filter-count" aria-live="polite"></span>
+      </div>
+      <a class="video-filter-link" href="/web/video-search.html">Search videos &rarr;</a>
+      <button type="button" id="tutorial-open" class="video-filter-tips">Tips</button>
+    </div>
+    <div id="video-list">
+      <div class="state">Loading&hellip;</div>
+    </div>
+  </main>
+
+  <div id="tutorial" class="tutorial" aria-hidden="true">
+    <div class="tutorial-card" role="dialog" aria-modal="true" aria-labelledby="tutorial-title" tabindex="-1">
+      <div class="tutorial-step" id="tutorial-step"></div>
+      <h2 class="tutorial-title" id="tutorial-title"></h2>
+      <div class="tutorial-body" id="tutorial-body"></div>
+      <div class="tutorial-dots" id="tutorial-dots"></div>
+      <div class="tutorial-actions">
+        <button type="button" id="tutorial-skip" class="tutorial-link">Skip</button>
+        <span class="tutorial-actions-right">
+          <button type="button" id="tutorial-back" class="tutorial-btn is-secondary">Back</button>
+          <button type="button" id="tutorial-next" class="tutorial-btn">Next</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div id="video-modal" class="video-modal" aria-hidden="true">
+    <div class="video-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
+      <div class="video-modal-head">
+        <h2 id="video-modal-title" class="video-modal-title"></h2>
+        <button id="video-modal-close" class="video-modal-close" type="button" aria-label="Close video">&times;</button>
+      </div>
+      <div id="video-modal-player" class="video-modal-player"></div>
+    </div>
+  </div>
+
+  <script src="/web/site-header.js"></script>
+  <script>
+    SiteHeader.render({
+      title: 'Videos',
+      subtitle: 'Film and firsthand accounts of the WWII submarine war, shown here with permission of the people who made them.',
+      feedback: 'Know of a video we should include, or hold the rights to one you\'d like to share?',
+    });
+
+    const esc = s => String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    const list = document.getElementById('video-list');
+    const debugBanner = document.getElementById('debug-banner');
+    const modal = document.getElementById('video-modal');
+    const modalTitle = document.getElementById('video-modal-title');
+    const modalPlayer = document.getElementById('video-modal-player');
+    const modalClose = document.getElementById('video-modal-close');
+    const filterBar = document.getElementById('video-filter');
+    const channelFilter = document.getElementById('channel-filter');
+    const channelFilterCount = document.getElementById('channel-filter-count');
+    const playableVideos = [];
+    let allGroups = [];
+
+    function setDebugBanner(message) {
+      debugBanner.hidden = !message;
+      debugBanner.textContent = message || 'Debug: loading';
+    }
+
+    // Only http(s) reaches an iframe src. Records are hand-maintained in
+    // videos.jsonl, and a malformed or hostile URL should render nothing
+    // rather than become an embed.
+    const isSafeUrl = u => /^https?:\/\//i.test(String(u || ''));
+
+    const youtubeId = u => {
+      const s = String(u || '');
+      const m = s.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+      return m ? m[1] : '';
+    };
+
+    function thumbnailMarkup(v) {
+      const video = v.video || {};
+      const explicitThumb = video.thumbnail_url || video.thumb_url || video.poster_url;
+      if (isSafeUrl(explicitThumb)) {
+        return `<img src="${esc(explicitThumb)}" alt="Thumbnail for ${esc(v.title || 'video')}">`;
+      }
+
+      const yid = youtubeId(video.embed_url);
+      if (yid) {
+        return `<img src="https://img.youtube.com/vi/${esc(yid)}/hqdefault.jpg" alt="Thumbnail for ${esc(v.title || 'video')}">`;
+      }
+
+      return `<div class="video-thumb-fallback">Video Preview</div>`;
+    }
+
+    function renderPlayer(videoData) {
+      if (!videoData) return '';
+      if (videoData.kind === 'file') {
+        return `<video src="${esc(videoData.embed_url)}" controls preload="metadata" playsinline autoplay title="${esc(videoData.title || 'Video')}"></video>`;
+      }
+      return `<iframe src="${esc(videoData.embed_url)}" title="${esc(videoData.title || 'Video')}" loading="eager" allow="encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+    }
+
+    function openModal(videoData) {
+      modalTitle.textContent = videoData.title || 'Video';
+      modalPlayer.innerHTML = renderPlayer(videoData);
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      modalClose.focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      modalPlayer.innerHTML = '';
+    }
+
+    // The channel travels under different keys depending on how old the record
+    // is, so both the card and the filter read it through here.
+    const channelNameOf = v => {
+      const video = v.video || {};
+      return (video.channel_name || v.channel_name || video.credit || '').trim();
+    };
+
+    function cardHtml(v) {
+      const video = v.video || {};
+      if (!isSafeUrl(video.embed_url)) return '';
+
+      const index = playableVideos.push({
+        kind: video.kind,
+        embed_url: video.embed_url,
+        title: v.title || 'Video'
+      }) - 1;
+
+      const title = v.title
+        ? `<h2 class="video-title">${esc(v.title)}</h2>`
+        : '';
+      const channelName = channelNameOf(v);
+      const channelUrl = (video.channel_url || v.channel_url || video.credit_url || v.video_credit_url || '').trim();
+      const channelContent = channelName
+        ? (channelUrl && isSafeUrl(channelUrl)
+          ? `<a href="${esc(channelUrl)}" target="_blank" rel="noopener noreferrer">${esc(channelName)}</a>`
+          : esc(channelName))
+        : '';
+      const durationText = String(v.duration || '').trim();
+      const duration = durationText
+        ? `<span class="video-duration" aria-label="Running time ${esc(durationText)}">${esc(durationText)}</span>`
+        : '';
+      const channel = (channelName || durationText)
+        ? `<div class="video-channel">${channelContent}${duration}</div>`
+        : '';
+      const descriptionText = (v.description || v.video_description || video.caption || '').trim();
+      const description = descriptionText
+        ? `<div class="video-description-wrap">
+             <p class="video-description is-clamped">${esc(descriptionText)}</p>
+             <button type="button" class="video-more" aria-label="Show full description">more ...</button>
+           </div>`
+        : '';
+
+      // Rendered verbatim. Rights holders dictate exact wording -- Omni Media
+      // Services requires "Courtesy warexperience.org. Produced for the Regis
+      // University Center for the Study of War Experience" -- and prepending
+      // our own "Courtesy of" would corrupt the credit we agreed to give.
+      const creditInner = video.credit_url && isSafeUrl(video.credit_url)
+        ? `<a href="${esc(video.credit_url)}" target="_blank" rel="noopener noreferrer">${esc(video.credit)}</a>`
+        : (video.credit ? esc(video.credit) : '');
+      const rights = v.rights_note
+        ? `<div class="video-rights">${esc(v.rights_note)}</div>`
+        : '';
+      const metaInner = (creditInner || rights)
+        ? `${creditInner}${rights}`
+        : '';
+      const hasDescription = Boolean(descriptionText);
+      const meta = metaInner
+        ? `<div class="video-meta${hasDescription ? ' is-collapsed' : ''}">${metaInner}</div>`
+        : '';
+
+      return `
+        <article class="video-card">
+          <div class="video-layout">
+            <button type="button" class="video-thumb" data-video-index="${index}" aria-label="Play ${esc(v.title || 'video')}">
+              ${thumbnailMarkup(v)}
+              <span class="video-thumb-play">Play</span>
+            </button>
+            <div class="video-body">
+              ${title}
+              ${channel}
+              <div class="video-detail-block">
+                ${description}${meta}
+              </div>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function syncDescriptionClamp() {
+      list.querySelectorAll('.video-description-wrap').forEach(wrap => {
+        const description = wrap.querySelector('.video-description');
+        const more = wrap.querySelector('.video-more');
+        if (!description || !more) return;
+        more.hidden = description.scrollHeight <= description.clientHeight + 1;
+      });
+    }
+
+    list.addEventListener('click', e => {
+      const categoryToggle = e.target.closest('[data-category-toggle]');
+      if (categoryToggle) {
+        const group = categoryToggle.closest('.video-group');
+        if (!group) return;
+
+        const willOpen = !group.classList.contains('is-open');
+
+        // Accordion mode: opening one category closes the rest.
+        list.querySelectorAll('.video-group').forEach(otherGroup => {
+          const otherToggle = otherGroup.querySelector('[data-category-toggle]');
+          const otherSign = otherGroup.querySelector('[data-category-sign]');
+          const isTarget = otherGroup === group;
+          const open = isTarget && willOpen;
+
+          otherGroup.classList.toggle('is-open', open);
+          if (otherToggle) {
+            otherToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+          }
+          if (otherSign) {
+            otherSign.textContent = open ? '-' : '+';
+          }
+        });
+
+        requestAnimationFrame(() => {
+          syncDescriptionClamp();
+          // Collapsing the categories above this one shifts the page up, which
+          // would otherwise leave the viewport parked at the end of the list we
+          // just opened. Put the heading back at the top instead.
+          if (willOpen) {
+            const head = group.querySelector('.video-group-head') || group;
+            head.scrollIntoView({ block: 'start', behavior: 'smooth' });
+          }
+        });
+        return;
+      }
+
+      const more = e.target.closest('.video-more');
+      if (more) {
+        const wrap = more.closest('.video-description-wrap');
+        if (wrap) {
+          wrap.classList.add('is-expanded');
+          more.setAttribute('aria-expanded', 'true');
+          const body = wrap.closest('.video-body');
+          const meta = body ? body.querySelector('.video-meta.is-collapsed') : null;
+          if (meta) meta.classList.remove('is-collapsed');
+        }
+        return;
+      }
+
+      const trigger = e.target.closest('[data-video-index]');
+      if (!trigger) return;
+
+      const clickedCard = trigger.closest('.video-card');
+      if (clickedCard) {
+        list.querySelectorAll('.video-card').forEach(card => {
+          card.classList.toggle('is-active', card === clickedCard);
+        });
+        requestAnimationFrame(syncDescriptionClamp);
+      }
+
+      const idx = Number(trigger.getAttribute('data-video-index'));
+      if (!Number.isInteger(idx) || !playableVideos[idx]) return;
+      openModal(playableVideos[idx]);
+    });
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      if (tutorial.classList.contains('is-open')) {
+        hideTutorial();
+        return;
+      }
+      if (modal.classList.contains('is-open')) closeModal();
+    });
+
+    // A video cross-listed under two categories is returned once per group, so
+    // counts are kept over identities rather than placements.
+    const videoKey = v => String(v.id || (v.video || {}).embed_url || '');
+
+    function buildChannelOptions() {
+      const counts = new Map();
+      const seen = new Set();
+      allGroups.forEach(g => {
+        (g.videos || []).forEach(v => {
+          const key = videoKey(v);
+          if (seen.has(key)) return;
+          seen.add(key);
+          const name = channelNameOf(v);
+          if (!name) return;
+          counts.set(name, (counts.get(name) || 0) + 1);
+        });
+      });
+
+      const names = Array.from(counts.keys())
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+      channelFilter.innerHTML = `<option value="">All channels</option>` +
+        names.map(name =>
+          `<option value="${esc(name)}">${esc(name)} (${counts.get(name)})</option>`
+        ).join('');
+      filterBar.hidden = names.length < 2;
+    }
+
+    function render() {
+      const selected = channelFilter.value;
+      // Card indexes are handed out during render, so stale entries from the
+      // previous filter must not linger.
+      playableVideos.length = 0;
+
+      const shown = new Set();
+      const total = new Set();
+      const sections = allGroups.map((g, groupIndex) => {
+        const videos = (g.videos || []).filter(v => {
+          total.add(videoKey(v));
+          return !selected || channelNameOf(v) === selected;
+        });
+        const cards = videos.map(cardHtml).filter(Boolean).join('');
+        // A category whose videos all failed to render -- or that the filter
+        // emptied out -- would otherwise leave a heading standing over nothing.
+        if (!cards) return '';
+        videos.forEach(v => shown.add(videoKey(v)));
+        const groupId = `video-group-${groupIndex}`;
+        // Filtering down to one channel leaves few enough videos that hiding
+        // them behind closed accordions only costs the reader clicks.
+        const open = Boolean(selected);
+        return `<section class="video-group${open ? ' is-open' : ''}">
+                  <div class="video-group-head">
+                    <button type="button" class="video-group-toggle" data-category-toggle aria-expanded="${open ? 'true' : 'false'}" aria-controls="${groupId}">
+                      <span class="video-group-sign" data-category-sign>${open ? '-' : '+'}</span>
+                      <h2 class="video-group-title">${esc(g.category)}</h2>
+                    </button>
+                  </div>
+                  <div class="video-group-videos" id="${groupId}">
+                    ${cards}
+                  </div>
+                </section>`;
+      }).filter(Boolean).join('');
+
+      const emptyState = selected
+        ? `<div class="state">
+             <strong>No videos from ${esc(selected)}</strong>
+             Choose another channel, or pick "All channels" to see everything.
+           </div>`
+        : `<div class="state">
+             <strong>No videos yet</strong>
+             We only publish video we have the rights to show. As permissions come
+             through, the videos will appear here.
+           </div>`;
+
+      list.innerHTML = sections || emptyState;
+      channelFilterCount.textContent = selected
+        ? `${shown.size} of ${total.size} video${total.size === 1 ? '' : 's'}`
+        : '';
+      requestAnimationFrame(syncDescriptionClamp);
+    }
+
+    channelFilter.addEventListener('change', () => {
+      render();
+      list.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+
+    // ── First-visit tutorial ─────────────────────────────────────────────────
+    // Shown here because this is where people arrive, but it is about the
+    // search page -- so it ends by taking them there.
+    const TUTORIAL_KEY = 'submarinedocent.videos-search-tutorial.done.v1';
+    const SEARCH_URL = '/web/video-search.html';
+
+    const TUTORIAL_STEPS = [
+      {
+        title: 'Looking for something in particular?',
+        body: `<p>Browsing by category works when you have time to wander. When you don't,
+               <span class="tutorial-chip">Search videos &rarr;</span> at the top of this page searches
+               all of them at once.</p>
+               <p>It looks inside titles, descriptions, channel names and categories &mdash; so
+               <em>torpedo data computer</em>, <em>Drachinifel</em> and <em>oral histories</em> all find
+               something.</p>`,
+      },
+      {
+        title: 'More words means fewer results',
+        body: `<p>Every word you type has to match, so adding words narrows the results rather than
+               widening them.</p>
+               <p>Videos with your words in the <strong>title</strong> come first, and your words are
+               highlighted in everything that comes back, so you can see why a video matched.</p>`,
+      },
+      {
+        title: 'Watch the whole run',
+        body: `<p><span class="tutorial-chip">&#9654; Play all on YouTube</span> opens every result as a
+               single YouTube playlist, in the order shown.</p>
+               <p>A couple of the oral histories are hosted by us rather than on YouTube. Those play right
+               on the page &mdash; press <strong>Play</strong> on the video itself.</p>`,
+      },
+      {
+        title: 'Save a set for later',
+        body: `<p><span class="tutorial-chip">+ Save these as playlist</span> keeps the results you are
+               looking at under a name you choose, or <span class="tutorial-chip">+ Save</span> adds a
+               single video to a playlist you already have.</p>
+               <p>Open one with <strong>Show</strong>, drag the rows into the order you want, then press
+               <strong>Play</strong>. Playlists stay in this browser &mdash; nothing is uploaded.</p>`,
+      },
+    ];
+
+    const tutorial = document.getElementById('tutorial');
+    const tutorialCard = tutorial.querySelector('.tutorial-card');
+    const tutorialStep = document.getElementById('tutorial-step');
+    const tutorialTitle = document.getElementById('tutorial-title');
+    const tutorialBody = document.getElementById('tutorial-body');
+    const tutorialDots = document.getElementById('tutorial-dots');
+    const tutorialBack = document.getElementById('tutorial-back');
+    const tutorialNext = document.getElementById('tutorial-next');
+    const tutorialSkip = document.getElementById('tutorial-skip');
+    const tutorialOpen = document.getElementById('tutorial-open');
+    let tutorialIndex = 0;
+
+    function tutorialSeen() {
+      try {
+        return window.localStorage.getItem(TUTORIAL_KEY) === 'seen';
+      } catch (e) {
+        // A browser blocking site data would otherwise replay this on every
+        // visit; treating it as seen is the kinder failure.
+        return true;
+      }
+    }
+
+    function markTutorialSeen() {
+      try {
+        window.localStorage.setItem(TUTORIAL_KEY, 'seen');
+      } catch (e) { /* nothing to do; it simply will not be remembered */ }
+    }
+
+    function renderTutorial() {
+      const step = TUTORIAL_STEPS[tutorialIndex];
+      const last = tutorialIndex === TUTORIAL_STEPS.length - 1;
+      tutorialStep.textContent = `Step ${tutorialIndex + 1} of ${TUTORIAL_STEPS.length}`;
+      tutorialTitle.textContent = step.title;
+      tutorialBody.innerHTML = step.body;
+      tutorialDots.innerHTML = TUTORIAL_STEPS
+        .map((s, i) => `<span class="tutorial-dot${i === tutorialIndex ? ' is-current' : ''}"></span>`)
+        .join('');
+      tutorialBack.hidden = tutorialIndex === 0;
+      tutorialNext.textContent = last ? 'Try a search \u2192' : 'Next';
+      tutorialSkip.textContent = last ? 'Not now' : 'Skip';
+    }
+
+    function showTutorial() {
+      tutorialIndex = 0;
+      renderTutorial();
+      tutorial.classList.add('is-open');
+      tutorial.setAttribute('aria-hidden', 'false');
+      tutorialCard.focus();
+    }
+
+    function hideTutorial() {
+      tutorial.classList.remove('is-open');
+      tutorial.setAttribute('aria-hidden', 'true');
+      // Recorded here rather than on open: a tab closed at step one means the
+      // visitor was never really shown this, so it should come back.
+      markTutorialSeen();
+    }
+
+    tutorialNext.addEventListener('click', () => {
+      if (tutorialIndex >= TUTORIAL_STEPS.length - 1) {
+        // A tutorial about a page you are not on should hand you over to it;
+        // Skip, Escape and the backdrop all still just close.
+        markTutorialSeen();
+        window.location.href = SEARCH_URL;
+        return;
+      }
+      tutorialIndex += 1;
+      renderTutorial();
+    });
+
+    tutorialBack.addEventListener('click', () => {
+      if (tutorialIndex === 0) return;
+      tutorialIndex -= 1;
+      renderTutorial();
+    });
+
+    tutorialSkip.addEventListener('click', hideTutorial);
+
+    tutorial.addEventListener('click', e => {
+      if (e.target === tutorial) hideTutorial();
+    });
+
+    tutorialOpen.addEventListener('click', showTutorial);
+
+    if (!tutorialSeen()) showTutorial();
+
+    fetch('/api/videos')
+      .then(r => {
+        if (!r.ok) throw new Error('Server returned ' + r.status);
+        return r.json();
+      })
+      .then(groups => {
+        allGroups = groups || [];
+        // /api/videos returns a cross-listed video once per category, so
+        // counting rows would report more videos than the collection holds.
+        const distinct = new Set();
+        let listings = 0;
+        allGroups.forEach(g => (g.videos || []).forEach(v => {
+          listings += 1;
+          distinct.add(videoKey(v));
+        }));
+        const crossListed = listings - distinct.size;
+        setDebugBanner(`Debug: ${distinct.size} videos${crossListed ? ` (+${crossListed} cross-listed)` : ''}`
+          + ` / ${allGroups.length} categories / ${new Date().toLocaleTimeString()}`);
+
+        buildChannelOptions();
+        render();
+      })
+      .catch(err => {
+        setDebugBanner(`Debug: API error / ${esc(err.message)}`);
+        list.innerHTML = `<div class="state"><strong>Unable to load videos</strong>${esc(err.message)}</div>`;
+      });
+  </script>
+</body>
+
+</html>

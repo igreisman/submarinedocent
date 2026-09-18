@@ -1,0 +1,185 @@
+version: 1
+project: pampanito-interactive-tour
+timezone: America/Los_Angeles
+
+# ------------------------------
+# Corpora (RAG sources)
+# ------------------------------
+corpora:
+  - id: pampanito_tour
+    title: "USS Pampanito Audio Tour"
+    path: "pampanito_tour_corpus.jsonl"
+    doc_type: pampanito_audio_tour
+    authority_weight: 1.00
+    allow_quote_snippets: true
+    filters_default:
+      era: ww2
+      pampanito_specific: true
+
+  - id: dieselsubs_faq
+    title: "DieselSubs FAQs"
+    path: "dieselsubs_faq_corpus.jsonl"
+    doc_type: dieselsubs_faq
+    authority_weight: 0.85
+    allow_quote_snippets: true
+    filters_default:
+      era: ww2
+
+  - id: dieselsubs_shorts
+    title: "DieselSubs Shorts Scripts"
+    path: "dieselsubs_shorts_corpus.jsonl"
+    doc_type: dieselsubs_shorts
+    authority_weight: 0.55
+    allow_quote_snippets: false
+    filters_default:
+      era: ww2
+
+# ------------------------------
+# Runtime context provided by the app
+# ------------------------------
+runtime_context:
+  required_fields:
+    - compartment_id
+    - playhead_time_ms
+    - audio_track_id
+    - question_text
+  optional_fields:
+    - user_locale
+    - answer_mode            # quick | standard | deep
+    - visitor_profile        # adult | kid | accessibility
+    - is_noisy_environment   # true/false (adjust verbosity)
+    - last_n_turns           # previous Q/A for chat continuity
+
+# ------------------------------
+# Retrieval strategy
+# ------------------------------
+retrieval:
+  # Hybrid search: vector + keyword
+  hybrid:
+    enabled: true
+    vector_weight: 0.70
+    keyword_weight: 0.30
+
+  # How many candidates to pull before reranking
+  candidate_counts:
+    pampanito_tour: 24
+    dieselsubs_faq: 18
+    dieselsubs_shorts: 12
+
+  # Proximity boosting (only applies to pampanito_tour)
+  timestamp_proximity:
+    enabled: true
+    window_ms: 60000         # ±60s around playhead
+    hard_filter: false       # if true, only search within window
+    boost_multiplier: 1.35
+
+  # Location-first routing: search locally, then broaden
+  routing:
+    steps:
+      - id: tour_local_window
+        description: "Tour chunks in current compartment, boosted near playhead"
+        sources: [pampanito_tour]
+        filters:
+          compartment_id: "{compartment_id}"
+        use_timestamp_proximity: true
+
+      - id: tour_local_all
+        description: "Tour chunks in current compartment (no window requirement)"
+        sources: [pampanito_tour]
+        filters:
+          compartment_id: "{compartment_id}"
+        use_timestamp_proximity: false
+
+      - id: tour_global
+        description: "Tour chunks across whole boat (fallback)"
+        sources: [pampanito_tour]
+        filters: {}
+        use_timestamp_proximity: false
+
+      - id: faq_global
+        description: "DieselSubs FAQ reference layer"
+        sources: [dieselsubs_faq]
+        filters: {}
+        use_timestamp_proximity: false
+
+      - id: shorts_global
+        description: "Shorts scripts for phrasing/short explanations"
+        sources: [dieselsubs_shorts]
+        filters: {}
+        use_timestamp_proximity: false
+
+  # Stop conditions: when to stop searching more layers
+  stopping:
+    min_relevant_hits: 2          # if >=2 strong hits, stop broadening
+    min_top_score: 0.62           # depends on your scoring scale
+    always_include_sources:       # always include at least one tour/faq if possible
+      - pampanito_tour
+      - dieselsubs_faq
+
+# ------------------------------
+# Reranking & source-bound answering
+# ------------------------------
+rerank:
+  enabled: true
+  method: cross_encoder_or_llm_rerank
+  top_k_after_rerank: 8
+  diversify_by:
+    - speaker_role
+    - section_heading
+    - video_title
+
+grounding:
+  # HARD RULE: If no supporting sources, refuse rather than guess.
+  require_citations: true
+  min_citations:
+    quick: 1
+    standard: 1
+    deep: 2
+  max_citations:
+    quick: 2
+    standard: 3
+    deep: 5
+  citation_preference_order:
+    - pampanito_tour
+    - dieselsubs_faq
+    - dieselsubs_shorts
+
+# ------------------------------
+# Response behavior knobs
+# ------------------------------
+response:
+  answer_modes:
+    quick:
+      target_seconds_spoken: 12
+      max_words: 70
+    standard:
+      target_seconds_spoken: 25
+      max_words: 160
+    deep:
+      target_seconds_spoken: 90
+      max_words: 520
+
+  structure:
+    include_what_you_are_seeing: true
+    include_followups: true
+    followup_count: 3
+    default_tone: "documentary, historically respectful, docent-like"
+
+  refusal_templates:
+    no_source: "I don’t have that detail in the Pampanito audio tour or the DieselSubs reference material I’m using."
+    ask_clarify_location: "I can help—what compartment are you in right now (or which tour section are you listening to)?"
+
+# ------------------------------
+# Safety/accuracy constraints (museum-grade)
+# ------------------------------
+safety:
+  never_invent_ship_specifics: true
+  distinguish_typical_vs_pampanito: true
+  avoid_modern_myths:
+    - "No glowing sonar radar screens in WWII sonar shack"
+    - "Avoid modern slang or meme tone"
+  uncertainty_language_allowed:
+    - "typically"
+    - "often"
+    - "in most boats"
+    - "on many Balao-class boats"

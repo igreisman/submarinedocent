@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Submarine Glossary</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f7fb;
+      color: #1d2734;
+      min-height: 100vh;
+    }
+
+    #topnav {
+      background: #1a1f2e;
+      color: #e6edf3;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    #brand {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .toplinks {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toplink {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      color: #e6edf3;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .toplink:hover {
+      border-color: #7ec8ff;
+      background: rgba(126, 200, 255, 0.12);
+    }
+
+    #hero {
+      background: linear-gradient(135deg, #1a3a6b 0%, #2a5298 100%);
+      color: #fff;
+      padding: 42px 24px 34px;
+    }
+
+    #hero-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    #hero h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 52px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+    }
+
+    #hero p {
+      margin: 14px 0 0;
+      max-width: 760px;
+      font-size: 17px;
+      line-height: 1.65;
+      color: #d8e8fb;
+    }
+
+    #content {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 24px 60px;
+    }
+
+    #toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    #search {
+      flex: 1 1 320px;
+      min-height: 46px;
+      padding: 0 15px;
+      border: 1px solid #cfd8e3;
+      border-radius: 12px;
+      background: #fff;
+      color: #1d2734;
+      font-size: 15px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    #search:focus {
+      outline: none;
+      border-color: #2a5298;
+      box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.12);
+    }
+
+    #stats {
+      color: #5b6778;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    #results {
+      display: grid;
+      gap: 16px;
+    }
+
+    .term-card {
+      background: #ffffff;
+      border: 1px solid #dbe3ec;
+      border-radius: 18px;
+      padding: 20px 22px;
+      box-shadow: 0 8px 20px rgba(17, 28, 45, 0.05);
+    }
+
+    .term-card h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      line-height: 1.15;
+      color: #1a2d4a;
+    }
+
+    .definition {
+      color: #334155;
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    .definition p:first-child {
+      margin-top: 0;
+    }
+
+    .definition p:last-child {
+      margin-bottom: 0;
+    }
+
+    .definition ul,
+    .definition ol {
+      padding-left: 22px;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: #5b6778;
+      background: #fff;
+      border: 1px dashed #c7d3e0;
+      border-radius: 18px;
+    }
+
+    @media (max-width: 640px) {
+      #topnav {
+        padding: 12px 16px;
+      }
+
+      #hero {
+        padding: 34px 16px 28px;
+      }
+
+      #content {
+        padding: 20px 16px 44px;
+      }
+    }
+  </style>
+</head>
+
+<body data-enable-glossary-tooltips="true">
+  <div id="topnav">
+    <div id="brand">SubmarineDocent</div>
+    <div class="toplinks">
+      <a class="toplink" href="/web/faqs.html">FAQs</a>
+      <a class="toplink" href="/web/edit_glossary.html">Glossary Editor</a>
+    </div>
+  </div>
+
+  <section id="hero">
+    <div id="hero-inner">
+      <h1>Submarine Glossary</h1>
+      <p>Search key submarine terms, ranks, systems, and wartime vocabulary used throughout the Diesel-Electric
+        Submarine collection.</p>
+    </div>
+  </section>
+
+  <main id="content">
+    <div id="toolbar">
+      <input id="search" type="search" placeholder="Search terms or definitions" autocomplete="off">
+      <div id="stats">Loading glossary…</div>
+    </div>
+
+    <section id="results">
+      <div class="empty">Loading glossary…</div>
+    </section>
+  </main>
+
+  <script>
+    const searchInput = document.getElementById('search');
+    const stats = document.getElementById('stats');
+    const results = document.getElementById('results');
+    const query = new URLSearchParams(window.location.search).get('q') || '';
+    let entries = [];
+
+    function stripHtml(value) {
+      return String(value ?? '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function render() {
+      const needle = searchInput.value.trim().toLowerCase();
+      const filtered = entries.filter(entry => {
+        const haystack = [entry.term, stripHtml(entry.definition)].join(' ').toLowerCase();
+        return !needle || haystack.includes(needle);
+      });
+
+      stats.textContent = `${filtered.length} of ${entries.length} terms`;
+
+      if (!filtered.length) {
+        results.innerHTML = '<div class="empty">No glossary terms match the current search.</div>';
+        return;
+      }
+
+      results.innerHTML = filtered.map(entry => `
+        <article class="term-card">
+          <h2>${escapeHtml(entry.term || 'Untitled term')}</h2>
+          <div class="definition">${entry.definition || '<p>No definition available.</p>'}</div>
+        </article>
+      `).join('');
+    }
+
+    async function loadGlossary() {
+      const response = await fetch('/api/glossary');
+      if (!response.ok) {
+        throw new Error('Failed to load glossary');
+      }
+      entries = await response.json();
+      render();
+    }
+
+    searchInput.addEventListener('input', () => {
+      const value = searchInput.value.trim();
+      const url = new URL(window.location.href);
+      if (value) {
+        url.searchParams.set('q', value);
+      } else {
+        url.searchParams.delete('q');
+      }
+      window.history.replaceState({}, '', url);
+      render();
+    });
+
+    if (query) {
+      searchInput.value = query;
+    }
+
+    loadGlossary().catch(error => {
+      stats.textContent = 'Unable to load glossary';
+      results.innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`;
+    });
+  </script>
+  <script src="/web/glossary-tooltips.js"></script>
+</body>
+
+</html>
