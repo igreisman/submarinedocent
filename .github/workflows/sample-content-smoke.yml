@@ -78,6 +78,9 @@ jobs:
           test "$feedback_status" = "503"
           grep -qi '^www-authenticate: Basic realm="SubmarineDocent Admin"' /tmp/feedback.headers
 
+      - name: Video enrichment regression test
+        run: python3 _test/test_video_enrichment.py
+
       - name: Stop app
         if: always()
         run: |

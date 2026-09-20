@@ -3893,13 +3893,28 @@ async def _youtube_metadata(video_url: str) -> Dict[str, str]:
     }
 
 
-async def _enrich_video_payload_from_youtube(payload: Dict[str, Any]) -> Dict[str, Any]:
+_ENRICHABLE_VIDEO_FIELDS = ("title", "description", "thumbnail_url",
+                            "channel_name", "channel_url")
+
+
+async def _enrich_video_payload_from_youtube(
+    payload: Dict[str, Any],
+    existing: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """Best-effort server-side metadata fill for admin video writes.
 
     The editor tries to populate title/description client-side, but production
     can still receive partial payloads (stale JS, blocked fetch, or save before
     autofill completes). This keeps persisted records complete without forcing a
     second edit pass.
+
+    `existing` is the record being updated, and must be passed on every update.
+    Without it this filled any field the *payload* lacked, which cannot tell a
+    new record from a partial edit of an existing one: a rights-only update
+    carrying just video_url looked identical to a blank create, so the scrape
+    ran and overwrote curated text with YouTube's boilerplate, silently, on a
+    200.  That happened to a real record on 20 September 2026.  A field is
+    missing only when neither the payload nor the stored record supplies it.
     """
     if not isinstance(payload, dict):
         return payload
@@ -3908,11 +3923,12 @@ async def _enrich_video_payload_from_youtube(payload: Dict[str, Any]) -> Dict[st
     if not video_url or not _YT_ID_RE.search(video_url):
         return payload
 
-    needs_metadata = not any(
-        str(payload.get(field) or "").strip()
-        for field in ("description", "title", "channel_name", "channel_url", "thumbnail_url")
-    )
-    if not needs_metadata:
+    def already_have(field: str) -> bool:
+        if str(payload.get(field) or "").strip():
+            return True
+        return bool(str((existing or {}).get(field) or "").strip())
+
+    if any(already_have(field) for field in _ENRICHABLE_VIDEO_FIELDS):
         return payload
 
     try:
@@ -3922,8 +3938,8 @@ async def _enrich_video_payload_from_youtube(payload: Dict[str, Any]) -> Dict[st
     except Exception:
         return payload
 
-    for field in ("title", "description", "thumbnail_url", "channel_name", "channel_url"):
-        if not str(payload.get(field) or "").strip():
+    for field in _ENRICHABLE_VIDEO_FIELDS:
+        if not already_have(field):
             value = str(meta.get(field) or "").strip()
             if value:
                 payload[field] = value
@@ -4296,7 +4312,12 @@ async def update_admin_video(video_id: str, request: Request):
     payload = await request.json()
     if not isinstance(payload, dict):
         payload = {}
-    payload = await _enrich_video_payload_from_youtube(payload)
+    # Read the record before enriching, so the fill can see what it already
+    # holds, and so the network call happens outside the write lock.
+    existing = next((e for e in _load_videos_raw() if str(e.get("id")) == video_id), None)
+    if existing is None:
+        raise HTTPException(status_code=404, detail=f"{video_id} not found")
+    payload = await _enrich_video_payload_from_youtube(payload, existing)
     with _videos_write_lock:
         entries = _load_videos_raw()
         target = next((e for e in entries if str(e.get("id")) == video_id), None)
