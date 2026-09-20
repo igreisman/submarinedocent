@@ -23,9 +23,9 @@ human has read. See Withheld below.
 
 | File | Records | Origin | Licensing |
 |---|---:|---|---|
-| `dieselsubs_faq_corpus.jsonl` | 320 | Written by Irving Greisman, some of it first published on dieselsubs.com — his own site. | **CC BY 4.0** |
+| `dieselsubs_faq_corpus.jsonl` | 366 | Written by Irving Greisman, some of it first published on dieselsubs.com — his own site. | **CC BY 4.0** |
 | `dieselsubs_shorts_corpus.jsonl` | 31 | Written by Irving Greisman, derived from the DieselSubs YouTube channel — his own channel. | **CC BY 4.0** |
-| `dieselsubs_faq_categories.jsonl` | 11 | Category names, from the dieselsubs.com FAQ structure — his own site. | **CC BY 4.0** |
+| `dieselsubs_faq_categories.jsonl` | 13 | Category names, from the dieselsubs.com FAQ structure — his own site. | **CC BY 4.0** |
 | `eternal_patrol.jsonl` | 65 | Lost-boat records written by Irving Greisman. **References photographs** in `web/images/extracted/`. | Text **CC BY 4.0**. **Photographs are not** — see below. |
 | `incidents.jsonl` | 16 | Written by Irving Greisman. | **CC BY 4.0** |
 | `museums.jsonl`, `museum_pages.jsonl` | 20, 0 | Museum directory written by Irving Greisman. | **CC BY 4.0** |
@@ -81,31 +81,15 @@ Credits render beneath the image on the lost-boat page. The default,
 holds the rights. Where a contributor is identified, name them in the credit
 field instead; the admin editor accepts these fields.
 
-## Provenance questions, settled
-
-Nothing is outstanding. Everything that was open here has been settled:
-
-- *The glossary needs written permission.* Dwight Naset gave it by email on
-  18 September 2026, releasing all 204 records under CC BY 4.0. Attribution
-  goes to him by name.
-- *The glossary's origin is undeclared.* It is Dwight Naset's. The records
-  carry no `source` field, which is why it read as unattributable; the gap was
-  in the data, not in the provenance.
-- *The FAQ corpus needs a per-record split.* It does not. dieselsubs.com is
-  Irving's own site, so records derived from it are his work, and the file is
-  CC BY 4.0 in full.
-
 ## Withheld
 
-The live site holds three things this repository does not:
+The live site holds two things this repository does not:
 
 - **167 generated FAQ drafts** (`der_` prefixed). Unreviewed. They cannot answer
   a visitor on the live site either — `_retrievable_faq()` filters them out —
   and they are not published here for the same reason: nobody has read them.
   They become publishable one at a time, by review, which renames them `faq_`.
 - **Visitor feedback and submitted questions.** Personal data. Never published.
-- **Three empty operations-guide files**, left on the server's disk when that
-  corpus was retired. Orphans, pending cleanup; see Records removed.
 
 One field was cleared on the way out rather than copied: a museum record on the
 live site still carries `tour_url: /web/pampanito.html`, a page that was
@@ -113,20 +97,5 @@ withdrawn and returns 404. It is `null` here.
 
 ## Records removed
 
-The operations guide corpus — `dieselsubs_operations_guide.jsonl` and its two
-generated re-representations — was removed on 2026-09-18. It held 47 records in
-production against 14 here, and the two halves had opposite origins: the
-committed half was site-authored prose about submarine operations, while the 33
-records that existed only on the production disk were summaries of pages on
-maritime.org, the Association's site. Removing only the second half would have
-left a corpus, a retrieval weight and an admin editor alive to serve fourteen
-records behind a public view that had been returning 401 for some time, so the
-corpus went as a unit. Retrieval cost, measured before removal: one answer in
-339 changed, and it still answers.
-
-Every record sourced `pampanito_docent` was removed on 2026-09-17. That
-material was generated from the San Francisco Maritime National Park
-Association's tour and website and is not ours to publish. The removal followed
-accepted lineage as well as the source string, because `accept_faq()` rewrites
-`source` to `accepted_from_<old_id>` and a promoted draft stops declaring where
-it came from. See `scripts/remove_by_source.py`.
+Records derived from a third party's website were removed on 17 and 18
+September 2026. See [`scripts/remove_by_source.py`](../scripts/remove_by_source.py).

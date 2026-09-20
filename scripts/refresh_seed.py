@@ -45,6 +45,7 @@ import base64
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tarfile
@@ -100,6 +101,40 @@ def transform(filename, records):
                 n += 1
         return records, (f"{n} withdrawn tour_url cleared" if n else "")
     return records, ""
+
+
+def rewrite_inventory_counts(counts):
+    """Update the record counts in corpora/README.md from what was just written.
+
+    The inventory table states a record count per file. Hand-maintained, it goes
+    stale the first time a refresh lands and nobody remembers to edit it -- and a
+    stale count in the file that documents provenance is worse than no count,
+    because a reader has no way to tell it is wrong. Rewriting it here means the
+    number can only ever be what the corpus actually holds.
+
+    Matches the leading `filename` cell and replaces the count cell after it.
+    Rows naming several files, or none, are left alone.
+    """
+    path = os.path.join(CORPORA, "README.md")
+    if not os.path.exists(path):
+        return []
+    text = open(path, encoding="utf-8").read()
+    changed = []
+    for filename, n in sorted(counts.items()):
+        # | `name.jsonl` | 123 | ...   ->   | `name.jsonl` | <new> | ...
+        rx = re.compile(r"(^\|\s*`" + re.escape(filename) + r"`\s*\|\s*)([\d,]+)(\s*\|)",
+                        re.M)
+        m = rx.search(text)
+        if not m:
+            continue
+        was = m.group(2)
+        now = f"{n:,}"
+        if was != now:
+            text = rx.sub(lambda mo: mo.group(1) + now + mo.group(3), text, count=1)
+            changed.append((filename, was, now))
+    if changed:
+        open(path, "w", encoding="utf-8").write(text)
+    return changed
 
 
 def git(*args):
@@ -211,7 +246,22 @@ def main():
             print(f"  {p}")
         sys.exit(1)
 
+    # The inventory table's counts are derived, so derive them.
+    counts = {}
+    for filename in sorted(os.listdir(CORPORA)):
+        if filename.endswith(".jsonl"):
+            counts[filename] = sum(
+                1 for l in open(os.path.join(CORPORA, filename), encoding="utf-8")
+                if l.strip())
+    retouched = rewrite_inventory_counts(counts)
+    if retouched:
+        print("\ncorpora/README.md inventory counts updated:")
+        for filename, was, now in retouched:
+            print(f"  {filename:<38} {was} -> {now}")
+
     paths = [os.path.relpath(p, REPO) for _f, p, _r, _a, _rm in changed]
+    if retouched:
+        paths.append(os.path.join("corpora", "README.md"))
     subprocess.run(["git", "-C", REPO, "add", *paths], check=True)
     print(f"\nStaged {len(paths)} file(s). Nothing committed.")
     print("Read the diff, then commit:\n  git diff --cached corpora/")
