@@ -783,6 +783,10 @@
       modalPlayer.innerHTML = '';
     }
 
+    // Compared case- and space-insensitively, so "Wisconsin Marine Historical
+    // Society" and "Wisconsin  Marine  Historical Society" count as one name.
+    const normalizeAttribution = s => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+
     // The channel travels under different keys depending on how old the record
     // is, so both the card and the filter read it through here.
     const channelNameOf = v => {
@@ -805,16 +809,34 @@
         : '';
       const channelName = channelNameOf(v);
       const channelUrl = (video.channel_url || v.channel_url || video.credit_url || v.video_credit_url || '').trim();
+      // A rights holder who is also the uploader would otherwise appear twice on
+      // the card: once as the channel, linked to YouTube, and again as the
+      // credit, linked wherever they asked us to point. When the two read the
+      // same they are collapsed into one, shown here in the channel row and
+      // pointing at the credit URL, which is the destination they chose.
+      //
+      // The surviving line has to be this one, not the credit further down:
+      // .video-meta carries is-collapsed on any card with a description, which
+      // is every card, and is-collapsed is display:none. Keeping the credit and
+      // dropping the channel would hide the attribution behind an expand on a
+      // card whose permission is conditional on that attribution being shown.
+      const creditText = String(video.credit || '').trim();
+      const creditUrl = String(video.credit_url || v.video_credit_url || '').trim();
+      const sameAsCredit = Boolean(creditText)
+        && normalizeAttribution(channelName) === normalizeAttribution(creditText);
+      const attributionUrl = (sameAsCredit && creditUrl) ? creditUrl : channelUrl;
       const channelContent = channelName
-        ? (channelUrl && isSafeUrl(channelUrl)
-          ? `<a href="${esc(channelUrl)}" target="_blank" rel="noopener noreferrer">${esc(channelName)}</a>`
+        ? (attributionUrl && isSafeUrl(attributionUrl)
+          ? `<a href="${esc(attributionUrl)}" target="_blank" rel="noopener noreferrer">${esc(channelName)}</a>`
           : esc(channelName))
         : '';
       const durationText = String(v.duration || '').trim();
       const duration = durationText
         ? `<span class="video-duration" aria-label="Running time ${esc(durationText)}">${esc(durationText)}</span>`
         : '';
-      const channel = (channelName || durationText)
+      // channelContent, not channelName: a suppressed duplicate must not leave an
+      // empty channel row behind, but a duration still earns the row.
+      const channel = (channelContent || durationText)
         ? `<div class="video-channel">${channelContent}${duration}</div>`
         : '';
       const descriptionText = (v.description || v.video_description || video.caption || '').trim();
@@ -829,9 +851,13 @@
       // Services requires "Courtesy warexperience.org. Produced for the Regis
       // University Center for the Study of War Experience" -- and prepending
       // our own "Courtesy of" would corrupt the credit we agreed to give.
-      const creditInner = video.credit_url && isSafeUrl(video.credit_url)
-        ? `<a href="${esc(video.credit_url)}" target="_blank" rel="noopener noreferrer">${esc(video.credit)}</a>`
-        : (video.credit ? esc(video.credit) : '');
+      // Suppressed when the channel row above is already showing this exact
+      // text and linking to this exact URL. Anything else renders here.
+      const creditInner = sameAsCredit
+        ? ''
+        : (video.credit_url && isSafeUrl(video.credit_url)
+          ? `<a href="${esc(video.credit_url)}" target="_blank" rel="noopener noreferrer">${esc(video.credit)}</a>`
+          : (video.credit ? esc(video.credit) : ''));
       const rights = v.rights_note
         ? `<div class="video-rights">${esc(v.rights_note)}</div>`
         : '';
