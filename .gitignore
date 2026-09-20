@@ -86,3 +86,10 @@ web/videos/
 # Internal editorial notes, not published
 videos_heldback.txt
 _test/AI_CONTEXT.md
+
+# Internal planning kept beside the code, deliberately unpublished. The public
+# docs/ holds only what Track C wrote; everything here is working material.
+docs/internal/
+
+# Editor config carrying machine-specific terminal auto-approve rules.
+.vscode/
