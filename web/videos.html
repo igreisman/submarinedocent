@@ -804,9 +804,7 @@
         ? `<h2 class="video-title">${esc(v.title)}</h2>`
         : '';
       const channelName = channelNameOf(v);
-      // An explicit credit URL is the rights holder's chosen destination, so it
-      // beats the channel default.
-      const channelUrl = (video.credit_url || v.video_credit_url || video.channel_url || v.channel_url || '').trim();
+      const channelUrl = (video.channel_url || v.channel_url || video.credit_url || v.video_credit_url || '').trim();
       const channelContent = channelName
         ? (channelUrl && isSafeUrl(channelUrl)
           ? `<a href="${esc(channelUrl)}" target="_blank" rel="noopener noreferrer">${esc(channelName)}</a>`
