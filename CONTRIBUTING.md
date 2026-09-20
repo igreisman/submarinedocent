@@ -73,13 +73,16 @@ Retrieval is lexical, so a new record can quietly lose to an existing one. Run
 the question against a local instance before opening the pull request:
 
 ```bash
-./start_https.sh                        # one shell
-.venv/bin/python _test/spot_check.py    # another
+uvicorn api.main:app --port 8000        # one shell
+curl -s -X POST http://127.0.0.1:8000/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"question_text":"your question here"}'   # another
 ```
 
-If you changed anything about retrieval itself rather than a record, say so
-explicitly — the scoring constants were tuned against those scripts and the
-totals are the regression signal.
+Check that your record is the one that answers, and that it reads well as an
+answer rather than as a paragraph of prose. The evaluation scripts in `_test/`
+run larger question sets, but they expect a local HTTPS instance and the full
+corpora, so they are a maintainer's tool rather than a contributor's.
 
 ### If you would rather not open a pull request
 
@@ -87,109 +90,66 @@ Open an issue with the question you asked, the answer you got, and what it
 should have said. That is genuinely useful: the question is the evidence for
 what needs writing. Or email dieselsubs1945@gmail.com.
 
-## Scope
+## Licensing of contributions
 
-This repository mixes application code with historical content and deployment-specific material. Keep changes narrowly scoped and call out whether your change affects:
+By opening a pull request you agree that your contribution is licensed on the
+same terms as the rest of the repository: **code under MIT**, and **content
+under CC BY 4.0**. Content means corpus records, documentation and any other
+prose.
 
-- application code
-- historical corpora or editorial content
-- deployment configuration
-- admin workflow pages
+There is no separate contributor licence agreement to sign, and you keep the
+copyright in what you write. This is only so that anyone reusing the project
+knows the whole of it carries one set of terms.
 
-## Before You Start
+Two things follow from that, and they matter more than the paperwork:
 
-1. Read [README.md](README.md)
-2. Read [docs/architecture.md](docs/architecture.md) if you are touching retrieval
-3. Read [corpora/README.md](corpora/README.md) if you are touching content
-4. Use `.env.local` for local configuration
-5. Do not commit secrets, local certs, or feedback exports
+- **Do not paste in text you did not write**, from a book, a museum placard,
+  another website, or a model's output you have not checked. A citation is how
+  a source is credited here; copying its wording is not.
+- **Do not contribute material you cannot license**, whatever its quality.
+  `corpora/README.md` records where every corpus came from, and a record with
+  no answer to "who wrote this" cannot stay.
 
-## Development Setup
+## What to expect
+
+This is a one-maintainer project. Expect a reply in **days rather than hours**,
+and no reply at all during a week when the boat is busy.
+
+A pull request gets merged when three things are true: the change is right, it
+cites a source a reader can check, and it is small enough to review in one
+sitting. A correction to a single record with a published reference behind it
+is the easiest thing to merge here and the most useful thing you can send.
+
+What slows a pull request down: several unrelated changes in one branch, a
+rewrite of a record whose title decides which questions it answers, or an
+assertion with no source. None of those are refusals, they are just questions
+that take a while to work through.
+
+If something is wrong and you would rather not open a pull request at all,
+open an issue. A well-described wrong answer is worth more than a fix that
+needs unpicking.
+
+## Code changes
 
 ```bash
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn api.main:app --host 0.0.0.0 --port 8000
+cp .env.example .env.local
+SAMPLE_CONTENT_MODE=true uvicorn api.main:app --port 8000
 ```
 
-For local HTTPS testing, use:
+Keep changes focused and preserve existing public behaviour unless the change
+is deliberately altering it. Do not commit secrets, local certificates or
+feedback exports, and do not add environment-specific assumptions such as a
+hardcoded address. Admin and feedback surfaces are sensitive; server-side
+protection stays in place.
 
-```bash
-./start_https.sh
-```
+CI boots the app in sample mode on every pull request and checks that the
+public endpoints answer and that the admin surface returns `503` while no
+credentials are set.
 
-## Contribution Guidelines
+Say in the pull request what changed, why, and whether any environment
+variable or deployment setting is affected.
 
-- Prefer minimal, focused changes
-- Preserve existing public behavior unless the change intentionally updates it
-- Add or update documentation when configuration or workflow changes
-- Do not introduce hardcoded secrets, local IPs, or environment-specific assumptions
-- Treat admin and feedback surfaces as sensitive features and keep server-side protection in place
-
-## Content Changes
-
-If you change corpora, text, or media references:
-
-- identify the source of the material
-- confirm that redistribution and modification are allowed
-- note any provenance or licensing constraints in the pull request
-
-## Refreshing the corpus seed
-
-**Run `make refresh-seed` before any release or announcement.**
-
-`corpora/` in this repository is a *seed*, not the live content. In production
-the editable corpora live on a persistent disk, seeded from `corpora/` on first
-boot and authoritative from then on — so a curator's edit on the live site
-never reaches this repository by itself. The two drift apart silently and
-continuously, and the gap only shows up when someone reads the published corpus
-and finds it stale.
-
-```bash
-export SUBDOCENT_BASE_URL=https://submarinedocent.org
-export ADMIN_USERNAME=... ADMIN_PASSWORD=...
-
-make refresh-seed ARGS=--dry-run   # look first
-make refresh-seed                  # write and stage
-```
-
-It pulls the deployment's own corpora, prints a per-file diff, validates the
-result, and **stages the changes without committing**, so a person reads the
-diff before it becomes history. It never commits and never pushes.
-Credentials come from the environment only.
-
-Two rules are baked in and are the reason this is a script rather than a copy:
-
-- **Only reviewed FAQ records are published.** `der_` and `pam_` chunks are
-  unreviewed drafts. They cannot answer a visitor on the live site either, and
-  publishing one would put the project's name on text nobody has read. The
-  refresh keeps `faq_` and `fix_` and drops the rest.
-- **The FAQ corpus and the categories file move together.** FAQ records name
-  their category as a string, so refreshing one without the other leaves every
-  record pointing at a category that does not exist, and an empty dashboard for
-  the first person to clone the repository. The script refreshes both and then
-  checks that every referenced category is defined.
-
-It refuses to run when `corpora/` already has uncommitted changes, because a
-refresh tangled with hand edits produces a diff nobody can review — you can no
-longer tell which change came from the live site and which came from a person.
-
-Anything the live disk holds that this repository does not ship is listed and
-ignored rather than silently imported.
-
-## Testing
-
-At minimum, contributors should:
-
-- verify the app starts locally
-- verify public pages still load
-- verify protected admin routes remain protected
-- run any targeted test scripts relevant to the changed area
-
-## Pull Requests
-
-Include:
-
-- a short summary of what changed
-- why the change was needed
-- any environment variables or deployment settings affected
-- any follow-up work that remains
+Maintenance tasks, including refreshing the corpus seed from the live site,
+are in [docs/maintaining.md](docs/maintaining.md).
