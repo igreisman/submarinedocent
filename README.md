@@ -6,7 +6,8 @@ who took them out, and the Pacific campaign they fought. Ask it something in
 your own words and it finds the answer in a curated corpus of FAQs, glossary
 entries, wartime Navy manuals and lost-boat records. It is an independent
 educational project, not affiliated with any museum or naval institution, and
-it is built as a FastAPI backend serving static pages.
+it is built as a FastAPI backend serving static pages. It is built with Claude
+Code as a pair programmer; every change is reviewed and approved by a human.
 
 ![Ask the Docent answering a typed question, with the source record cited beneath the answer](docs/images/ask-the-docent.png)
 
