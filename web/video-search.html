@@ -1904,7 +1904,7 @@
             order: order++,
             title,
             channel,
-            channelUrl: (video.channel_url || v.channel_url || video.credit_url || v.video_credit_url || '').trim(),
+            channelUrl: (video.credit_url || v.video_credit_url || video.channel_url || v.channel_url || '').trim(),
             description,
             duration: String(v.duration || '').trim(),
             categories: category ? [category] : [],
