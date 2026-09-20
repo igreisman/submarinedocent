@@ -177,6 +177,8 @@ ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "").strip()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "").strip()
 MUSEUM_ADMIN_USERNAME = os.getenv("MUSEUM_ADMIN_USERNAME", "").strip()
 MUSEUM_ADMIN_PASSWORD = os.getenv("MUSEUM_ADMIN_PASSWORD", "").strip()
+PREVIEW_USERNAME = os.getenv("PREVIEW_USERNAME", "").strip()
+PREVIEW_PASSWORD = os.getenv("PREVIEW_PASSWORD", "").strip()
 ADMIN_PAGE_PATHS = {
     "/feedback.html",
     "/web/feedback.html",
@@ -493,7 +495,6 @@ if os.path.isdir(WEB_DIR):
     app.mount("/web", StaticFiles(directory=WEB_DIR, html=True), name="web")
 ETERNAL_PATROL_IMAGE_DIR = os.path.join(WEB_DIR, "images", "extracted")
 
-TOUR_PATH = os.path.join(CORPORA_DIR, "pampanito_tour_corpus.jsonl")
 SHORTS_PATH = os.path.join(CORPORA_DIR, "dieselsubs_shorts_corpus.jsonl")
 # Fleet Type Submarine manual series (NAVPERS 16160-16169) — reference text,
 # not museum-authored content, so it is read-only and deliberately absent from
@@ -716,7 +717,7 @@ _TTS_CACHE_DIR = _editable_corpus_dir("tts_cache")
 
 # ── Historian contact email ────────────────────────────────────────────────
 # Where the contact form delivers. No default: a personal address baked into a
-# public repo is both an A5 exposure and a trap, since a fork would silently
+# public repo is both an exposure and a trap, since a fork would silently
 # mail this project's owner. Unset means the contact form logs instead of sends.
 HISTORIAN_EMAIL = os.getenv("HISTORIAN_EMAIL", "").strip()
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
@@ -750,11 +751,6 @@ def load_jsonl(path: str) -> List[Dict[str, Any]]:
 
 
 print("Loading corpora...")
-# The Pampanito tour corpus is no longer distributed; TOUR_PATH resolves to a
-# file that is absent in production, so this is empty there.  Sample content
-# ships a synthetic tour corpus, which is what keeps the smoke test's
-# tour_chunks assertion meaningful.
-TOUR = load_jsonl(TOUR_PATH)
 FAQ_ALL = load_jsonl(FAQ_PATH)
 
 # Generated FAQ entries (der_, pam_, fix_) are drafts awaiting review in
@@ -821,7 +817,7 @@ FLEETSUB_MANUAL_WEIGHT = float(os.getenv("FLEETSUB_MANUAL_WEIGHT", "0.5"))
 # (9 chunks: dedication, introduction, notes, lost-sub list).  Weighted same as
 # fleet manual since it's primary-source government text, not docent narration.
 SUB_LOSSES_WEIGHT = float(os.getenv("SUB_LOSSES_WEIGHT", "0.5"))
-print(f"Loaded: {len(TOUR)} tour, {len(FAQ)} faq, {len(SHORTS)} shorts chunks, {len(CATEGORIES)} categories")
+print(f"Loaded: {len(FAQ)} faq, {len(SHORTS)} shorts chunks, {len(CATEGORIES)} categories")
 
 
 
@@ -895,7 +891,6 @@ def health():
         "auto_sample_fallback": AUTO_SAMPLE_FALLBACK,
         "transcribe_available": bool(_GROQ_API_KEY),
         "tts_available": bool(_OPENAI_API_KEY),
-        "tour_chunks": len(TOUR),
         "faq_chunks": len(FAQ),
         # Answerable count above, whole file below, plus the gate that
         # separates them.  scripts/compare_gate.py reads these three to refuse
@@ -1823,7 +1818,7 @@ def _corpus_stats() -> tuple[float, Dict[str, int], int]:
         # of three off-script questions even with the manual's own retrieval
         # weight set to zero.  Statistics stay anchored to the museum corpora;
         # the manual is scored against them as a supplementary index.
-        for corpus in (TOUR, FAQ, SHORTS):
+        for corpus in (FAQ, SHORTS):
             for ch in corpus:
                 toks = set(tokenize(ch.get("text", "") or ""))
                 if not toks:
@@ -1969,7 +1964,6 @@ def retrieve(
     q_tokens = tokenize(question_text)
     q_tokens = remove_compartment_noise(q_tokens, question_text)
     intent = detect_intent(q_tokens, question_text)
-    named_compartment = detect_compartment_in_query(question_text)
 
     hits: List[Hit] = []
 
@@ -2008,24 +2002,6 @@ def retrieve(
                 continue
 
             effective_weight = weight
-
-            # If the query explicitly names a compartment, strongly boost tour
-            # chunks from that compartment so they outrank equally-relevant
-            # chunks from other locations (e.g. "bunks in after battery" should
-            # not be answered with After Torpedo Room bunk content).
-            # Guard: only apply the boost when the chunk also matches a query
-            # token *beyond* the compartment-name tokens themselves.  Without
-            # this, "were there bunks in the after torpedo room" inflates tour
-            # chunks that only share "torpedo"+"room" with the query and score
-            # 2×9=18, burying FAQ entries that explicitly list the bunks.
-            if named_compartment and source_id == "pampanito_tour":
-                if ch.get("compartment_id") == named_compartment:
-                    comp_toks = set(tokenize(named_compartment.replace("_", " ")))
-                    content_q_tokens = [t for t in q_tokens if t not in comp_toks]
-                    # Boost when: no content tokens (pure compartment query) OR
-                    # at least one content token matches something in the chunk
-                    if not content_q_tokens or overlap_score(content_q_tokens, text) > 0:
-                        effective_weight *= 3.0
 
             # FAQ question-title match bonus: reward titles whose vocabulary
             # closely matches the query. Scale by title coverage so a short,
@@ -2089,12 +2065,6 @@ def retrieve(
                 effective_weight *= 1.5
 
             hits.append((s * effective_weight, ch, source_id))
-
-    # Tour – search all compartments; current compartment chunks naturally
-    # score highest because they share the most vocabulary with a question
-    # asked while standing there.  Restricting to the current compartment
-    # caused cross-compartment "where is X?" questions to miss the right chunk.
-    add_hits(TOUR, "pampanito_tour", weight=3.0, compartment_filter=False)
 
     # FAQ (global)
     add_hits(FAQ, "dieselsubs_faq", weight=1.2, compartment_filter=False)
@@ -2553,9 +2523,8 @@ def synthesize_extractive(
                 break
 
     if not used_sentences:
-        # fallback: try any hit that has sentences containing query terms,
-        # preferring FAQ/shorts over tour for this last-resort path
-        for _, ch_fb, src_fb in sorted(hits, key=lambda h: 0 if h[2] != "pampanito_tour" else 1):
+        # fallback: try any hit that has sentences containing query terms
+        for _, ch_fb, src_fb in hits:
             sents_fb = split_sentences(chunk_display_text(ch_fb))
             rel = [s for s in sents_fb if any(w in s.lower() for w in want_terms_l)] if want_terms_l else sents_fb[:2]
             if rel:
@@ -2584,24 +2553,11 @@ def synthesize_extractive(
     else:
         answer_short = " ".join(used_sentences).strip()
 
-    # For answers sourced from the audio tour, prepend a human-readable source line.
-    # Deck stops (fore/aft): "From the audio in the After Deck"
-    # Interior compartments : "From the audio in the Conning Tower compartment"
-    # Use citations[0] (the chunk whose text was actually used), not hits[0].
-    if citations and answer_short and citations[0].get("source_id") == "pampanito_tour":
-        # Find the matching chunk to get location_context
-        used_chunk_id = citations[0].get("chunk_id")
-        tour_ch = next((c for c in TOUR if c.get("chunk_id") == used_chunk_id), None)
-        if tour_ch:
-            stop_loc = (tour_ch.get("location_context") or "").strip()
-            if stop_loc:
-
-                    answer_short = f"From the audio tour in {stop_loc}\n\n{answer_short}"
     # Answers drawn from the Fleet Type Submarine manuals are 1946 Navy
     # engineering prose, not museum-authored narration, and without a lead-in
     # they reach the visitor in the docent's own voice with nothing marking the
     # difference.  Name the manual the text actually came from.
-    elif citations and answer_short and citations[0].get("source_id") == "fleetsub_manual":
+    if citations and answer_short and citations[0].get("source_id") == "fleetsub_manual":
         used_chunk_id = citations[0].get("chunk_id")
         man_ch = next((c for c in FLEETSUB_MANUAL if c.get("chunk_id") == used_chunk_id), None)
         manual_name = (man_ch or {}).get("manual", "").strip()
@@ -2609,14 +2565,6 @@ def synthesize_extractive(
             answer_short = f"From the Navy's 1946 manual {manual_name}\n\n{answer_short}"
         else:
             answer_short = f"From the Navy's 1946 fleet submarine manuals\n\n{answer_short}"
-    if intent.get("is_where_question") and hits and answer_short:
-        top_ch = hits[0][1]
-        loc = (top_ch.get("location_context") or "").strip()
-        # Only prepend if the answer actually came from a tour chunk and the location
-        # name isn't already present near the top of the answer (e.g. from the audio prefix).
-        if loc and citations and citations[0].get("source_id") == "pampanito_tour" and loc.lower() not in answer_short[:120].lower():
-            answer_short = f"In the {loc}. " + answer_short
-
     # ── Audio-safety pass ────────────────────────────────────────────────────
     # Strip any diagram lines, ASCII-art, and orphaned colon-headers that
     # may have leaked through from long FAQ chunks.  Applied per-line so we
@@ -3525,21 +3473,15 @@ def _apply_eternal_patrol_payload(target: dict[str, Any], payload: dict[str, Any
         "construction",
         "loss_narrative",
         "photo_boat",
-        "photo_boat_credit",
         "photo_captain",
-        "photo_captain_credit",
         "image1",
         "image1_subtitle",
-        "image1_credit",
         "image2",
         "image2_subtitle",
-        "image2_credit",
         "image3",
         "image3_subtitle",
-        "image3_credit",
         "image4",
         "image4_subtitle",
-        "image4_credit",
     }
 
     for field in allowed_fields:
@@ -4322,16 +4264,6 @@ def get_rights_report():
             if isinstance(link, dict) and (link.get("url") or "").strip():
                 add("related_link", chunk_id, (link.get("label") or "").strip(), link)
 
-    # Tour narration is the museum's own recording, and the largest rights
-    # question in the project even though nothing filters on it yet.
-    tour = load_jsonl(TOUR_PATH) or []
-    if tour:
-        museum_ids = {str(r.get("museum_id") or "").strip() for r in tour}
-        for mid in sorted(museum_ids):
-            sample = next(r for r in tour if str(r.get("museum_id") or "").strip() == mid)
-            count = sum(1 for r in tour if str(r.get("museum_id") or "").strip() == mid)
-            add("tour", f"{count} records", "Tour narration", sample)
-
     uncleared = [r for r in rows if not r["cleared"]]
     unrecorded = [r for r in rows if r["status"] == "unrecorded"]
     return {
@@ -4606,15 +4538,6 @@ def accept_faq(chunk_id: str):
         entry.setdefault("era", "ww2")
         entry.setdefault("platform", ["us_diesel_electric_submarines"])
         entry.setdefault("pampanito_specific", True)
-        # Preserve where this text actually came from before overwriting source.
-        # Acceptance used to erase provenance: a chunk generated from a museum's
-        # tour stopped saying so the moment it was promoted, and the 2026-09-17
-        # removal had to reconstruct the lineage from the accepted_from_* id
-        # pattern to find the two chunks that were answerable. A rights question
-        # answerable only by pattern-matching an id prefix is one rename from
-        # unanswerable.
-        if entry.get("source") and not entry.get("original_source"):
-            entry["original_source"] = entry["source"]
         entry["source"] = f"accepted_from_{old_id}"
         entry["display_citation"] = f"SubmarineDocent FAQ — {entry.get('title', new_id)}"
         entry.pop("type", None)  # pam_ entries carry a spurious "type" key

@@ -47,7 +47,6 @@ jobs:
           assert health['status'] == 'ok'
           assert health['sample_content_mode'] is True
           assert health['faq_chunks'] >= 1
-          assert health['tour_chunks'] >= 1
           PY
 
       - name: Validate public APIs
