@@ -14,6 +14,7 @@
  */
 const SiteFooter = (() => {
   const COPY = '&copy; subdocent.com';
+  const SOURCE_URL = 'https://github.com/igreisman/submarinedocent';
 
   function _flashBtn(btn) {
     const orig = btn.dataset.originalText || btn.textContent;
@@ -30,7 +31,11 @@ const SiteFooter = (() => {
     footer.id = 'site-footer';
     footer.innerHTML = `
       <div class="site-footer-copy">
-        ${COPY}
+        <span class="site-footer-left">
+          ${COPY}
+          <span class="site-footer-sep">&middot;</span>
+          <a class="site-footer-link" href="${SOURCE_URL}" target="_blank" rel="noopener noreferrer">Source on GitHub</a>
+        </span>
         <button class="site-header-copy-btn" id="site-footer-copy-btn" type="button">Copy Link</button>
       </div>
     `;

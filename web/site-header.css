@@ -138,3 +138,26 @@
   color: #6e7681;
   font-size: 12px;
 }
+
+#site-footer .site-footer-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#site-footer .site-footer-sep {
+  opacity: 0.5;
+}
+
+/* Inherits the footer's muted grey rather than the UA blue, which would be
+   the loudest thing on a 12px dark bar. */
+#site-footer .site-footer-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+#site-footer .site-footer-link:hover,
+#site-footer .site-footer-link:focus-visible {
+  color: #c9d1d9;
+}
