@@ -4575,7 +4575,14 @@ def accept_faq(chunk_id: str):
         entry.setdefault("authority_level", "reference_faq")
         entry.setdefault("era", "ww2")
         entry.setdefault("platform", ["us_diesel_electric_submarines"])
-        entry.setdefault("pampanito_specific", True)
+        # Acceptance used to erase provenance: a chunk generated from a museum's
+        # tour stopped saying so the moment it was promoted, and the 2026-09-17
+        # removal had to reconstruct the lineage from the accepted_from_* id
+        # pattern to find the two chunks that were answerable.  A rights question
+        # answerable only by pattern-matching an id prefix is one rename from
+        # unanswerable.
+        if entry.get("source") and not entry.get("original_source"):
+            entry["original_source"] = entry["source"]
         entry["source"] = f"accepted_from_{old_id}"
         entry["display_citation"] = f"SubmarineDocent FAQ — {entry.get('title', new_id)}"
         entry.pop("type", None)  # pam_ entries carry a spurious "type" key
