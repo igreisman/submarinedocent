@@ -2818,6 +2818,31 @@ def synthesize_openai_stub(
 # ------------------------------------------------------------
 
 _GENERATED_PREFIXES = {"der", "pam", "fix"}
+
+
+def _draft_prefixes() -> set:
+    """Chunk-id stems that mean "unreviewed draft".
+
+    The static three, plus one per museum slug, so a boat's entries are drafts
+    under its own prefix: USS Cod's slug is "cod", so cod_001 is a draft.
+    Derived from museums.jsonl rather than hardcoded, because a hardcoded list
+    silently stops covering the next museum somebody adds, and the failure
+    looks like "accept refuses this id" long after the cause.
+
+    Reading these is not the same as answering from them: _ANSWERABLE_FAQ_PREFIXES
+    stays ("faq_", "fix_"), so a cod_ record reaches no visitor until a person
+    accepts it and it is renamed.
+    """
+    prefixes = set(_GENERATED_PREFIXES)
+    try:
+        for m in _load_museums():
+            slug = str(m.get("slug") or "").strip().lower()
+            if slug:
+                prefixes.add(slug)
+    except Exception:
+        # A museums file that will not load must not make acceptance impossible.
+        pass
+    return prefixes
 _faq_write_lock = threading.Lock()
 _category_write_lock = threading.Lock()
 _videos_write_lock = threading.Lock()
@@ -3119,7 +3144,7 @@ def _ensure_category_exists(category: str) -> None:
 @app.get("/admin/generated-faqs")
 def get_generated_faqs():
     """Return all der_, pam_, fix_ entries for the review tool."""
-    return [e for e in FAQ_ALL if e.get("chunk_id", "").split("_")[0] in _GENERATED_PREFIXES]
+    return [e for e in FAQ_ALL if e.get("chunk_id", "").split("_")[0] in _draft_prefixes()]
 
 
 @app.get("/admin/faqs")
@@ -4444,6 +4469,23 @@ async def create_faq(request: Request):
         ]
         new_num = max(faq_nums) + 1 if faq_nums else 1
         new_id = f"faq_{new_num}"
+
+        # A caller may name the id, but only a draft one. This is how written
+        # drafts are loaded: a cod_ record has to arrive as cod_001 to be a
+        # draft at all, and forcing faq_NNN here would make every import
+        # answerable the moment it landed, skipping review entirely.
+        requested = str(body.get("chunk_id") or "").strip()
+        if requested:
+            stem = requested.split("_")[0]
+            if stem not in _draft_prefixes():
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"chunk_id may only be given for a draft prefix: {', '.join(sorted(_draft_prefixes()))}",
+                )
+            if any(e.get("chunk_id") == requested for e in FAQ_ALL):
+                raise HTTPException(status_code=409, detail=f"{requested} already exists")
+            new_id = requested
+
         new_entry: Dict[str, Any] = {
             "chunk_id": new_id,
             "doc_type": "dieselsubs_faq",
@@ -4453,11 +4495,18 @@ async def create_faq(request: Request):
             "text": text,
             "category": category,
             "slug": _make_slug(title),
-            "topic_tags": [],
+            "topic_tags": body.get("topic_tags") or [],
             "authority_level": "reference_faq",
             "era": "ww2",
             "platform": ["us_diesel_electric_submarines"],
         }
+        # Fields a draft may carry that the standard shape does not assume.
+        # museum_id is the one that matters: it scopes the record to a boat and
+        # survives acceptance, because it is a field and not a prefix.
+        for field in ("museum_id", "source", "slug", "display_order"):
+            value = str(body.get(field) or "").strip()
+            if value:
+                new_entry[field] = value
         FAQ_ALL.append(new_entry)
         _save_faq_corpus()
     return {"status": "created", "chunk_id": new_id}
@@ -4563,10 +4612,26 @@ async def reorder_faqs(request: Request):
 
 
 @app.post("/admin/faq/{chunk_id}/accept")
-def accept_faq(chunk_id: str):
-    """Promote a generated FAQ entry to an accepted faq_NNN entry."""
-    if chunk_id.split("_")[0] not in _GENERATED_PREFIXES:
-        raise HTTPException(status_code=400, detail="Only der_, pam_, fix_ entries can be accepted")
+async def accept_faq(chunk_id: str, request: Request):
+    """Promote a draft FAQ entry to an accepted faq_NNN entry.
+
+    An optional JSON body may carry accepted_by, recorded on the entry. Who
+    accepted a record is part of its provenance: "reviewed" with no reviewer
+    is a claim nobody can check.
+    """
+    allowed = _draft_prefixes()
+    if chunk_id.split("_")[0] not in allowed:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Only draft entries can be accepted; prefixes: {', '.join(sorted(allowed))}",
+        )
+    accepted_by = ""
+    try:
+        body = await request.json()
+        if isinstance(body, dict):
+            accepted_by = str(body.get("accepted_by") or "").strip()
+    except Exception:
+        accepted_by = ""
     entry = next((e for e in FAQ_ALL if e.get("chunk_id") == chunk_id), None)
     if not entry:
         raise HTTPException(status_code=404, detail=f"{chunk_id} not found")
@@ -4595,6 +4660,8 @@ def accept_faq(chunk_id: str):
         if entry.get("source") and not entry.get("original_source"):
             entry["original_source"] = entry["source"]
         entry["source"] = f"accepted_from_{old_id}"
+        if accepted_by:
+            entry["accepted_by"] = accepted_by
         entry["display_citation"] = f"SubmarineDocent FAQ — {entry.get('title', new_id)}"
         entry.pop("type", None)  # pam_ entries carry a spurious "type" key
         _save_faq_corpus()
@@ -4609,7 +4676,7 @@ def delete_faq(chunk_id: str):
     faq_ entries shown in the per-category editor, whose "Delete entry" button
     targets this endpoint.
     """
-    if chunk_id.split("_")[0] not in (_GENERATED_PREFIXES | {"faq"}):
+    if chunk_id.split("_")[0] not in (_draft_prefixes() | {"faq"}):
         raise HTTPException(status_code=400, detail="Only der_, pam_, fix_, faq_ entries can be deleted")
     with _faq_write_lock:
         idx = next((i for i, e in enumerate(FAQ_ALL) if e.get("chunk_id") == chunk_id), None)
