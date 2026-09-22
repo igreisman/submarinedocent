@@ -4984,9 +4984,12 @@ async def update_museum(museum_id: int, request: Request):
         # image the landing view shows is the same file whose attachment record
         # carries its provenance.  The credit travels with it or it does not
         # ship: a photograph without its credit is a rights problem.
+        # header_image_alt describes the photograph for a screen reader; the
+        # credit is provenance and does not do that job.
         for field in ("name", "designation", "location", "url", "website",
                       "tour_url", "description",
-                      "header_image_url", "header_image_credit"):
+                      "header_image_url", "header_image_credit",
+                      "header_image_alt"):
             if field in body:
                 value = (body[field] or "").strip()
                 if field in ("website", "url", "tour_url", "header_image_url") and value:
