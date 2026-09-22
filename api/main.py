@@ -5006,7 +5006,10 @@ def delete_museum(museum_id: int):
 
 _MUSEUM_PAGES_PATH = _editable_corpus_path("museum_pages.jsonl")
 _MUSEUM_UPLOADS_DIR = _editable_corpus_dir("museum_uploads")
-_MUSEUM_UPLOAD_ALLOWED_EXTS = {
+# Images are allowed so a page can carry a header photograph in its content;
+# the attachment record is what keeps the credit and the file together.
+_MUSEUM_UPLOAD_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+_MUSEUM_UPLOAD_ALLOWED_EXTS = _MUSEUM_UPLOAD_IMAGE_EXTS | {
     ".html", ".htm",
     ".doc", ".docx",
     ".xls", ".xlsx",
