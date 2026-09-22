@@ -297,10 +297,12 @@
       margin: 0;
     }
 
+    /* This page is dark (body #0d1117 / #e6edf3). These follow the palette the
+       page already uses for museum cards, not the light one faqs.html uses. */
     .museum-ask {
-      border: 1px solid #e1e4e8;
+      border: 1px solid #30363d;
       border-radius: 8px;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.04);
       padding: 16px;
       margin-bottom: 18px;
     }
@@ -308,10 +310,11 @@
     .museum-ask h3 {
       margin: 0 0 4px;
       font-size: 15px;
+      color: #e6edf3;
     }
 
     .museum-ask .ask-sub {
-      color: #6a737d;
+      color: #8b949e;
       font-size: 13px;
       margin: 0 0 12px;
     }
@@ -324,19 +327,34 @@
     .museum-ask-row input {
       flex: 1;
       padding: 9px 12px;
-      border: 1px solid #d0d7de;
+      border: 1px solid #30363d;
       border-radius: 6px;
       font-size: 14px;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    .museum-ask-row input::placeholder {
+      color: #6e7681;
+    }
+
+    .museum-ask-row input:focus {
+      outline: none;
+      border-color: #58a6ff;
     }
 
     .museum-ask-row button {
       padding: 9px 16px;
-      border: 1px solid #0366d6;
-      background: #0366d6;
+      border: 1px solid #2f81f7;
+      background: #1f6feb;
       color: #fff;
       border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
+    }
+
+    .museum-ask-row button:hover {
+      background: #2f81f7;
     }
 
     .museum-chips {
@@ -347,8 +365,9 @@
     }
 
     .museum-chip {
-      border: 1px solid #d0d7de;
-      background: #f6f8fa;
+      border: 1px solid #30363d;
+      background: rgba(255, 255, 255, 0.04);
+      color: #c9d1d9;
       border-radius: 999px;
       padding: 6px 12px;
       font-size: 13px;
@@ -357,29 +376,31 @@
     }
 
     .museum-chip:hover {
-      background: #eaeef2;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #58a6ff;
     }
 
     .museum-answer {
       margin-top: 14px;
       padding-top: 12px;
-      border-top: 1px solid #eef2f7;
+      border-top: 1px solid #30363d;
       font-size: 14px;
-      line-height: 1.55;
+      line-height: 1.7;
+      color: #c9d1d9;
     }
 
     .museum-answer .src {
       margin-top: 8px;
       font-size: 12px;
-      color: #6a737d;
+      color: #8b949e;
     }
 
     .faq-item {
-      border: 1px solid #e1e4e8;
+      border: 1px solid #30363d;
       border-radius: 8px;
       margin-bottom: 6px;
       overflow: hidden;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.03);
     }
 
     .faq-q {
@@ -391,12 +412,12 @@
       gap: 12px;
     }
 
-    .faq-q:hover { background: #f6f8fa; }
+    .faq-q:hover { background: rgba(255, 255, 255, 0.06); }
 
     .faq-q-text {
       font-size: 14px;
       font-weight: 600;
-      color: #0366d6;
+      color: #58a6ff;
       flex: 1;
       line-height: 1.4;
     }
@@ -411,11 +432,34 @@
     .faq-answer {
       display: none;
       padding: 0 16px 14px;
-      font-size: 14px;
-      line-height: 1.6;
+      border-top: 1px solid #21262d;
     }
 
     .faq-item.open .faq-answer { display: block; }
+
+    /* Scoped under .museum-body to beat ".museum-body p { margin: 0 }", which
+       is why the paragraphs ran together. Same spacing and weight faqs.html
+       gives an answer, in this page's colours. */
+    .museum-body .faq-answer p,
+    .museum-body .faq-answer li {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #c9d1d9;
+      margin: 12px 0 0;
+    }
+
+    .museum-body .faq-answer > *:first-child { margin-top: 12px; }
+
+    .museum-body .faq-answer ul,
+    .museum-body .faq-answer ol {
+      margin: 12px 0 0 20px;
+      padding-left: 20px;
+      color: #c9d1d9;
+    }
+
+    .museum-body .faq-answer li { margin-top: 8px; }
+
+    .museum-body .faq-answer a[href] { color: #58a6ff; }
 
     .detail-breadcrumb {
       display: flex;
