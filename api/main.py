@@ -4964,6 +4964,15 @@ async def update_museum(museum_id: int, request: Request):
     if target is None:
         raise HTTPException(status_code=404, detail="Museum not found")
     body = await request.json()
+    # Checked before anything is mutated: raising inside the lock would leave the
+    # in-memory record edited and unsaved.
+    prospective_url = (body.get("header_image_url", target.get("header_image_url")) or "").strip()
+    prospective_credit = (body.get("header_image_credit", target.get("header_image_credit")) or "").strip()
+    if prospective_url and not prospective_credit:
+        raise HTTPException(
+            status_code=400,
+            detail="header_image_url requires header_image_credit; a photograph ships with its credit or not at all",
+        )
     with _museums_write_lock:
         # "website" is what the records actually carry; "url" was in this list
         # without it, so editing a museum's website through the admin API was a
@@ -4971,11 +4980,16 @@ async def update_museum(museum_id: int, request: Request):
         # is a property of the museum rather than a link hardcoded in a page.
         if "slug" in body:
             target["slug"] = _clean_museum_slug(body.get("slug"), museums, self_id=museum_id)
+        # header_image_url points at an uploaded museum-page attachment, so the
+        # image the landing view shows is the same file whose attachment record
+        # carries its provenance.  The credit travels with it or it does not
+        # ship: a photograph without its credit is a rights problem.
         for field in ("name", "designation", "location", "url", "website",
-                      "tour_url", "description"):
+                      "tour_url", "description",
+                      "header_image_url", "header_image_credit"):
             if field in body:
                 value = (body[field] or "").strip()
-                if field in ("website", "url", "tour_url") and value:
+                if field in ("website", "url", "tour_url", "header_image_url") and value:
                     # Same rule as every other stored link: only http(s), and a
                     # site-relative path for a tour we host ourselves.
                     if not (_SAFE_LINK_SCHEME_RE.match(value) or value.startswith("/")):

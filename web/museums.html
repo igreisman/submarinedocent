@@ -508,6 +508,25 @@
       min-height: 300px;
     }
 
+    .museum-header-figure {
+      margin: 0 0 18px;
+    }
+
+    .museum-header-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+    }
+
+    .museum-header-figure figcaption {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #8b949e;
+      margin-top: 8px;
+    }
+
     .detail-attachments {
       display: grid;
       gap: 8px;
@@ -806,6 +825,18 @@
       return `<div class="detail-content">${esc(content)}</div>`;
     }
 
+    // A header photograph renders only with its credit.  The API refuses the
+    // pair half-set, and this is the same guarantee on the visitor's side.
+    function museumHeaderImageHtml(m) {
+      const url = (m.header_image_url || '').trim();
+      const credit = (m.header_image_credit || '').trim();
+      if (!url || !credit) return '';
+      return `<figure class="museum-header-figure">
+        <img src="${esc(url)}" alt="${esc(m.name)}">
+        <figcaption>${esc(credit)}</figcaption>
+      </figure>`;
+    }
+
     function renderAttachments(attachments) {
       if (!attachments || !attachments.length) return '';
       return `<div class="detail-attachments">${attachments.map(a => {
@@ -969,6 +1000,7 @@
         </div>
         <div class="museum-card">
           <div class="museum-body">
+            ${museumHeaderImageHtml(m)}
             <h2>${m.website
               ? `<a class="museum-name-link" href="${esc(m.website)}" target="_blank" rel="noopener">${esc(m.name)}<span class="ext-arrow">↗</span></a>`
               : esc(m.name)}</h2>
