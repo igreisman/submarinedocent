@@ -508,8 +508,42 @@
       min-height: 300px;
     }
 
+    /* The photograph sits beside the boat's description, not above it. The
+       text column takes what is left, so a museum with no header image is
+       laid out exactly as it was. */
+    .museum-intro {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    /* Only a museum that actually has a photograph gains the gap below the
+       intro. The other nineteen lay out exactly as they did before. */
+    .museum-intro:has(.museum-header-figure) {
+      margin-bottom: 18px;
+    }
+
+    .museum-intro-text {
+      flex: 1;
+      min-width: 0;
+    }
+
     .museum-header-figure {
-      margin: 0 0 18px;
+      flex: 0 0 38%;
+      max-width: 340px;
+      margin: 0;
+    }
+
+    @media (max-width: 720px) {
+      .museum-intro {
+        flex-direction: column;
+      }
+
+      .museum-header-figure {
+        flex: none;
+        max-width: none;
+        width: 100%;
+      }
     }
 
     .museum-header-figure img {
@@ -1004,13 +1038,17 @@
         </div>
         <div class="museum-card">
           <div class="museum-body">
-            ${museumHeaderImageHtml(m)}
-            <h2>${m.website
-              ? `<a class="museum-name-link" href="${esc(m.website)}" target="_blank" rel="noopener">${esc(m.name)}<span class="ext-arrow">↗</span></a>`
-              : esc(m.name)}</h2>
-            ${m.designation ? `<div class="designation">${esc(m.designation)}</div>` : ''}
-            ${m.location ? `<div class="designation">${esc(m.location)}</div>` : ''}
-            ${m.description ? `<p>${esc(m.description)}</p>` : ''}
+            <div class="museum-intro">
+              <div class="museum-intro-text">
+                <h2>${m.website
+                  ? `<a class="museum-name-link" href="${esc(m.website)}" target="_blank" rel="noopener">${esc(m.name)}<span class="ext-arrow">↗</span></a>`
+                  : esc(m.name)}</h2>
+                ${m.designation ? `<div class="designation">${esc(m.designation)}</div>` : ''}
+                ${m.location ? `<div class="designation">${esc(m.location)}</div>` : ''}
+                ${m.description ? `<p>${esc(m.description)}</p>` : ''}
+              </div>
+              ${museumHeaderImageHtml(m)}
+            </div>
             ${faqs.length ? museumAskHtml(m.id, faqs) : ''}
             ${renderMuseumArticles(m.id)}
             ${pages.length
