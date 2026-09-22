@@ -458,6 +458,15 @@
       return new URLSearchParams(location.search).get('page');
     }
 
+    // ?museum=<id> shows one museum instead of the list. /cod and the other
+    // short URLs redirect here, so this is the landing view for a boat.
+    function getMuseumId() {
+      const raw = new URLSearchParams(location.search).get('museum');
+      if (!raw) return null;
+      const id = parseInt(raw, 10);
+      return Number.isNaN(id) ? null : id;
+    }
+
     function navigate(pageId) {
       const url = pageId ? `?page=${pageId}` : location.pathname;
       history.pushState(null, '', url);
@@ -670,6 +679,35 @@
       }).join('');
     }
 
+    // One museum, its pages, and a way back to the list. An unknown id falls
+    // back to the list rather than showing an empty page: a bad slug should
+    // never leave a visitor looking at nothing with no way out.
+    function renderSingleMuseum(museumId) {
+      const m = findMuseum(museumId);
+      if (!m) { renderMuseumList(); return; }
+      const pages = pagesByMuseumId[m.id] || [];
+      main.innerHTML = `
+        <div class="detail-breadcrumb">
+          <a href="/web/museums.html">All museums</a>
+          <span class="sep">/</span>
+          <span class="current">${esc(m.name)}</span>
+        </div>
+        <div class="museum-card">
+          <div class="museum-body">
+            <h2>${m.website
+              ? `<a class="museum-name-link" href="${esc(m.website)}" target="_blank" rel="noopener">${esc(m.name)}<span class="ext-arrow">↗</span></a>`
+              : esc(m.name)}</h2>
+            ${m.designation ? `<div class="designation">${esc(m.designation)}</div>` : ''}
+            ${m.location ? `<div class="designation">${esc(m.location)}</div>` : ''}
+            ${m.description ? `<p>${esc(m.description)}</p>` : ''}
+            ${renderMuseumArticles(m.id)}
+            ${pages.length
+              ? renderTopPages(pages, m.id)
+              : '<p style="color:#8b949e">No pages yet for this boat.</p>'}
+          </div>
+        </div>`;
+    }
+
     function renderPageDetail(pageId) {
       const page = findPage(pageId);
       if (!page) { renderMuseumList(); return; }
@@ -717,9 +755,14 @@
       const pageId = getPageId();
       if (pageId) {
         renderPageDetail(pageId);
-      } else {
-        renderMuseumList();
+        return;
       }
+      const museumId = getMuseumId();
+      if (museumId !== null) {
+        renderSingleMuseum(museumId);
+        return;
+      }
+      renderMuseumList();
     }
 
     main.addEventListener('click', (e) => {

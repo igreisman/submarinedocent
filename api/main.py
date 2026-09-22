@@ -1953,11 +1953,15 @@ def intent_gate(text: str, intent: Dict[str, Any]) -> bool:
 Hit = Tuple[float, Dict[str, Any], str]
 
 
+MUSEUM_BOOST = float(os.getenv("MUSEUM_BOOST", "2.0"))
+
+
 def retrieve(
     question_text: str,
     compartment_id: str,
     playhead_time_ms: Optional[int] = None,
-    top_k: int = 8
+    top_k: int = 8,
+    museum_id: str = ""
 ) -> List[Hit]:
     """
     Local demo retriever:
@@ -2061,6 +2065,13 @@ def retrieve(
                     if normalized_question_text and normalized_question_text == normalized_title_text:
                         # Exact FAQ wording should outrank broader topical chunks.
                         effective_weight = max(effective_weight, weight * EXACT_TITLE_BOOST)
+
+            # Asked from a museum's own page, its records come first.  A boost
+            # and not a filter: a visitor on the Cod page still gets the shared
+            # corpus for general submarine questions, and would otherwise be
+            # stranded with only whatever has been written about one boat.
+            if museum_id and str(ch.get("museum_id") or "").strip() == museum_id:
+                effective_weight *= MUSEUM_BOOST
 
             # For comparison queries, strongly boost chunks that discuss both sides
             if intent.get("wants_mark_compare") and _has_both_marks(text):
@@ -4770,6 +4781,46 @@ def _save_museums() -> None:
     os.replace(tmp, _MUSEUMS_PATH)
 
 
+_MUSEUM_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+
+def _clean_museum_slug(raw: Any, museums: list, self_id: int | None = None) -> str:
+    """Validate a museum slug, or raise.
+
+    The slug becomes a top-level URL, so it is checked rather than sanitised:
+    silently rewriting what a curator typed would give them a page at an
+    address they did not choose and cannot guess.  Two museums answering to
+    one slug is worse still -- the second is unreachable and nothing says so.
+    """
+    slug = str(raw or "").strip().lower()
+    if not slug:
+        return ""
+    if not _MUSEUM_SLUG_RE.match(slug):
+        raise HTTPException(
+            status_code=400,
+            detail="slug must be lowercase letters, digits and hyphens, starting with a letter or digit",
+        )
+    for m in museums:
+        if self_id is not None and int(m.get("id") or 0) == self_id:
+            continue
+        if str(m.get("slug") or "").strip().lower() == slug:
+            raise HTTPException(
+                status_code=409,
+                detail=f"slug {slug!r} is already used by museum {m.get('id')}",
+            )
+    return slug
+
+
+def _museum_by_slug(slug: str) -> Optional[Dict[str, Any]]:
+    slug = (slug or "").strip().lower()
+    if not slug:
+        return None
+    for m in _load_museums():
+        if str(m.get("slug") or "").strip().lower() == slug:
+            return m
+    return None
+
+
 def _next_museum_id(museums: list) -> int:
     existing = [int(m.get("id") or 0) for m in museums]
     return max(existing) + 1 if existing else 1
@@ -4794,6 +4845,7 @@ async def create_museum(request: Request):
         "location": (body.get("location") or "").strip(),
         "url": (body.get("url") or "").strip(),
         "description": (body.get("description") or "").strip(),
+        "slug": _clean_museum_slug(body.get("slug"), museums),
     }
     with _museums_write_lock:
         museums.append(new_entry)
@@ -4813,6 +4865,8 @@ async def update_museum(museum_id: int, request: Request):
         # without it, so editing a museum's website through the admin API was a
         # silent no-op.  tour_url points at that museum's audio tour, so a tour
         # is a property of the museum rather than a link hardcoded in a page.
+        if "slug" in body:
+            target["slug"] = _clean_museum_slug(body.get("slug"), museums, self_id=museum_id)
         for field in ("name", "designation", "location", "url", "website",
                       "tour_url", "description"):
             if field in body:
@@ -5365,12 +5419,14 @@ def ask(payload: dict):
     question = (payload.get("question_text") or "").strip()
     compartment = (payload.get("compartment_id") or "").strip()
     playhead_time_ms = int(payload.get("playhead_time_ms") or 0)
+    museum_id = str(payload.get("museum_id") or "").strip()
 
     hits = retrieve(
         question_text=question,
         compartment_id=compartment,
         playhead_time_ms=playhead_time_ms,
-        top_k=8
+        top_k=8,
+        museum_id=museum_id
     )
 
     if not hits:
@@ -5397,3 +5453,16 @@ def ask(payload: dict):
         )
 
     return synthesize_extractive(question_text=question, hits=hits)
+
+# ── Museum short URLs ────────────────────────────────────────────────────────
+# Registered LAST on purpose.  FastAPI matches routes in registration order, and
+# a single-segment path parameter placed earlier would shadow /health, /ask,
+# /faqs, /videos, /glossary and every other short route in this file.  Anything
+# that is not a known museum slug falls through to a 404, which is what an
+# unmatched single-segment path did before this existed.
+@app.get("/{museum_slug}", include_in_schema=False)
+def redirect_museum_slug(museum_slug: str):
+    museum = _museum_by_slug(museum_slug)
+    if museum is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    return RedirectResponse(url=f"/web/museums.html?museum={museum.get('id')}")
