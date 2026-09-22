@@ -3113,32 +3113,61 @@ def _get_category_records() -> list[dict[str, Any]]:
     return sorted(records.values(), key=lambda e: (int(e.get("sort_order") or 0), e.get("title", "").lower()))
 
 
-def _ensure_category_exists(category: str) -> None:
-    title = (category or "").strip()
-    if not title:
-        return
-    if any((entry.get("title") or entry.get("name") or "").strip() == title for entry in CATEGORIES):
+# A write may only use a value the corpus already knows.  These were silently
+# accepted until 2026-09-22: eleven of the first twenty USS Cod records named a
+# category that does not exist, always by dropping the spaces from "U. S.", and
+# every one of them named a doc_type, authority_level and platform the corpus
+# has never used.  Nothing rejected any of it.  A bad category was worse than a
+# dangling reference, because _ensure_category_exists() created it: the corpus
+# would have grown a second, near-identical category and the dashboard would
+# have shown both.
+_FAQ_FIELD_VOCABULARY: Dict[str, set] = {
+    "doc_type": {"dieselsubs_faq"},
+    "authority_level": {"reference_faq"},
+    "era": {"ww2"},
+}
+
+
+def _known_category_titles() -> List[str]:
+    return sorted(
+        t for t in (
+            (entry.get("title") or entry.get("name") or "").strip()
+            for entry in CATEGORIES
+        ) if t
+    )
+
+
+def _validate_faq_write(body: Dict[str, Any]) -> None:
+    """Reject a value outside the corpus vocabulary, naming what is allowed.
+
+    Only fields actually present are checked, so a partial update stays
+    partial.  An empty value is allowed: seven fix_ records carry no category
+    and editing one must not force a value on it.
+    """
+    if not isinstance(body, dict):
         return
 
-    existing_ids = [int(entry.get("category_id")) for entry in CATEGORIES if str(entry.get("category_id", "")).isdigit()]
-    existing_orders = [int(entry.get("sort_order") or 0) for entry in CATEGORIES]
-    next_id = max(existing_ids) + 1 if existing_ids else 1
-    next_order = max(existing_orders) + 10 if existing_orders else 0
-    CATEGORIES.append({
-        "chunk_id": f"faq_category_{next_id}",
-        "doc_type": "dieselsubs_faq_category",
-        "source": "manual_editor",
-        "category_id": next_id,
-        "title": title,
-        "slug": _make_slug(title),
-        "description": "",
-        "text": title,
-        "sort_order": next_order,
-        "era": "ww2",
-        "platform": ["us_diesel_electric_submarines"],
-        "display_citation": f"SubmarineDocent FAQ Category — {title}",
-    })
-    _save_categories_corpus()
+    for field, allowed in _FAQ_FIELD_VOCABULARY.items():
+        if field not in body:
+            continue
+        value = str(body.get(field) or "").strip()
+        if value and value not in allowed:
+            raise HTTPException(
+                status_code=400,
+                detail=f"{field} must be one of: {', '.join(sorted(allowed))}. Got {value!r}.",
+            )
+
+    if "category" in body:
+        category = str(body.get("category") or "").strip()
+        if category and category not in _known_category_titles():
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"category {category!r} is not defined. Valid categories: "
+                    + "; ".join(_known_category_titles())
+                    + ". Create a category through /admin/faq-categories first."
+                ),
+            )
 
 
 @app.get("/admin/generated-faqs")
@@ -4460,8 +4489,7 @@ async def create_faq(request: Request):
     if not title or not text:
         raise HTTPException(status_code=400, detail="title and text are required")
     with _faq_write_lock:
-        with _category_write_lock:
-            _ensure_category_exists(category)
+        _validate_faq_write(body)
         faq_nums = [
             int(e["chunk_id"].split("_")[1])
             for e in FAQ_ALL
@@ -4522,9 +4550,7 @@ async def update_faq(chunk_id: str, request: Request):
     if not entry:
         raise HTTPException(status_code=404, detail=f"{chunk_id} not found")
     with _faq_write_lock:
-        with _category_write_lock:
-            if "category" in body:
-                _ensure_category_exists(body.get("category") or "")
+        _validate_faq_write(body)
         if title:
             entry["title"] = title
         if text:
