@@ -28,7 +28,7 @@ human has read. See Withheld below.
 | `dieselsubs_faq_categories.jsonl` | 13 | Category names, from the dieselsubs.com FAQ structure — his own site. | **CC BY 4.0** |
 | `eternal_patrol.jsonl` | 65 | Lost-boat records written by Irving Greisman. **References photographs** in `web/images/extracted/`. | Text **CC BY 4.0**. **Photographs are not** — see below. |
 | `incidents.jsonl` | 16 | Written by Irving Greisman. | **CC BY 4.0** |
-| `museums.jsonl`, `museum_pages.jsonl` | 20, 0 | Museum directory written by Irving Greisman. | **CC BY 4.0** |
+| `museums.jsonl`, `museum_pages.jsonl` | 20, 2 | Museum directory and per-museum pages written by Irving Greisman. **References a header photograph** in `museum_uploads/`. | Text **CC BY 4.0**. **The photograph is not**, see below. |
 | `videos.jsonl` | 99 | Catalogue records — titles, descriptions, categories, tags, ordering — written by Irving Greisman. They point at video hosted elsewhere, mostly YouTube. | Records **CC BY 4.0**. **The video is not** — see below. |
 | `dieselsubs_glossary.jsonl` | 204 | Written by Dwight Naset. | **CC BY 4.0**, released by him 18 September 2026. Credit Dwight Naset, not submarinedocent.org. |
 | `dieselsubs_fleetsub_manual.jsonl` | 2,189 | *Fleet Type Submarine* manual series, US Navy, 1946. | **Public domain** — US federal government work. Not ours to license. |
@@ -80,6 +80,24 @@ Credits render beneath the image on the lost-boat page. The default,
 — NavSource aggregates from many contributors — and is **not** a claim about who
 holds the rights. Where a contributor is identified, name them in the credit
 field instead; the admin editor accepts these fields.
+
+A museum's header photograph is carried in `museums.jsonl` in three fields:
+
+```
+header_image_url → header_image_credit, header_image_alt
+```
+
+The file itself sits in `museum_uploads/<page id>/`, and the same file is
+recorded as an attachment on that museum's page in `museum_pages.jsonl`. The
+attachment record is what ties the image to its provenance. A record with a
+`header_image_url` and no `header_image_credit` is rejected on write and renders
+nothing, so a header photograph cannot reach a visitor uncredited.
+
+The one shipped here, `museum_uploads/1/1_NH-79761-USS-Cod.jpg`, is a U.S. Navy
+photograph held by the Naval History and Heritage Command as NH 79761, courtesy
+of D.M. McPherson. As a work of the United States government it is in the public
+domain, which is why it can ship at all. Most photographs this project uses are
+not, which is why they carry per-image credits and sit outside the grant.
 
 ## Withheld
 

@@ -72,9 +72,18 @@ Known sources:
     reads "Photo via NavSource Naval History", which records the route the
     image reached us by and not a claim about who holds the rights.
 
-    web/images/extracted/ is the only image directory in this repository.
-    Untraced images that were never published on the site were removed from
-    the tree rather than shipped with unresolved provenance.
+  - corpora/museum_uploads/ — header photographs for the museum pages. The
+    only one here, corpora/museum_uploads/1/1_NH-79761-USS-Cod.jpg, is a US
+    Navy photograph held by the Naval History and Heritage Command as NH
+    79761, courtesy of D.M. McPherson. As a work of the United States
+    government it is in the public domain, which is why it ships. Each museum
+    record carries its credit in a header_image_credit field, rendered beneath
+    the image; a header photograph with no credit is refused on write and is
+    not displayed.
+
+    These two are the only image directories in this repository. Untraced
+    images that were never published on the site were removed from the tree
+    rather than shipped with unresolved provenance.
 
 If you hold rights in any photograph here and want it credited differently or
 removed, contact us and we will act on it. See SECURITY.md for contact details.
