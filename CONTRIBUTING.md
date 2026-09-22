@@ -16,13 +16,17 @@ record looks like this:
 ```json
 {
   "chunk_id": "faq_591",
+  "doc_type": "dieselsubs_faq",
   "title": "Is a submarine a boat or a ship?",
   "text": "<p>Most often the difference between boats and ships is based on size...</p>",
   "category": "Hull and Compartments",
   "source": "dieselsubs.com FAQ",
   "display_citation": "DieselSubs FAQ — Is a submarine a boat or a ship?",
+  "slug": "is-a-submarine-a-boat-or-a-ship",
   "topic_tags": ["submarine", "boat"],
-  "era": "ww2"
+  "authority_level": "reference_faq",
+  "era": "ww2",
+  "platform": ["us_diesel_electric_submarines"]
 }
 ```
 
@@ -30,6 +34,55 @@ record looks like this:
 match is weighted heavily — so the title should read like the question someone
 would actually ask, not like a heading. `text` is HTML. `source` says where the
 material came from and is not decoration: it is what a provenance audit reads.
+
+### Fields with a fixed vocabulary
+
+These take one of a fixed set of values. A value outside the set is not
+rejected on write, it just fails quietly later, so copy them exactly.
+
+| Field | Allowed value |
+|---|---|
+| `doc_type` | `dieselsubs_faq` |
+| `authority_level` | `reference_faq` |
+| `era` | `ww2` |
+| `platform` | `["us_diesel_electric_submarines"]` |
+
+`era` is `ww2` on every record, including ones about a boat's postwar life.
+There is no `postwar` value. If one is ever needed it has to be added
+deliberately, because nothing filters on `era` today and a second value that
+nothing reads is a value nobody maintains.
+
+Do not add `pampanito_specific`. It exists on 28 older records and is set on
+no new ones.
+
+### Categories
+
+`category` must match one of these **exactly**, including the spaces after the
+full stops in `U. S.` The dashboard groups by this string, so a near miss puts
+the record in a category that does not exist and nothing says so.
+
+```
+Attacks and Battles, Small and Large
+Boat Histories
+Crews Aboard U. S. Subs in WW2
+Diving and Surfacing
+Guns
+Hull and Compartments
+Japanese Submarines and Torpedoes
+Life Aboard U. S. WW2 Subs
+Navigation
+Operating U. S. Subs in WW2
+Pampanito War Patrols
+Torpedoes
+U. S. WW2 Subs in General
+```
+
+`U. S. WW2 Subs in General`, `Operating U. S. Subs in WW2` and `Crews Aboard
+U. S. Subs in WW2` are the three that get mistyped, always by dropping the
+spaces. `Boat Histories` covers the history of any boat, not one in particular.
+
+The authoritative list is `corpora/dieselsubs_faq_categories.jsonl`. If these
+disagree, that file wins and this one is stale.
 
 ### The review gate
 
