@@ -81,6 +81,13 @@ jobs:
       - name: Video enrichment regression test
         run: python3 _test/test_video_enrichment.py
 
+      # Runs against the real corpora, not sample content: the point is that
+      # every shipped FAQ answers its own question.
+      - name: FAQ self-retrieval test
+        run: python3 _test/test_faq_self_retrieval.py
+        env:
+          CONTENT_ROOT: corpora
+
       - name: Stop app
         if: always()
         run: |

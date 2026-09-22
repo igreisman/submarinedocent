@@ -1096,8 +1096,14 @@ def tokenize(text: str) -> List[str]:
 # one of these phrases we drop the ambiguous word from the query tokens so it
 # doesn't match unrelated corpus content (e.g. "battery" → electrical cells).
 _COMPARTMENT_AMBIGUOUS_TOKENS: List[Tuple[re.Pattern, str]] = [
-    (re.compile(r"\bafter\s+battery\b", re.I), "battery"),
-    (re.compile(r"\bforward\s+battery\b", re.I), "battery"),
+    # The two "battery" rules were removed on 22 September 2026.  They dropped
+    # the token "battery" from any question naming the after or forward
+    # battery, to stop it pulling storage-cell chunks when the visitor meant
+    # the compartment.  That mattered while the tour corpus carried
+    # compartment-tagged chunks; it does not now.  What it did instead was
+    # empty the token list for "What is in the after battery?", whose only
+    # surviving token was "battery", so nothing could score and the question
+    # returned no answer at all.
     # "hot" in "hot bunk/bunking" means the practice, not temperature
     (re.compile(r"\bhot[\s-]bunk", re.I), "hot"),
 ]
@@ -1994,7 +2000,19 @@ def retrieve(
                 continue
 
             text = ch.get("text", "") or ""
+            title_text = _get_chunk_title(ch, text)
+
+            # Score on the better of title and body.  Gating on the body alone
+            # discarded a chunk whose *title* answered the question outright,
+            # before any of the title boosts below could run: "What do you mean
+            # when you say this is what was considered a submarine?" reduces to
+            # the tokens mean/say/considered, none of which appear in that
+            # record's body, so it scored zero and was dropped while a record
+            # about missiles answered instead.  An FAQ title is the question a
+            # visitor asks, so a match there is evidence, not noise.
             s = overlap_score(q_tokens, text)
+            if title_text:
+                s = max(s, overlap_score(q_tokens, title_text))
             if s <= 0:
                 continue
 
@@ -2008,7 +2026,6 @@ def retrieve(
             # specific title like "What is a torpedo?" (coverage=1.0) beats
             # "What is in the after torpedo room?" (coverage=0.33) even when
             # both contain the only query token "torpedo".
-            title_text = _get_chunk_title(ch, text)
             if title_text:
                 title_toks = set(tokenize(title_text))
                 q_set = set(q_tokens)
