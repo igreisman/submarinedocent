@@ -83,6 +83,9 @@ jobs:
 
       # Runs against the real corpora, not sample content: the point is that
       # every shipped FAQ answers its own question.
+      - name: FAQ write validation test
+        run: python3 _test/test_faq_write_validation.py
+
       - name: Acceptance provenance test
         run: python3 _test/test_accept_preserves_provenance.py
 
