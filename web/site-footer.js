@@ -13,7 +13,7 @@
  * end of <body>, after whatever content is already there.
  */
 const SiteFooter = (() => {
-  const COPY = '&copy; subdocent.com';
+  const COPY = '&copy; submarinedocent.org';
   const SOURCE_URL = 'https://github.com/igreisman/submarinedocent';
 
   function _flashBtn(btn) {

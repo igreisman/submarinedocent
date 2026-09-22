@@ -297,6 +297,126 @@
       margin: 0;
     }
 
+    .museum-ask {
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      background: #fff;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .museum-ask h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+    }
+
+    .museum-ask .ask-sub {
+      color: #6a737d;
+      font-size: 13px;
+      margin: 0 0 12px;
+    }
+
+    .museum-ask-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .museum-ask-row input {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .museum-ask-row button {
+      padding: 9px 16px;
+      border: 1px solid #0366d6;
+      background: #0366d6;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .museum-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .museum-chip {
+      border: 1px solid #d0d7de;
+      background: #f6f8fa;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .museum-chip:hover {
+      background: #eaeef2;
+    }
+
+    .museum-answer {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #eef2f7;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .museum-answer .src {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #6a737d;
+    }
+
+    .faq-item {
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .faq-q {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      cursor: pointer;
+      gap: 12px;
+    }
+
+    .faq-q:hover { background: #f6f8fa; }
+
+    .faq-q-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0366d6;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .faq-chevron {
+      color: #8b949e;
+      transition: transform .15s;
+    }
+
+    .faq-item.open .faq-chevron { transform: rotate(90deg); }
+
+    .faq-answer {
+      display: none;
+      padding: 0 16px 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .faq-item.open .faq-answer { display: block; }
+
     .detail-breadcrumb {
       display: flex;
       flex-wrap: wrap;
@@ -682,10 +802,121 @@
     // One museum, its pages, and a way back to the list. An unknown id falls
     // back to the list rather than showing an empty page: a bad slug should
     // never leave a visitor looking at nothing with no way out.
-    function renderSingleMuseum(museumId) {
+    // Ask the Docent, scoped to this boat: /ask is given museum_id so records
+    // carrying it are boosted, and the suggestion chips are drawn from that
+    // boat's own entries rather than written by hand, so they cannot drift out
+    // of step with what the corpus can actually answer.
+    async function askForMuseum(museumId, question) {
+      const out = document.getElementById('museum-answer');
+      if (!out || !question.trim()) return;
+      out.innerHTML = '<span style="color:#6a737d">Asking\u2026</span>';
+      try {
+        const res = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question_text: question.trim(),
+            museum_id: String(museumId),
+            compartment_id: '',
+            playhead_time_ms: 0
+          })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const answer = (data.answer_short || '').trim();
+        if (!answer) { out.textContent = 'No answer came back for that one.'; return; }
+        const cite = (data.citations && data.citations[0]) || null;
+        out.innerHTML = `<div>${esc(answer).replace(/\n+/g, '<br><br>')}</div>`
+          + (cite && cite.display_citation
+            ? `<div class="src">${esc(cite.display_citation)}</div>` : '');
+      } catch (err) {
+        out.innerHTML = `<span style="color:#c0392b">Could not reach the docent: ${esc(err.message)}</span>`;
+      }
+    }
+
+    function museumAskHtml(museumId, faqs) {
+      const chips = faqs.slice(0, 3).map(f =>
+        `<button type="button" class="museum-chip" data-ask="${esc(f.title)}">${esc(f.title)}</button>`
+      ).join('');
+      return `
+        <div class="museum-ask">
+          <h3>Ask about this boat</h3>
+          <p class="ask-sub">Answers come from this boat's entries first, then the wider corpus.</p>
+          ${chips ? `<div class="museum-chips">${chips}</div>` : ''}
+          <div class="museum-ask-row">
+            <input id="museum-ask-input" type="search" placeholder="Ask a question\u2026" autocomplete="off">
+            <button id="museum-ask-btn" type="button">Ask</button>
+          </div>
+          <div id="museum-answer"></div>
+        </div>`;
+    }
+
+    // Same accordion as faqs.html, so a visitor can read every entry without
+    // asking anything.
+    function museumFaqListHtml(faqs) {
+      if (!faqs.length) return '';
+      return `<h3 style="margin:22px 0 10px;font-size:15px">All ${faqs.length} questions about this boat</h3>`
+        + faqs.map(f => `
+          <div class="faq-item" data-faq="${esc(f.id)}">
+            <div class="faq-q" role="button" aria-expanded="false">
+              <span class="faq-q-text">${esc(f.title)}</span>
+              <span class="faq-chevron">&#9654;</span>
+            </div>
+            <div class="faq-answer">${f.answer || ''}</div>
+          </div>`).join('');
+    }
+
+    function wireMuseumView(museumId) {
+      const input = document.getElementById('museum-ask-input');
+      const btn = document.getElementById('museum-ask-btn');
+      if (btn && input) {
+        btn.addEventListener('click', () => askForMuseum(museumId, input.value));
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') askForMuseum(museumId, input.value);
+        });
+      }
+      main.querySelectorAll('.museum-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          if (input) input.value = chip.dataset.ask;
+          askForMuseum(museumId, chip.dataset.ask);
+        });
+      });
+      main.querySelectorAll('.faq-item').forEach(item => {
+        const q = item.querySelector('.faq-q');
+        q.addEventListener('click', () => {
+          const open = item.classList.toggle('open');
+          q.setAttribute('aria-expanded', String(open));
+        });
+      });
+    }
+
+    async function renderSingleMuseum(museumId) {
       const m = findMuseum(museumId);
       if (!m) { renderMuseumList(); return; }
       const pages = pagesByMuseumId[m.id] || [];
+
+      let faqs = [];
+      try {
+        const res = await fetch(`/api/faqs?museum_id=${encodeURIComponent(m.id)}`);
+        if (res.ok) {
+          const groups = await res.json();
+          // Flattened and ordered by display_order, not by category: for one
+          // boat that is the order the entries were written in, which is what
+          // decides the three chips and how the list reads.
+          faqs = groups.flatMap(g => g.faqs || []).sort((a, b) => {
+            const av = parseInt(a.display_order, 10);
+            const bv = parseInt(b.display_order, 10);
+            if (Number.isNaN(av) && Number.isNaN(bv)) return 0;
+            if (Number.isNaN(av)) return 1;
+            if (Number.isNaN(bv)) return -1;
+            return av - bv;
+          });
+        }
+      } catch (err) {
+        // A failed fetch costs the ask box and the list, not the whole page.
+        faqs = [];
+      }
+
       main.innerHTML = `
         <div class="detail-breadcrumb">
           <a href="/web/museums.html">All museums</a>
@@ -700,12 +931,15 @@
             ${m.designation ? `<div class="designation">${esc(m.designation)}</div>` : ''}
             ${m.location ? `<div class="designation">${esc(m.location)}</div>` : ''}
             ${m.description ? `<p>${esc(m.description)}</p>` : ''}
+            ${faqs.length ? museumAskHtml(m.id, faqs) : ''}
             ${renderMuseumArticles(m.id)}
             ${pages.length
               ? renderTopPages(pages, m.id)
               : '<p style="color:#8b949e">No pages yet for this boat.</p>'}
+            ${museumFaqListHtml(faqs)}
           </div>
         </div>`;
+      wireMuseumView(m.id);
     }
 
     function renderPageDetail(pageId) {

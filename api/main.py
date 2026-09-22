@@ -3733,8 +3733,16 @@ async def upload_admin_eternal_patrol_image(
 
 
 @app.get("/api/faqs")
-def public_faqs():
-    """Return all published faq_ entries grouped by category, for the public FAQ page."""
+def public_faqs(museum_id: str = ""):
+    """Published faq_ entries grouped by category, for the public FAQ page.
+
+    ``museum_id`` narrows the result to records scoped to one boat, which is
+    what a museum page needs: twenty records rather than the whole corpus, and
+    no filtering in the browser over a payload it would have to download first.
+    Each entry carries its own museum_id so a client can tell scoped records
+    from shared ones.
+    """
+    wanted_museum = str(museum_id or "").strip()
     from collections import defaultdict
 
     def _display_order_key(entry: dict[str, Any]) -> tuple[int, int | str]:
@@ -3747,6 +3755,8 @@ def public_faqs():
     groups: dict[str, list] = defaultdict(list)
     for e in FAQ:
         if not e.get("chunk_id", "").startswith("faq_"):
+            continue
+        if wanted_museum and str(e.get("museum_id") or "").strip() != wanted_museum:
             continue
         title = e.get("title", "")
         # The stored ``text`` field holds the answer HTML only; the question is
@@ -3767,6 +3777,7 @@ def public_faqs():
                 "video": _video_payload(e),
                 "related_links": _related_links_payload(e),
                 "display_order": e.get("display_order"),
+                "museum_id": str(e.get("museum_id") or "").strip(),
             }
         )
     for cat, faqs in groups.items():
