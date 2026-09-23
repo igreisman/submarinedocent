@@ -492,7 +492,32 @@ if os.path.isdir(WEB_DIR):
         return RedirectResponse(url="/web/faqs.html")
 
 
-    app.mount("/web", StaticFiles(directory=WEB_DIR, html=True), name="web")
+    class _RevalidatingStaticFiles(StaticFiles):
+        """Static files a browser must revalidate before reusing.
+
+        StaticFiles sends ETag and Last-Modified but no Cache-Control, which
+        leaves the browser to invent a freshness lifetime: roughly a tenth of
+        the file's age. A page last deployed a day ago is therefore treated as
+        fresh for a couple of hours, so a visitor who loaded it before a deploy
+        keeps the stale copy and never asks us for the new one. That is how a
+        change that shipped correctly can be invisible to the person who asked
+        for it, with nothing wrong on the server to find.
+
+        "no-cache" does not mean do not cache. It means revalidate first, which
+        the ETag already answers with a 304 and almost no bytes. Images and
+        fonts are left alone: they are replaced by adding a file, not by editing
+        one in place.
+        """
+
+        _MUST_REVALIDATE = (".html", ".js", ".css", ".json")
+
+        def file_response(self, full_path, *args, **kwargs):
+            response = super().file_response(full_path, *args, **kwargs)
+            if str(full_path).lower().endswith(self._MUST_REVALIDATE):
+                response.headers["Cache-Control"] = "no-cache"
+            return response
+
+    app.mount("/web", _RevalidatingStaticFiles(directory=WEB_DIR, html=True), name="web")
 ETERNAL_PATROL_IMAGE_DIR = os.path.join(WEB_DIR, "images", "extracted")
 
 SHORTS_PATH = os.path.join(CORPORA_DIR, "dieselsubs_shorts_corpus.jsonl")
