@@ -4479,9 +4479,12 @@ def public_videos():
     out.sort(key=_order_key)
 
     # Grouped by category, mirroring the shape /api/faqs returns. There is no
-    # separate category corpus for videos, so a category's position follows the
-    # lowest display_order among its videos: ordering one video ahead of another
-    # moves its section too, rather than needing a second thing to maintain.
+    # separate category corpus for videos, so the sections are ordered by name
+    # rather than by anything a curator sets: display_order sequences the videos
+    # WITHIN a section and has no bearing on where that section appears.
+    # (This comment previously claimed a category's position followed the lowest
+    # display_order among its videos. It never did, and the claim cost a wrong
+    # decision about where a new category would land.)
     groups: Dict[str, List[Dict[str, Any]]] = {}
     for item in out:
         for category_name in item.get("categories") or [item["category"]]:
