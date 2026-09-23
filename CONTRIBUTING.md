@@ -84,6 +84,27 @@ spaces. `Boat Histories` covers the history of any boat, not one in particular.
 The authoritative list is `corpora/dieselsubs_faq_categories.jsonl`. If these
 disagree, that file wins and this one is stale.
 
+### Ordering a video series
+
+Videos live in `corpora/videos.jsonl` and carry a `display_order`. Within a
+category the numbers set the running order, and a category's own position on
+the videos page follows the lowest `display_order` among its videos, so
+renumbering one video can move its whole section.
+
+**Order compartment tours the way the boat's visitors walk it**, bow to stern,
+not by upload date and not by part number where the two disagree. Someone
+watching the series before a visit is rehearsing the walk they are about to
+take; someone watching after it is retracing one. Either way the sequence on
+the screen should be the sequence through the hull.
+
+Where a tour carries its own part numbers and they already run bow to stern,
+follow them. Where a boat's series was filmed out of order, the hull wins.
+
+Compartment tags use the compartment ids in `_COMPARTMENT_QUERY_MAP` in
+`api/main.py`, for example `forward_torpedo_room` or `after_battery`. If a
+space has no id there, leave the tag off and say so rather than reaching for
+the nearest one: `after_engine_room` is not the maneuvering room.
+
 ### The review gate
 
 The `chunk_id` prefix says how far through review a record is, and retrieval

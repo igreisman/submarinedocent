@@ -29,7 +29,7 @@ human has read. See Withheld below.
 | `eternal_patrol.jsonl` | 65 | Lost-boat records written by Irving Greisman. **References photographs** in `web/images/extracted/`. | Text **CC BY 4.0**. **Photographs are not** — see below. |
 | `incidents.jsonl` | 16 | Written by Irving Greisman. | **CC BY 4.0** |
 | `museums.jsonl`, `museum_pages.jsonl` | 20, 2 | Museum directory and per-museum pages written by Irving Greisman. **References a header photograph** in `museum_uploads/`. | Text **CC BY 4.0**. **The photograph is not**, see below. |
-| `videos.jsonl` | 99 | Catalogue records — titles, descriptions, categories, tags, ordering — written by Irving Greisman. They point at video hosted elsewhere, mostly YouTube. | Records **CC BY 4.0**. **The video is not** — see below. |
+| `videos.jsonl` | 108 | Catalogue records — titles, descriptions, categories, tags, ordering — written by Irving Greisman. They point at video hosted elsewhere, mostly YouTube. | Records **CC BY 4.0**. **The video is not** — see below. |
 | `dieselsubs_glossary.jsonl` | 204 | Written by Dwight Naset. | **CC BY 4.0**, released by him 18 September 2026. Credit Dwight Naset, not submarinedocent.org. |
 | `dieselsubs_fleetsub_manual.jsonl` | 2,189 | *Fleet Type Submarine* manual series, US Navy, 1946. | **Public domain** — US federal government work. Not ours to license. |
 | `dieselsubs_sub_losses_wwii.jsonl` | 9 | *United States Submarine Losses, World War II*, US Navy, 1946. | **Public domain** — US federal government work. Not ours to license. |
