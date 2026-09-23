@@ -1139,6 +1139,10 @@ _COMPARTMENT_QUERY_MAP: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\bward\s*room\b", re.I),               "wardroom"),
     (re.compile(r"\bgalley\b", re.I),                    "galley"),
     (re.compile(r"\bknife\s+&\s+fork\b|\bdining\b", re.I), "wardroom"),
+    # Topside is the whole main deck and superstructure rather than one end of
+    # it, so it is its own id: forward_deck and after_deck each name half.
+    (re.compile(r"\btopside\b", re.I),                  "topside"),
+    (re.compile(r"\b(?:maneuvering|manoeuvring)\s+room\b", re.I), "maneuvering_room"),
 ]
 
 
