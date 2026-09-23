@@ -561,6 +561,181 @@
       margin-top: 8px;
     }
 
+    /* The shared card from /web/video-card.js. Same class names as the
+       Videos page, this page's colours: that page is light and this one is
+       dark, and copying its values wholesale is what put grey text on white
+       in the FAQ accordion. */
+    .museum-videos {
+      margin-top: 26px;
+    }
+
+    .museum-videos h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      color: #e6edf3;
+    }
+
+    .video-card {
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .video-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .video-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .video-thumb {
+      position: relative;
+      padding: 0;
+      border: 0;
+      background: #0d1117;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-thumb-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #8b949e;
+      font-size: 13px;
+    }
+
+    .video-thumb-play {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .video-title {
+      margin: 0 0 4px;
+      font-size: 15px;
+      color: #e6edf3;
+    }
+
+    .video-channel {
+      font-size: 12px;
+      color: #8b949e;
+      margin-bottom: 8px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .video-channel a { color: #58a6ff; text-decoration: none; }
+    .video-channel a:hover { text-decoration: underline; }
+
+    .video-description {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #c9d1d9;
+    }
+
+    .video-description.is-clamped {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-more {
+      margin-top: 4px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: #58a6ff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .video-rights {
+      font-size: 11px;
+      color: #8b949e;
+      margin-top: 6px;
+    }
+
+    .video-meta { font-size: 11px; color: #8b949e; margin-top: 6px; }
+    .video-meta a { color: #58a6ff; }
+    .video-meta.is-collapsed { display: none; }
+
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(1, 4, 9, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+
+    .video-modal.is-open { display: flex; }
+
+    .video-modal-dialog {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      width: min(900px, 100%);
+      overflow: hidden;
+    }
+
+    .video-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #21262d;
+    }
+
+    .video-modal-title { margin: 0; font-size: 14px; color: #e6edf3; }
+
+    .video-modal-close {
+      background: none;
+      border: 0;
+      color: #8b949e;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .video-modal-player { aspect-ratio: 16 / 9; background: #000; }
+    .video-modal-player iframe,
+    .video-modal-player video { width: 100%; height: 100%; border: 0; display: block; }
+
     .detail-attachments {
       display: grid;
       gap: 8px;
@@ -615,6 +790,17 @@
   <main id="main">
   </main>
 
+  <div id="video-modal" class="video-modal" aria-hidden="true">
+    <div class="video-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
+      <div class="video-modal-head">
+        <h2 id="video-modal-title" class="video-modal-title"></h2>
+        <button id="video-modal-close" class="video-modal-close" type="button" aria-label="Close video">&times;</button>
+      </div>
+      <div id="video-modal-player" class="video-modal-player"></div>
+    </div>
+  </div>
+
+  <script src="/web/video-card.js"></script>
   <script src="/web/site-footer.js"></script>
   <script src="/web/site-header.js"></script>
   <script>
@@ -979,6 +1165,86 @@
           </div>`).join('');
     }
 
+    // Compartment Tours only: this section is the boat's walkthrough, in the
+    // order a visitor walks it, not a dump of everything filed under the museum.
+    const MUSEUM_VIDEO_CATEGORY = 'Compartment Tours';
+    let museumPlayable = [];
+
+    async function museumVideos(museumId) {
+      try {
+        const res = await fetch(`/api/videos?museum_id=${encodeURIComponent(museumId)}`);
+        if (!res.ok) return [];
+        const groups = await res.json();
+        const group = groups.find(g => g.category === MUSEUM_VIDEO_CATEGORY);
+        return (group ? group.videos : []).slice().sort((a, b) => {
+          const av = parseInt(a.display_order, 10);
+          const bv = parseInt(b.display_order, 10);
+          if (Number.isNaN(av) && Number.isNaN(bv)) return 0;
+          if (Number.isNaN(av)) return 1;
+          if (Number.isNaN(bv)) return -1;
+          return av - bv;
+        });
+      } catch (err) {
+        // A failed fetch costs this section, not the page.
+        return [];
+      }
+    }
+
+    function museumVideosHtml(videos) {
+      if (!videos.length) return '';
+      museumPlayable = [];
+      const cards = videos
+        .map(v => VideoCard.html(v, entry => museumPlayable.push(entry) - 1))
+        .join('');
+      if (!cards) return '';
+      return `<div class="museum-videos">
+        <h3>${MUSEUM_VIDEO_CATEGORY} (${videos.length})</h3>
+        ${cards}
+      </div>`;
+    }
+
+    function wireMuseumVideos() {
+      const modal = document.getElementById('video-modal');
+      const modalTitle = document.getElementById('video-modal-title');
+      const modalPlayer = document.getElementById('video-modal-player');
+      const modalClose = document.getElementById('video-modal-close');
+      if (!modal) return;
+
+      const close = () => {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        modalPlayer.innerHTML = '';
+      };
+
+      main.querySelectorAll('.video-thumb').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const data = museumPlayable[Number(btn.dataset.videoIndex)];
+          if (!data) return;
+          modalTitle.textContent = data.title || 'Video';
+          modalPlayer.innerHTML = VideoCard.player(data);
+          modal.classList.add('is-open');
+          modal.setAttribute('aria-hidden', 'false');
+          modalClose.focus();
+        });
+      });
+
+      main.querySelectorAll('.video-more').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const wrap = btn.closest('.video-description-wrap');
+          const text = wrap && wrap.querySelector('.video-description');
+          if (!text) return;
+          const clamped = text.classList.toggle('is-clamped');
+          btn.textContent = clamped ? 'more ...' : 'less';
+        });
+      });
+
+      modalClose.addEventListener('click', close);
+      modal.addEventListener('click', e => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+      VideoCard.syncClamp(main);
+    }
+
     function wireMuseumView(museumId) {
       const input = document.getElementById('museum-ask-input');
       const btn = document.getElementById('museum-ask-btn');
@@ -1001,12 +1267,15 @@
           q.setAttribute('aria-expanded', String(open));
         });
       });
+      wireMuseumVideos();
     }
 
     async function renderSingleMuseum(museumId) {
       const m = findMuseum(museumId);
       if (!m) { renderMuseumList(); return; }
       const pages = pagesByMuseumId[m.id] || [];
+
+      const videos = await museumVideos(m.id);
 
       let faqs = [];
       try {
@@ -1055,6 +1324,7 @@
               ? renderTopPages(pages, m.id)
               : '<p style="color:#8b949e">No pages yet for this boat.</p>'}
             ${museumFaqListHtml(faqs)}
+            ${museumVideosHtml(videos)}
           </div>
         </div>`;
       wireMuseumView(m.id);

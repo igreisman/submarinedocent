@@ -4437,8 +4437,12 @@ def delete_admin_video(video_id: str):
 
 
 @app.get("/api/videos")
-def public_videos():
+def public_videos(museum_id: str = ""):
     """Return the curated videos, in display order, for the Videos page.
+
+    museum_id narrows the result to one museum's videos, the same way
+    /api/faqs does, so a museum page can ask for its own without pulling the
+    whole catalogue across the wire and filtering it in the browser.
 
     Read per request rather than cached at import so editing videos.jsonl takes
     effect on refresh without a restart.  Only entries with a usable video_url
@@ -4451,10 +4455,15 @@ def public_videos():
         except (TypeError, ValueError):
             return (1, entry.get("id") or "")
 
+    wanted_museum = str(museum_id or "").strip()
+
     out: List[Dict[str, Any]] = []
     for entry in _load_videos_raw():
         video = _video_payload(entry)
         if not video:
+            continue
+        entry_museum = str(entry.get("museum_id") or "").strip()
+        if wanted_museum and entry_museum != wanted_museum:
             continue
         categories = _video_categories(entry)
         description = (
@@ -4479,6 +4488,7 @@ def public_videos():
             "categories": categories,
             "video": video,
             "display_order": entry.get("display_order"),
+            "museum_id": entry_museum,
         })
     out.sort(key=_order_key)
 
