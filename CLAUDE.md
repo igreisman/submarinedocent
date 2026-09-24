@@ -46,6 +46,8 @@ Maintainer: Irving Greisman. Public repo: github.com/igreisman/submarinedocent. 
 
 End every substantive report with a section headed **For Irving's other assistant** containing three lines: what changed, what needs a decision, what you recommend. Irving relays that block; write it so it stands alone.
 
+Irving relaying it is the point, not a missing feature. Files come from that assistant through `docs/internal/inbox/`, because files are safer written than pasted. Nothing goes back except through him, because these reports end in decisions and the decisions are his. Two assistants exchanging files directly would be faster and would have shipped a fabricated surname, a wrong museum name and a wrong crew count, each of which a human in the middle caught first. Do not propose an outbox; the question is settled, and the reasoning is in the museum-pages plan under 24 September 2026.
+
 ## Lessons
 
 Each of these cost real work. They are here so the next person does not pay again.
