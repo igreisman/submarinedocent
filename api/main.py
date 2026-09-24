@@ -3829,6 +3829,11 @@ VIDEO_EDITABLE_FIELDS = (
     "duration",
     # Who it belongs to and what was agreed. See "Content rights" above.
     "museum_id", "rights_status", "rights_note", "rights_expires",
+    # Notes for whoever maintains the catalogue, never rendered: /api/videos
+    # builds its payload field by field and does not include this one.
+    # rights_note is the public statement of why we may show a video, so
+    # anything that is not a term of the permission belongs here instead.
+    "curator_note",
 )
 # Bucket for records with no category, matching what the FAQ grouping uses.
 VIDEO_DEFAULT_CATEGORY = "General"
@@ -4127,7 +4132,7 @@ def _apply_video_payload(target: Dict[str, Any], payload: Dict[str, Any]) -> Non
             target["category"] = (raw_category or "").strip()
 
     for field in ("title", "description", "video_credit", "video_credit_url", "channel_name", "channel_url", "tags",
-                  "museum_id", "rights_note", "rights_expires"):
+                  "museum_id", "rights_note", "rights_expires", "curator_note"):
         if field in payload:
             target[field] = (payload.get(field) or "").strip()
 
