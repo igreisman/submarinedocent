@@ -6,9 +6,10 @@ Maintainer: Irving Greisman. Public repo: github.com/igreisman/submarinedocent. 
 
 ## Start of every session
 
-1. Read `docs/internal/open-source-release-plan.md` for the release work and its Decisions log, and `docs/internal/video-integration-plan.md` if the task touches video.
-2. Read the plan's "Current standing" before assuming anything about the code or corpus.
-3. Say which track you are picking up.
+1. List `docs/internal/inbox/`. Material from Irving's other assistant arrives there, and it is the half of the exchange that is easy to miss: nothing announces a new file. Read anything you have not already acted on before starting work that it might cover, and record in the relevant plan that you have. A set of video descriptions sat unread there for a day while the same descriptions were written from scratch.
+2. Read `docs/internal/open-source-release-plan.md` for the release work and its Decisions log, and `docs/internal/video-integration-plan.md` if the task touches video.
+3. Read the plan's "Current standing" before assuming anything about the code or corpus.
+4. Say which track you are picking up.
 
 ## Before you act
 
