@@ -44,13 +44,15 @@ jobs:
 
       - name: Commit if the week produced anything
         run: |
-          if git diff --quiet -- web/whats-new.json; then
-            echo "no visitor-facing changes this week; nothing to commit"
+          # The admin changelog gains an entry every week, including a week in
+          # which nothing a visitor can see changed. The public page may not.
+          if git diff --quiet -- web/whats-new.json web/whats-new-all.json; then
+            echo "no commits at all this week; nothing to record"
             exit 0
           fi
           git config user.name  "submarinedocent-bot"
           git config user.email "noreply@submarinedocent.org"
-          WEEK=$(python3 -c "import json;print(json.load(open('web/whats-new.json'))['entries'][0]['week_ending'])")
-          git add web/whats-new.json
+          WEEK=$(python3 -c "import json;print(json.load(open('web/whats-new-all.json'))['entries'][0]['week_ending'])")
+          git add web/whats-new.json web/whats-new-all.json
           git commit -m "What's New: week ending ${WEEK}"
           git push

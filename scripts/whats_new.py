@@ -33,6 +33,7 @@ except ImportError:                                     # pragma: no cover
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DEFAULT = os.path.join(REPO, "web", "whats-new.json")
+ALL_DEFAULT = os.path.join(REPO, "web", "whats-new-all.json")
 
 # The site's own clock. Fixed rather than "local" so the workflow running in UTC
 # and a laptop in California agree on which week an entry belongs to.
@@ -69,7 +70,49 @@ AREAS = [
 ]
 # Housekeeping that moves bytes without changing what anyone reads: syncing the
 # repository's seed copy of the corpus with what production already serves.
-MAINTENANCE_SUBJECT = re.compile(r"^Refresh the (corpus )?seed\b", re.I)
+MAINTENANCE_SUBJECT = re.compile(r"^Refresh the (corpus )?seed( from production)?$", re.I)
+
+# Under web/ but not news. The editors, the FAQ editor, the admin banner and the
+# local test harness are pages no visitor loads. The two changelog data files are
+# this script's own output: an entry announcing that last week's entry was
+# written is noise, and it would appear every single week.
+ADMIN_WEB = ("web/edit", "web/faq_editor.html", "web/admin-env-banner.js",
+             "web/test.html", "web/whats-new.json", "web/whats-new-all.json")
+
+# Whats-new: hide | show — an explicit answer in the commit message itself,
+# which beats every path rule in both directions.
+TRAILER = re.compile(r"^Whats-new:\s*(hide|show)\s*$", re.I | re.M)
+
+OVERRIDES_FILE = os.path.join(REPO, "scripts", "whats_new_overrides.txt")
+
+
+def load_overrides():
+    """sha -> {"show"|"hide", area, reason}, for commits already pushed.
+
+    Paths are a proxy, and a proxy is wrong in both directions: a corpora/
+    change can be the repository catching up with production, and an
+    api/main.py change can alter every answer on the site.
+    """
+    out = {}
+    if not os.path.exists(OVERRIDES_FILE):
+        return out
+    with open(OVERRIDES_FILE, encoding="utf-8") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split(None, 2)
+            if len(parts) < 2 or parts[0] not in ("show", "hide"):
+                continue
+            verb, sha, rest = parts[0], parts[1], (parts[2] if len(parts) > 2 else "")
+            if verb == "hide":
+                out[sha] = {"verb": "hide", "area": "", "reason": rest or "excluded by hand"}
+                continue
+            # "show" carries the area first, then the reason.
+            area, _, reason = rest.partition("  ")
+            out[sha] = {"verb": "show", "area": area.strip(),
+                        "reason": reason.strip() or "included by hand"}
+    return out
 
 AREA_ORDER = ["Answers", "Ask the Docent", "Videos", "Museum pages", "Glossary",
               "Lost boats", "Reference material", "Pages and layout"]
@@ -141,17 +184,19 @@ def area_for(paths):
 
 
 def collect(since, until):
-    fmt = "%H%x1f%h%x1f%s%x1f%aI%x1f%P"
+    fmt = "%H%x1f%h%x1f%s%x1f%aI%x1f%P%x1f%b%x1e"
     raw = git("log", f"--since={since.isoformat()}", f"--until={until.isoformat()}",
               f"--pretty=format:{fmt}", "--date-order", "--no-merges")
     commits = []
-    for line in raw.splitlines():
+    for record in raw.split("\x1e"):
+        line = record.strip("\n")
         if not line.strip():
             continue
-        full, short, subject, when, parents = line.split("\x1f")
+        full, short, subject, when, parents, body = line.split("\x1f")
         files = [f for f in git("show", "--name-only", "--pretty=format:", full).splitlines() if f.strip()]
         commits.append({"sha": short, "full": full, "subject": subject,
-                        "date": when, "parents": parents.split(), "files": files})
+                        "date": when, "parents": parents.split(),
+                        "body": body, "files": files})
 
     # A revert and its target cancel out. git revert writes the subject as
     # Revert "<original subject>", which is what this matches on.
@@ -162,23 +207,41 @@ def collect(since, until):
             reverted.add(c["subject"])
             reverted.add(m.group(1))
 
+    overrides = load_overrides()
+
     kept = []
     for c in commits:
-        if c["subject"] in reverted:
-            continue
-        if not c["files"]:
-            continue
-        # The root commit lists the whole tree, which would file the entire site
-        # as this week's news.
-        if not c["parents"]:
-            continue
-        if MAINTENANCE_SUBJECT.match(c["subject"]):
-            continue
-        area = area_for(c["files"])
-        if area is None:
-            continue
-        c["area"] = area
-        kept.append(c)
+        c["area"] = area_for(c["files"])
+        trailer = TRAILER.search(c.get("body") or "")
+        decision = trailer.group(1).lower() if trailer else ""
+        override = overrides.get(c["sha"])
+        if not decision and override:
+            decision = override["verb"]
+            if decision == "show" and override["area"]:
+                c["area"] = override["area"]
+
+        if decision == "show":
+            c["public"], c["reason"] = True, ""
+        elif decision == "hide":
+            c["public"] = False
+            c["reason"] = (override or {}).get("reason") or "the commit asked to be hidden"
+        elif not c["parents"]:
+            # The root commit lists the whole tree, which would file the entire
+            # site as one week's news.
+            c["public"], c["reason"] = False, "the repository's first commit"
+        elif c["subject"] in reverted:
+            c["public"], c["reason"] = False, "done and undone in the same week"
+        elif MAINTENANCE_SUBJECT.match(c["subject"]):
+            c["public"], c["reason"] = False, "brought the repository seed in line with production"
+        elif all(any(f.startswith(a) for a in ADMIN_WEB) for f in c["files"]):
+            c["public"], c["reason"] = False, "an editing screen, not a visitor page"
+        elif c["area"] is None:
+            c["public"], c["reason"] = False, "changed nothing a visitor loads"
+        else:
+            c["public"], c["reason"] = True, ""
+
+        if c["public"]:
+            kept.append(c)
     return commits, kept
 
 
@@ -201,18 +264,32 @@ def build_entry(since, until):
     totals = [{"label": label, "was": before.get(label), "now": after[label]}
               for _p, label, _k in COUNTED if label in after]
 
-    return {
+    shared = {
         "week_ending": until.date().isoformat(),
         "from": since.date().isoformat(),
         "to": until.date().isoformat(),
         "generated": datetime.now(tz()).isoformat(timespec="seconds"),
-        "totals": totals,
-        "groups": ordered,
-        # Honest arithmetic: how many commits there were, and how many of them
-        # changed nothing a visitor can see.
         "commits_total": len(all_commits),
         "commits_listed": len(kept),
     }
+
+    public = dict(shared, totals=totals, groups=ordered)
+
+    # The admin changelog is the whole week with nothing dropped, each commit
+    # carrying whether it reached the public page and why not. The point of
+    # recording the reason is that a wrong call shows up as a sentence someone
+    # can disagree with, rather than as an absence nobody notices.
+    everything = dict(shared, commits=[{
+        "sha": c["sha"],
+        "summary": c["subject"],
+        "date": c["date"],
+        "area": c["area"] or "",
+        "files": len(c["files"]),
+        "public": c["public"],
+        "reason": c["reason"],
+    } for c in all_commits])
+
+    return public, everything
 
 
 def main():
@@ -220,6 +297,7 @@ def main():
     ap.add_argument("--since")
     ap.add_argument("--until")
     ap.add_argument("--out", default=OUT_DEFAULT)
+    ap.add_argument("--all-out", default=ALL_DEFAULT)
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -232,35 +310,48 @@ def main():
     else:
         since, until = default_window()
 
-    entry = build_entry(since, until)
+    entry, everything = build_entry(since, until)
     print(f"window {since.isoformat()} .. {until.isoformat()}")
-    print(f"  {entry['commits_listed']} of {entry['commits_total']} commits are visitor-facing")
+    print(f"  {entry['commits_listed']} of {entry['commits_total']} commits reach the public page")
     for g in entry["groups"]:
-        print(f"  {g['area']}: {len(g['changes'])}")
+        print(f"    {g['area']}: {len(g['changes'])}")
+    held = [c for c in everything["commits"] if not c["public"]]
+    if held:
+        print(f"  {len(held)} held back:")
+        for c in held:
+            print(f"    {c['sha']}  {c['reason']}")
 
-    if entry["commits_listed"] == 0:
-        print("  nothing visitor-facing this week; no entry written")
+    if args.dry_run:
+        print(json.dumps(entry, indent=2)[:900])
         return 0
 
+    # The admin log is written for every week, including a week in which nothing
+    # visitor-facing happened: "we changed things you cannot see" is exactly what
+    # it is for.
+    _merge(args.all_out, everything)
+    print(f"  wrote {args.all_out}")
+
+    if entry["commits_listed"] == 0:
+        print("  nothing a visitor can see this week; public page unchanged")
+        return 0
+    _merge(args.out, entry)
+    print(f"  wrote {args.out}")
+    return 0
+
+
+def _merge(path, entry):
+    """Insert an entry, replacing any existing one for the same week."""
     entries = []
-    if os.path.exists(args.out):
-        with open(args.out, encoding="utf-8") as f:
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
             entries = json.load(f).get("entries", [])
-    # Rebuilding a week replaces it rather than adding a second copy.
     entries = [e for e in entries if e.get("week_ending") != entry["week_ending"]]
     entries.insert(0, entry)
     entries.sort(key=lambda e: e["week_ending"], reverse=True)
-
-    if args.dry_run:
-        print(json.dumps(entry, indent=2)[:1200])
-        return 0
-
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
-    with open(args.out, "w", encoding="utf-8") as f:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
         json.dump({"entries": entries}, f, indent=2, ensure_ascii=False)
         f.write("\n")
-    print(f"  wrote {args.out} ({len(entries)} entr{'y' if len(entries)==1 else 'ies'})")
-    return 0
 
 
 if __name__ == "__main__":

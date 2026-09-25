@@ -1,0 +1,24 @@
+# Overrides for the public What's New page, for commits already pushed and so
+# unamendable. New commits should carry a trailer instead:
+#
+#   Whats-new: hide
+#   Whats-new: show
+#
+# Format here, one per line:
+#   hide <sha> <reason>
+#   show <sha> <area> <reason>
+#
+# A forced "show" needs an area because the path rules derive the heading from
+# the files changed, and these are commits whose files do not say where they
+# belong. Areas: Answers, Ask the Docent, Videos, Museum pages, Glossary,
+# Lost boats, Reference material, Pages and layout.
+#
+# Both directions are needed because paths are only a proxy. A change under
+# corpora/ can be the repository catching up with what production already
+# served, and a change confined to api/main.py can alter every answer on the
+# site.
+
+hide b79af67  The photograph was already live; this only added it to the repository seed.
+
+show 1982caa  Answers  Removing the tour corpus changed which source answers came from.
+show 1b955d5  Pages and layout  Pages had been cached for hours; changes now appear on the next visit.

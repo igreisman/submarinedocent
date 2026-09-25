@@ -4,7 +4,9 @@
       "week_ending": "2026-09-25",
       "from": "2026-09-18",
       "to": "2026-09-25",
-      "generated": "2026-09-25T07:03:25-07:00",
+      "generated": "2026-09-25T07:18:44-07:00",
+      "commits_total": 49,
+      "commits_listed": 24,
       "totals": [
         {
           "label": "Answers",
@@ -48,12 +50,20 @@
               "summary": "Add Cod entries 6 to 20"
             },
             {
+              "sha": "f4586f4",
+              "summary": "Refresh the seed: Boat Histories, and the first five Cod entries"
+            },
+            {
               "sha": "dc8b19a",
               "summary": "Move the trim dive record into Diving and Surfacing"
             },
             {
               "sha": "3571e0d",
               "summary": "Make every FAQ answer its own question"
+            },
+            {
+              "sha": "1982caa",
+              "summary": "Remove the tour corpus from retrieval"
             }
           ]
         },
@@ -111,10 +121,6 @@
               "summary": "Set the museum photograph beside the boat's description"
             },
             {
-              "sha": "b79af67",
-              "summary": "Ship the USS Cod header photograph with the museum data"
-            },
-            {
               "sha": "f38baaa",
               "summary": "Give a museum header image its own alt text"
             },
@@ -136,14 +142,16 @@
           "area": "Pages and layout",
           "changes": [
             {
+              "sha": "1b955d5",
+              "summary": "Make /web HTML, JS and CSS revalidate before reuse"
+            },
+            {
               "sha": "6b1d3d3",
               "summary": "Link the source from the site footer"
             }
           ]
         }
-      ],
-      "commits_total": 49,
-      "commits_listed": 22
+      ]
     }
   ]
 }

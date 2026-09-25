@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full changelog — SubmarineDocent admin</title>
+  <link rel="icon" type="image/svg+xml" href="/web/favicon.svg">
+  <style>
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+    }
+
+    .cl-wrap { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 20px; color: #e6edf3; margin: 0 0 4px; }
+    .cl-sub { font-size: 13px; color: #8b949e; margin: 0 0 6px; }
+    .cl-back { font-size: 13px; }
+    .cl-back a { color: #58a6ff; text-decoration: none; }
+    .cl-back a:hover { text-decoration: underline; }
+
+    .cl-week {
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 16px;
+      margin: 20px 0 0;
+    }
+
+    .cl-week h2 { font-size: 16px; color: #e6edf3; margin: 0 0 2px; }
+    .cl-range { font-size: 12px; color: #8b949e; margin-bottom: 12px; }
+
+    .cl-counts { font-size: 12px; color: #8b949e; margin-bottom: 12px; }
+    .cl-counts b { color: #e6edf3; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8b949e;
+      border-bottom: 1px solid #30363d;
+      padding: 6px 8px;
+      font-weight: 600;
+    }
+    td {
+      font-size: 13px;
+      padding: 7px 8px;
+      border-bottom: 1px solid #21262d;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    td.sha { white-space: nowrap; }
+    td.sha a {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    td.sha a:hover { text-decoration: underline; }
+
+    .pill {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .pill.public { background: rgba(63, 185, 80, 0.15); color: #56d364; }
+    .pill.held   { background: rgba(139, 148, 158, 0.15); color: #8b949e; }
+
+    td.area { color: #8b949e; font-size: 12px; white-space: nowrap; }
+    td.reason { color: #8b949e; font-size: 12px; }
+    tr.held td.summary { color: #8b949e; }
+
+    .cl-empty { color: #8b949e; font-size: 14px; padding: 24px 0; }
+
+    @media (max-width: 760px) {
+      td.area, th.area { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="cl-wrap">
+    <h1>Full changelog</h1>
+    <p class="cl-sub">
+      Every commit each week, including the ones the public What's New page leaves out, with the
+      reason each one was held back. The public page is the subset a visitor could notice.
+      Paths are only a proxy for that, so when the proxy is wrong the answer goes in a commit
+      trailer (<code>Whats-new: show</code> or <code>hide</code>) or, for commits already pushed,
+      in <code>scripts/whats_new_overrides.txt</code>.
+    </p>
+    <p class="cl-back">
+      <a href="/web/edit.html">&larr; Editor hub</a>
+      <span style="color:#484f58"> &middot; </span>
+      <a href="/web/whats-new.html">What a visitor sees</a>
+    </p>
+    <div id="cl-weeks"><p class="cl-empty">Loading…</p></div>
+  </div>
+
+  <script src="/web/admin-env-banner.js"></script>
+  <script>
+    const esc = s => String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    const SOURCE_URL = 'https://github.com/igreisman/submarinedocent';
+
+    function prettyDate(iso) {
+      const d = new Date(iso + 'T12:00:00');
+      return isNaN(d) ? iso : d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function weekHtml(w) {
+      const rows = (w.commits || []).map(c => `
+        <tr class="${c.public ? '' : 'held'}">
+          <td class="sha"><a href="${SOURCE_URL}/commit/${esc(c.sha)}" target="_blank" rel="noopener noreferrer">${esc(c.sha)}</a></td>
+          <td class="summary">${esc(c.summary)}</td>
+          <td class="area">${esc(c.area || '—')}</td>
+          <td><span class="pill ${c.public ? 'public' : 'held'}">${c.public ? 'public' : 'held'}</span></td>
+          <td class="reason">${esc(c.reason || '')}</td>
+        </tr>`).join('');
+      const held = (w.commits_total || 0) - (w.commits_listed || 0);
+      return `
+        <section class="cl-week">
+          <h2>Week ending ${esc(prettyDate(w.week_ending))}</h2>
+          <div class="cl-range">${esc(prettyDate(w.from))} to ${esc(prettyDate(w.to))}</div>
+          <div class="cl-counts">
+            <b>${esc(w.commits_total)}</b> commits &middot;
+            <b>${esc(w.commits_listed)}</b> on the public page &middot;
+            <b>${esc(held)}</b> held back
+          </div>
+          <table>
+            <thead>
+              <tr><th>Commit</th><th>Summary</th><th class="area">Area</th><th>Public</th><th>Why not</th></tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </section>`;
+    }
+
+    (async function () {
+      const host = document.getElementById('cl-weeks');
+      try {
+        const res = await fetch('/web/whats-new-all.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error(res.status);
+        const weeks = (await res.json()).entries || [];
+        host.innerHTML = weeks.length
+          ? weeks.map(weekHtml).join('')
+          : '<p class="cl-empty">No weeks recorded yet.</p>';
+      } catch (err) {
+        host.innerHTML = '<p class="cl-empty">The changelog could not be loaded.</p>';
+      }
+    })();
+  </script>
+</body>
+
+</html>
