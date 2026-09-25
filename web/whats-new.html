@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What's New — SubmarineDocent</title>
+  <link rel="stylesheet" href="/web/site-header.css">
+  <link rel="icon" type="image/svg+xml" href="/web/favicon.svg">
+  <style>
+    body {
+      background: #f4f7fb;
+      color: #1f2933;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+    }
+
+    .wn-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    .wn-intro {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #52606d;
+      margin: 0 0 24px;
+    }
+
+    .wn-entry {
+      background: #fff;
+      border: 1px solid #e1e7ef;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 2px rgba(20, 35, 60, 0.05);
+    }
+
+    .wn-week {
+      margin: 0 0 4px;
+      font-size: 18px;
+      color: #10243e;
+    }
+
+    .wn-range {
+      font-size: 12px;
+      color: #7b8794;
+      margin-bottom: 16px;
+    }
+
+    .wn-totals {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .wn-total {
+      border: 1px solid #e1e7ef;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: #35424f;
+      background: #f9fbfd;
+    }
+
+    .wn-total b { color: #10243e; }
+    .wn-total .wn-was { color: #7b8794; }
+
+    .wn-area {
+      margin: 0 0 6px;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #52606d;
+    }
+
+    .wn-group { margin-bottom: 16px; }
+    .wn-group:last-child { margin-bottom: 0; }
+
+    .wn-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .wn-list li {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1f2933;
+      margin-bottom: 4px;
+    }
+
+    .wn-sha {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      color: #7b8794;
+      margin-left: 6px;
+    }
+
+    .wn-foot {
+      font-size: 12px;
+      color: #7b8794;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #eef2f6;
+    }
+
+    .wn-empty {
+      color: #52606d;
+      font-size: 14px;
+      padding: 24px 0;
+    }
+
+    @media (max-width: 600px) {
+      .wn-entry { padding: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wn-wrap">
+    <p class="wn-intro">
+      The site changes most weeks. Every Friday morning this page gains an entry listing
+      what changed since the Friday before, drawn from the project's own commit history,
+      so nothing that shipped can quietly go unrecorded. Changes that alter nothing a
+      visitor can see, such as tests, licensing files and internal notes, are left out.
+    </p>
+    <div id="wn-entries"><p class="wn-empty">Loading…</p></div>
+  </div>
+
+  <script src="/web/site-header.js"></script>
+  <script src="/web/site-footer.js"></script>
+  <script>
+    const esc = s => String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    const SOURCE_URL = 'https://github.com/igreisman/submarinedocent';
+
+    function prettyDate(iso) {
+      const d = new Date(iso + 'T12:00:00');
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    // "was" is null for the first week, because the repository's own history
+    // starts inside it. Showing a count with no comparison is honest; inventing
+    // a previous number is not.
+    function totalsHtml(totals) {
+      if (!totals || !totals.length) return '';
+      return `<div class="wn-totals">${totals.map(t => {
+        const moved = (t.was !== null && t.was !== undefined && t.was !== t.now)
+          ? `<span class="wn-was">${esc(t.was)} &rarr;</span> ` : '';
+        return `<span class="wn-total">${esc(t.label)} ${moved}<b>${esc(t.now)}</b></span>`;
+      }).join('')}</div>`;
+    }
+
+    function entryHtml(e) {
+      const groups = (e.groups || []).map(g => `
+        <div class="wn-group">
+          <h3 class="wn-area">${esc(g.area)}</h3>
+          <ul class="wn-list">
+            ${g.changes.map(c => `<li>${esc(c.summary)}<a class="wn-sha" href="${SOURCE_URL}/commit/${esc(c.sha)}" target="_blank" rel="noopener noreferrer">${esc(c.sha)}</a></li>`).join('')}
+          </ul>
+        </div>`).join('');
+      const skipped = (e.commits_total || 0) - (e.commits_listed || 0);
+      const foot = skipped > 0
+        ? `${e.commits_listed} of ${e.commits_total} changes this week altered something a visitor can see. The other ${skipped} did not.`
+        : `${e.commits_listed} change${e.commits_listed === 1 ? '' : 's'} this week.`;
+      return `
+        <section class="wn-entry">
+          <h2 class="wn-week">Week ending ${esc(prettyDate(e.week_ending))}</h2>
+          <div class="wn-range">${esc(prettyDate(e.from))} to ${esc(prettyDate(e.to))}</div>
+          ${totalsHtml(e.totals)}
+          ${groups}
+          <div class="wn-foot">${esc(foot)}</div>
+        </section>`;
+    }
+
+    (async function () {
+      SiteHeader.render({
+        title: "What's New",
+        subtitle: 'A weekly record of what changed on this site.',
+        feedback: 'Spotted something that changed for the worse, or something missing?',
+      });
+      SiteFooter.render();
+
+      const host = document.getElementById('wn-entries');
+      try {
+        const res = await fetch('/web/whats-new.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        const entries = data.entries || [];
+        host.innerHTML = entries.length
+          ? entries.map(entryHtml).join('')
+          : '<p class="wn-empty">No entries yet. The first one lands on Friday.</p>';
+      } catch (err) {
+        host.innerHTML = '<p class="wn-empty">The weekly log could not be loaded just now.</p>';
+      }
+    })();
+  </script>
+</body>
+
+</html>

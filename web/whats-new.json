@@ -1,0 +1,149 @@
+{
+  "entries": [
+    {
+      "week_ending": "2026-09-25",
+      "from": "2026-09-18",
+      "to": "2026-09-25",
+      "generated": "2026-09-25T07:03:25-07:00",
+      "totals": [
+        {
+          "label": "Answers",
+          "was": null,
+          "now": 386
+        },
+        {
+          "label": "Videos",
+          "was": null,
+          "now": 108
+        },
+        {
+          "label": "Museums listed",
+          "was": null,
+          "now": 20
+        },
+        {
+          "label": "Museum pages",
+          "was": null,
+          "now": 2
+        }
+      ],
+      "groups": [
+        {
+          "area": "Answers",
+          "changes": [
+            {
+              "sha": "9b711a6",
+              "summary": "Accept the playing-cards-under-red-light FAQ as faq_1385"
+            },
+            {
+              "sha": "4fdb75d",
+              "summary": "faqs.html: use the shared footer, drop its own"
+            },
+            {
+              "sha": "d0183f0",
+              "summary": "Make the museum view a place to read, not a directory card"
+            },
+            {
+              "sha": "4d9f9af",
+              "summary": "Add Cod entries 6 to 20"
+            },
+            {
+              "sha": "dc8b19a",
+              "summary": "Move the trim dive record into Diving and Surfacing"
+            },
+            {
+              "sha": "3571e0d",
+              "summary": "Make every FAQ answer its own question"
+            }
+          ]
+        },
+        {
+          "area": "Ask the Docent",
+          "changes": [
+            {
+              "sha": "4bf4129",
+              "summary": "Put the shared footer on the five pages that had none"
+            }
+          ]
+        },
+        {
+          "area": "Videos",
+          "changes": [
+            {
+              "sha": "0f0d6a2",
+              "summary": "Use the descriptions that were sent, and check the inbox first"
+            },
+            {
+              "sha": "fc8f098",
+              "summary": "Record Drachinifel's permission on his eight videos"
+            },
+            {
+              "sha": "4f6d91c",
+              "summary": "Add topside and maneuvering_room, and describe the Cod tour series"
+            },
+            {
+              "sha": "90e124f",
+              "summary": "Add the USS Cod compartment tour series"
+            },
+            {
+              "sha": "e09eeb0",
+              "summary": "Show a rights holder once when they are also the uploader"
+            },
+            {
+              "sha": "d5cac83",
+              "summary": "Give the WMHS Cobia video a title"
+            },
+            {
+              "sha": "b66aba0",
+              "summary": "Record the Wisconsin Marine Historical Society's permission"
+            }
+          ]
+        },
+        {
+          "area": "Museum pages",
+          "changes": [
+            {
+              "sha": "bc70ffa",
+              "summary": "Show a museum's Compartment Tours videos on its museum page"
+            },
+            {
+              "sha": "c9585e7",
+              "summary": "Set the museum photograph beside the boat's description"
+            },
+            {
+              "sha": "b79af67",
+              "summary": "Ship the USS Cod header photograph with the museum data"
+            },
+            {
+              "sha": "f38baaa",
+              "summary": "Give a museum header image its own alt text"
+            },
+            {
+              "sha": "2bd8a3b",
+              "summary": "Show a museum's header photograph on its landing view"
+            },
+            {
+              "sha": "ccae247",
+              "summary": "Fix the museum accordion: it was light-theme styling on a dark page"
+            },
+            {
+              "sha": "b940548",
+              "summary": "Track A: museum short URLs and a museum_id retrieval boost"
+            }
+          ]
+        },
+        {
+          "area": "Pages and layout",
+          "changes": [
+            {
+              "sha": "6b1d3d3",
+              "summary": "Link the source from the site footer"
+            }
+          ]
+        }
+      ],
+      "commits_total": 49,
+      "commits_listed": 22
+    }
+  ]
+}
