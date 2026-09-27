@@ -189,6 +189,46 @@
           </svg>
           <h1 class="display-4 fw-bold mb-4">Welcome Aboard <span
               style="font-size: 0.9em; filter: brightness(0.5) hue-rotate(180deg) saturate(1.5);">🐬</span></h1>
+
+          <!-- Spoken welcome, in Irving's own voice. preload="none" so a 2.4 MB
+               file is not fetched by every visitor who never presses play, and no
+               autoplay: a page that starts talking by itself is a page people
+               close. The transcript is the accessibility text and is also how
+               most people will read this, since most browse with sound off. -->
+          <div class="welcome-audio mx-auto mb-4" style="max-width: 520px;">
+            <p class="mb-2" style="font-size: 0.95rem; opacity: 0.85;">
+              Hear it from a submariner, 1 minute 15 seconds
+            </p>
+            <audio class="w-100" controls preload="none" src="/web/audio/welcome.mp3"
+              aria-label="Spoken welcome from Irving Greisman">
+              Your browser cannot play audio. The transcript is below.
+            </audio>
+            <p class="mt-2 mb-0" style="font-size: 0.75rem; opacity: 0.7;">
+              Dive alarm: US Department of Defense, public domain, via Internet Archive
+              (<a href="https://archive.org/details/SubmarineDiveAlarm" target="_blank"
+                rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">archive.org/details/SubmarineDiveAlarm</a>).
+            </p>
+            <details class="mt-3 text-start">
+              <summary style="cursor: pointer; font-size: 0.9rem;">Read the transcript</summary>
+              <div class="mt-3" style="font-size: 0.95rem; line-height: 1.7; opacity: 0.92;">
+                <p>Hi, I&rsquo;m Irving Greisman. Welcome aboard.</p>
+                <p>In 1969 I earned my dolphins, the badge of a qualified submariner, aboard USS Tusk,
+                  a diesel boat and close cousin of the World War II submarines on this site.</p>
+                <p>Today I give tours aboard a World War II submarine, and visitors ask the same
+                  questions every day. How did they sleep? How was the food? This site is where
+                  fellow docent Dwight Naset and I answer them. Dwight also wrote the glossary, so
+                  when a term like trim pump stops you cold, he&rsquo;s got you covered.</p>
+                <p>Start with a few short answers, or go deep, from batteries and torpedoes to what
+                  the cooks served at midnight. Eternal Patrol honors the boats and crews that never
+                  came home.</p>
+                <p>And when you&rsquo;re ready for the real thing, our museum guide will point you to
+                  the nearest boat. Nothing beats squeezing through a hatch yourself.</p>
+                <p>Didn&rsquo;t find your question? Send it to us.</p>
+                <p>Thanks for coming aboard. Let&rsquo;s go below.</p>
+                <p style="opacity: 0.7;">[Dive alarm]</p>
+              </div>
+            </details>
+          </div>
           <p class="lead mb-4">
             This site is your <strong>home port for real stories, photos, and answers</strong> about U.S. World War II
             diesel-electric submarines, especially boats like <strong>USS Pampanito</strong> and her sisters.

@@ -95,8 +95,23 @@ AUDIO
 web/audio/ holds five short spoken prompts used by the Ask the Docent
 interface ("no direct answer", and so on). They are speech synthesised from
 text written for this project, so they fall under the CC BY grant above with
-the text they were made from. No recorded human voice, oral history or
-interview audio is distributed in this repository.
+the text they were made from.
+
+web/audio/welcome.mp3 is a spoken welcome recorded by Irving Greisman in his own
+voice, from a script written for this project. Both the script and the recording
+are his, and both fall under the CC BY grant above. Its transcript is printed on
+web/welcome.html.
+
+That recording ends with a submarine dive alarm, which is NOT ours:
+
+  - Dive alarm — a work of the United States Department of Defense and
+    therefore in the public domain, obtained from the Internet Archive at
+    archive.org/details/SubmarineDiveAlarm. The provenance comes from the
+    uploader's listing on that page; the original DefenseLINK page it cites no
+    longer exists, so we have not been able to confirm it at source. We state
+    the claim as we received it rather than as something we verified.
+
+No oral history or interview audio is distributed in this repository.
 
 ────────────────────────────────────────────────────────────────────────────
 VIDEO
