@@ -733,6 +733,103 @@ def get_incidents():
 
 # Groq key — used for Whisper transcription (whisper-large-v3-turbo, ~0.3s latency)
 _GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+# ── Is the Groq key actually usable? ────────────────────────────────────────
+# /health used to answer bool(_GROQ_API_KEY), which says a key is set and
+# nothing about whether Groq accepts it. A revoked key therefore read as
+# "transcription available", askthedocent.html believed it, and every visitor
+# who pressed the microphone got a 500 instead of falling back to their
+# browser's own speech recognition. The site advertised a feature it could not
+# perform, and only a visitor could see it failing.
+#
+# So availability means "Groq took this key recently", not "a key exists".
+_GROQ_PROBE_TTL = float(os.getenv("GROQ_PROBE_TTL_SECONDS", "900"))   # 15 minutes
+_groq_lock = threading.Lock()
+_groq_usable: bool | None = None      # None = never checked
+_groq_checked_at = 0.0
+_groq_last_error = ""
+
+
+def _scrub_key(text: str) -> str:
+    """Never let the key reach a log line, whatever an SDK puts in an error."""
+    out = str(text)
+    if _GROQ_API_KEY:
+        out = out.replace(_GROQ_API_KEY, "***")
+    return out
+
+
+def _groq_mark(usable: bool, error: str = "", loud: bool = True) -> None:
+    global _groq_usable, _groq_checked_at, _groq_last_error
+    with _groq_lock:
+        was = _groq_usable
+        _groq_usable = usable
+        _groq_checked_at = time.time()
+        _groq_last_error = _scrub_key(error)[:300] if error else ""
+    if loud and was is not usable:
+        if usable:
+            print("[TRANSCRIBE] Groq key accepted; transcription is available again")
+        else:
+            print("!" * 72)
+            print("[TRANSCRIBE] GROQ KEY REJECTED. Server transcription is OFF and "
+                  "/health now reports transcribe_available=false so the Ask page "
+                  "falls back to browser speech recognition.")
+            print(f"[TRANSCRIBE] Groq said: {_scrub_key(error)[:300]}")
+            print("!" * 72)
+
+
+def _groq_probe() -> bool:
+    """Ask Groq whether it accepts the key, without spending a transcription.
+
+    GET /models is the cheapest authenticated call Groq exposes, so a rejected
+    key is discovered without uploading audio.
+    """
+    if not _GROQ_API_KEY:
+        # No key configured is a deployment without transcription, which is the
+        # normal state locally. Only a key that Groq refuses is worth shouting
+        # about, because that one is a working feature that has stopped.
+        _groq_mark(False, "GROQ_API_KEY not set", loud=False)
+        return False
+    try:
+        with httpx.Client(timeout=8.0) as client:
+            resp = client.get(
+                "https://api.groq.com/openai/v1/models",
+                headers={"Authorization": f"Bearer {_GROQ_API_KEY}"},
+            )
+    except Exception as e:
+        # A network failure is not a bad key. Leave whatever we last knew
+        # standing rather than disabling a working feature over one timeout.
+        print(f"[TRANSCRIBE] Groq probe could not reach the API: {_scrub_key(e)}")
+        return _groq_usable is not False
+    if resp.status_code == 200:
+        _groq_mark(True)
+        return True
+    if resp.status_code in (401, 403):
+        _groq_mark(False, f"HTTP {resp.status_code} from /models")
+        return False
+    print(f"[TRANSCRIBE] Groq probe returned HTTP {resp.status_code}; leaving availability unchanged")
+    return _groq_usable is not False
+
+
+def transcribe_available() -> bool:
+    """Cached answer, rechecked when the cache is older than the TTL.
+
+    Rechecking here rather than on a timer thread: /health is called by the Ask
+    page on load, which is exactly when the answer matters, and a timer would
+    poll Groq forever on a site nobody is visiting.
+    """
+    if not _GROQ_API_KEY:
+        return False
+    with _groq_lock:
+        known = _groq_usable
+        age = time.time() - _groq_checked_at
+    if known is None or age > _GROQ_PROBE_TTL:
+        return _groq_probe()
+    return known
+
+
+# One probe at boot, on a daemon thread so a slow or unreachable Groq cannot
+# delay the first request. Everything after this reads the cached answer.
+threading.Thread(target=_groq_probe, name="groq-probe", daemon=True).start()
 _OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 _OPENAI_TTS_MODEL = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
 _OPENAI_TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "alloy")
@@ -914,7 +1011,10 @@ def health():
         "use_llm": USE_LLM,
         "sample_content_mode": SAMPLE_CONTENT_MODE,
         "auto_sample_fallback": AUTO_SAMPLE_FALLBACK,
-        "transcribe_available": bool(_GROQ_API_KEY),
+        # Probed, not assumed: see transcribe_available(). A key that Groq has
+        # revoked must read as unavailable, or the Ask page keeps offering a
+        # microphone that returns a 500.
+        "transcribe_available": transcribe_available(),
         "tts_available": bool(_OPENAI_API_KEY),
         "faq_chunks": len(FAQ),
         # Answerable count above, whole file below, plus the gate that
@@ -1028,6 +1128,12 @@ async def transcribe_audio(
     """
     if not _GROQ_API_KEY:
         raise HTTPException(status_code=503, detail="Transcription not available: GROQ_API_KEY not set")
+    if not transcribe_available():
+        # 503 rather than 500: this is "we cannot do this", not "we broke".
+        raise HTTPException(
+            status_code=503,
+            detail="Transcription is unavailable: the speech service rejected this server's credentials.",
+        )
 
     audio_bytes = await audio.read()
     if not audio_bytes:
@@ -1065,10 +1171,23 @@ async def transcribe_audio(
         )
         transcript = (result.text or "").strip()
         print(f"[TRANSCRIBE] '{transcript[:80]}'")
+        # A success is also evidence: a replaced key starts working here without
+        # waiting for the probe TTL to expire.
+        _groq_mark(True)
         return {"transcript": transcript}
     except Exception as e:
-        print(f"[TRANSCRIBE] Groq Whisper error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        detail = _scrub_key(e)
+        status = getattr(e, "status_code", None) or getattr(getattr(e, "response", None), "status_code", None)
+        if status in (401, 403) or "invalid_api_key" in detail or "Invalid API Key" in detail:
+            # Learn from it: the next /health tells the page to fall back instead
+            # of offering a microphone that cannot work.
+            _groq_mark(False, detail)
+            raise HTTPException(
+                status_code=503,
+                detail="Transcription is unavailable: the speech service rejected this server's credentials.",
+            )
+        print(f"[TRANSCRIBE] Groq Whisper error: {detail}")
+        raise HTTPException(status_code=500, detail="Transcription failed.")
 
 
 # ------------------------------------------------------------
