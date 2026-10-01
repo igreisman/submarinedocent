@@ -5841,14 +5841,6 @@ def ask(request: Request, payload: dict):
     return result
 
 
-@app.delete("/admin/ask-log")
-def clear_ask_log():
-    """Empty the visitor question log. Main credential only."""
-    with _ask_log_lock:
-        open(ASK_LOG_PATH, "w", encoding="utf-8").close()
-    return {"status": "cleared"}
-
-
 @app.get("/admin/ask-log")
 def download_ask_log():
     """Download the visitor question log. Main credential only."""

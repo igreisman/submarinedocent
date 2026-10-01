@@ -27,6 +27,7 @@ Maintainer: Irving Greisman. Public repo: github.com/igreisman/submarinedocent. 
 - `shorts_` records may also answer visitors, but never ahead of a title-matched FAQ. If any `faq_` or `fix_` record earns the all-covered title boost in `add_hits`, every `shorts_` record is capped below the lowest such score. When no FAQ earns a boost, shorts compete on score as normal.- `accept_faq()` must preserve `original_source`. Provenance is what a rights question reads.
 - Production corpora live on `/data`, not in git. `corpora/` is the seed. Run `make refresh-seed` before any release or announcement; it stages, never commits.
 - After any bulk admin-API change, pull a fresh backup and diff it against the previous one. A 200 response is not proof the record is intact.
+- Every request to production `/ask` from a test, script, or assistant must send the header `X-SubDocent-Test: 1`. This prevents test traffic from entering the visitor question log. Use `_test/run_production_battery.py` for battery runs against production; it sends the header automatically.
 
 ## Git and publishing
 
