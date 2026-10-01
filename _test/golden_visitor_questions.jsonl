@@ -51,7 +51,7 @@
 {"question": "how do you aim a torpedo", "accept": ["faq_1197", "faq_1252"], "prod_2026_10_01": "faq_1274", "with_patch": "faq_1274"}
 {"question": "what was the TDC", "accept": ["faq_1197", "faq_1252"], "prod_2026_10_01": "faq_1251", "with_patch": "faq_1251"}
 {"question": "how did they reload torpedoes", "accept": ["faq_1228", "faq_1230", "fix_006"], "prod_2026_10_01": "faq_1198", "with_patch": "fix_006"}
-{"question": "how many torpedoes to sink a ship", "accept": ["faq_1226", "faq_1254"], "prod_2026_10_01": "faq_1254", "with_patch": "faq_1254"}
+{"question": "how many torpedoes to sink a ship", "accept": ["faq_1226"], "prod_2026_10_01": "faq_1254", "with_patch": "faq_1254"}
 {"question": "what explosive was in torpedoes", "accept": ["faq_1231"], "prod_2026_10_01": "faq_1231", "with_patch": "faq_1231"}
 {"question": "what is the big gun on deck for", "accept": ["faq_1047", "faq_1048", "faq_1058"], "prod_2026_10_01": "faq_1370", "with_patch": "faq_1370"}
 {"question": "did subs shoot down planes", "accept": ["faq_1056"], "prod_2026_10_01": "faq_1261", "with_patch": "faq_1056"}
