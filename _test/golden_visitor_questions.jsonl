@@ -1,0 +1,99 @@
+{"question": "how deep could the sub dive", "accept": ["faq_1301", "faq_1344"], "prod_2026_10_01": "faq_1305", "with_patch": "faq_1305"}
+{"question": "what's the max depth of a WWII submarine", "accept": ["faq_1301", "faq_1344"], "prod_2026_10_01": "faq_1219", "with_patch": "faq_1301"}
+{"question": "how do submarines go underwater", "accept": ["faq_1289", "faq_1290", "faq_1291"], "prod_2026_10_01": "faq_1100", "with_patch": "faq_1290"}
+{"question": "how long does it take to dive", "accept": ["faq_1291", "faq_1317"], "prod_2026_10_01": "faq_1290", "with_patch": "faq_1290"}
+{"question": "how did they come back up to the surface", "accept": ["faq_1325", "faq_1329", "faq_1330"], "prod_2026_10_01": "faq_1052", "with_patch": "faq_1370"}
+{"question": "what are ballast tanks", "accept": ["faq_1297"], "prod_2026_10_01": "faq_1299", "with_patch": "faq_1299"}
+{"question": "what is the christmas tree panel", "accept": ["faq_1300"], "prod_2026_10_01": "faq_1300", "with_patch": "faq_1300"}
+{"question": "did the hull creak when they went deep", "accept": ["faq_1322"], "prod_2026_10_01": "faq_1186", "with_patch": "faq_1186"}
+{"question": "did sailors get the bends", "accept": ["faq_1332"], "prod_2026_10_01": "faq_1080", "with_patch": "faq_1080"}
+{"question": "what are the dive planes for", "accept": ["faq_1296"], "prod_2026_10_01": "faq_1290", "with_patch": "faq_1290"}
+{"question": "how long could they stay underwater", "accept": ["faq_1102", "faq_1104", "faq_1324"], "prod_2026_10_01": "faq_799", "with_patch": "faq_1104"}
+{"question": "how did they get fresh air underwater", "accept": ["faq_1104", "faq_1105", "faq_1170"], "prod_2026_10_01": "faq_799", "with_patch": "faq_799"}
+{"question": "how long was a patrol", "accept": ["faq_1094", "faq_1348"], "prod_2026_10_01": "faq_1102", "with_patch": "faq_1102"}
+{"question": "what was the range of a fleet boat", "accept": ["faq_1091", "faq_1092"], "prod_2026_10_01": "faq_1267", "with_patch": "faq_1267"}
+{"question": "top speed of a gato class sub", "accept": ["faq_1090", "faq_1345"], "prod_2026_10_01": "faq_1345", "with_patch": "faq_1345"}
+{"question": "did they run on diesel or batteries", "accept": ["faq_1090", "faq_1290", "faq_778", "faq_779", "faq_780", "faq_782"], "prod_2026_10_01": "faq_778", "with_patch": "faq_778"}
+{"question": "how many guys were on the crew", "accept": ["faq_1118"], "prod_2026_10_01": "faq_1118", "with_patch": "faq_1118"}
+{"question": "where did everyone sleep", "accept": ["faq_1119", "faq_1160", "fix_002"], "prod_2026_10_01": "shorts_short_4_0004", "with_patch": "shorts_short_4_0004"}
+{"question": "did sailors sleep next to the torpedoes", "accept": ["faq_1160", "faq_1161", "fix_002"], "prod_2026_10_01": "shorts_short_4_0004", "with_patch": "shorts_short_4_0004"}
+{"question": "what did they eat", "accept": ["faq_1177"], "prod_2026_10_01": "faq_1178", "with_patch": "faq_1178"}
+{"question": "was the food good on submarines", "accept": ["faq_1177"], "prod_2026_10_01": "faq_1148", "with_patch": "faq_1148"}
+{"question": "how often could they shower", "accept": ["faq_1173"], "prod_2026_10_01": "faq_780", "with_patch": "faq_780"}
+{"question": "did it stink inside", "accept": ["faq_1175"], "prod_2026_10_01": "faq_1175", "with_patch": "faq_1175"}
+{"question": "how many bathrooms were there", "accept": ["faq_606"], "prod_2026_10_01": "faq_1051", "with_patch": "faq_1062"}
+{"question": "how did the toilet work", "accept": ["faq_1114", "faq_606"], "prod_2026_10_01": "faq_1114", "with_patch": "faq_1114"}
+{"question": "was it hot on the sub", "accept": ["faq_1171"], "prod_2026_10_01": "faq_1171", "with_patch": "faq_1171"}
+{"question": "were there women on submarines", "accept": ["faq_1138"], "prod_2026_10_01": "faq_1138", "with_patch": "faq_1138"}
+{"question": "was there a doctor", "accept": ["faq_1136"], "prod_2026_10_01": "faq_1136", "with_patch": "faq_1136"}
+{"question": "who was the cook", "accept": ["faq_1148", "faq_1177"], "prod_2026_10_01": "faq_1178", "with_patch": "faq_1178"}
+{"question": "did they have ice cream", "accept": ["faq_1179"], "prod_2026_10_01": "faq_1333", "with_patch": "faq_1179"}
+{"question": "what did they do for fun", "accept": ["faq_1185"], "prod_2026_10_01": "faq_1190", "with_patch": null}
+{"question": "were submariners volunteers", "accept": ["faq_1132"], "prod_2026_10_01": "faq_1131", "with_patch": "faq_1131"}
+{"question": "how tall could a submariner be", "accept": ["faq_1123"], "prod_2026_10_01": "faq_1076", "with_patch": "faq_1076"}
+{"question": "did submarine sailors get extra pay", "accept": ["fix_016"], "prod_2026_10_01": "fix_016", "with_patch": "fix_016"}
+{"question": "what is the goat locker", "accept": ["faq_607"], "prod_2026_10_01": "faq_607", "with_patch": "faq_607"}
+{"question": "what does COB mean", "accept": ["faq_1146"], "prod_2026_10_01": "faq_1133", "with_patch": "faq_1146"}
+{"question": "why is the lighting red", "accept": ["faq_1188"], "prod_2026_10_01": "faq_1188", "with_patch": "faq_1188"}
+{"question": "how did they get mail at sea", "accept": ["faq_1098", "faq_1189"], "prod_2026_10_01": "faq_1189", "with_patch": "faq_1189"}
+{"question": "how did families know their sailor was ok", "accept": ["fix_014"], "prod_2026_10_01": "faq_1189", "with_patch": "fix_014"}
+{"question": "could you feel the waves underwater", "accept": ["faq_1163", "faq_1187"], "prod_2026_10_01": "faq_799", "with_patch": "faq_799"}
+{"question": "did people get seasick", "accept": ["faq_1162", "faq_1187"], "prod_2026_10_01": "faq_1187", "with_patch": "faq_1187"}
+{"question": "what was a watch rotation", "accept": ["faq_1156", "faq_1158"], "prod_2026_10_01": "faq_1156", "with_patch": "faq_1156"}
+{"question": "was the captain a captain", "accept": ["faq_1144"], "prod_2026_10_01": "faq_1144", "with_patch": "faq_1144"}
+{"question": "how many officers were on board", "accept": ["faq_1143"], "prod_2026_10_01": "faq_1182", "with_patch": "faq_1143"}
+{"question": "where did the captain sleep", "accept": ["faq_1192"], "prod_2026_10_01": "faq_1192", "with_patch": "faq_1192"}
+{"question": "how many torpedoes did it carry", "accept": ["faq_1220"], "prod_2026_10_01": "faq_1220", "with_patch": "faq_1220"}
+{"question": "how big is a torpedo", "accept": ["faq_1194", "faq_1199", "faq_1201"], "prod_2026_10_01": "faq_1211", "with_patch": "faq_1198"}
+{"question": "why didn't the torpedoes work", "accept": ["faq_1208", "faq_1210", "faq_1211"], "prod_2026_10_01": "faq_1209", "with_patch": "faq_1209"}
+{"question": "what was wrong with the mark 14", "accept": ["faq_1201", "faq_1208", "faq_1209", "faq_1210", "faq_1211"], "prod_2026_10_01": "faq_1201", "with_patch": "faq_1201"}
+{"question": "did torpedoes ever come back and hit the sub", "accept": ["faq_1212"], "prod_2026_10_01": "faq_1198", "with_patch": "faq_1198"}
+{"question": "how do you aim a torpedo", "accept": ["faq_1197", "faq_1252"], "prod_2026_10_01": "faq_1274", "with_patch": "faq_1274"}
+{"question": "what was the TDC", "accept": ["faq_1197", "faq_1252"], "prod_2026_10_01": "faq_1251", "with_patch": "faq_1251"}
+{"question": "how did they reload torpedoes", "accept": ["faq_1228", "faq_1230", "fix_006"], "prod_2026_10_01": "faq_1198", "with_patch": "fix_006"}
+{"question": "how many torpedoes to sink a ship", "accept": ["faq_1226", "faq_1254"], "prod_2026_10_01": "faq_1254", "with_patch": "faq_1254"}
+{"question": "what explosive was in torpedoes", "accept": ["faq_1231"], "prod_2026_10_01": "faq_1231", "with_patch": "faq_1231"}
+{"question": "what is the big gun on deck for", "accept": ["faq_1047", "faq_1048", "faq_1058"], "prod_2026_10_01": "faq_1370", "with_patch": "faq_1370"}
+{"question": "did subs shoot down planes", "accept": ["faq_1056"], "prod_2026_10_01": "faq_1261", "with_patch": "faq_1056"}
+{"question": "what is a depth charge", "accept": ["fix_015"], "prod_2026_10_01": "fix_015", "with_patch": "fix_015"}
+{"question": "how did destroyers find submarines", "accept": ["faq_1256"], "prod_2026_10_01": "faq_1265", "with_patch": "faq_1265"}
+{"question": "how did subs escape depth charges", "accept": ["faq_1257"], "prod_2026_10_01": "faq_1089", "with_patch": "faq_1089"}
+{"question": "how did they know where they were", "accept": ["faq_1012", "faq_1013"], "prod_2026_10_01": "faq_1017", "with_patch": "faq_595"}
+{"question": "did WWII subs have GPS", "accept": ["faq_1013", "faq_1018", "faq_1020"], "prod_2026_10_01": "faq_1020", "with_patch": "faq_1020"}
+{"question": "did they have radar", "accept": ["faq_1111", "faq_1112", "faq_1245"], "prod_2026_10_01": "faq_1143", "with_patch": "faq_1112"}
+{"question": "how did sonar work", "accept": ["fix_010"], "prod_2026_10_01": "fix_010", "with_patch": "fix_010"}
+{"question": "how does a periscope work", "accept": ["faq_1245", "faq_1248", "faq_785"], "prod_2026_10_01": "faq_786", "with_patch": "faq_786"}
+{"question": "were there windows", "accept": ["faq_1106"], "prod_2026_10_01": "faq_1106", "with_patch": "faq_1106"}
+{"question": "how many submarines did america lose", "accept": ["faq_1080"], "prod_2026_10_01": "faq_1080", "with_patch": "faq_1080"}
+{"question": "how many subs did the US have", "accept": ["faq_1062", "faq_1067"], "prod_2026_10_01": "faq_1108", "with_patch": "faq_600"}
+{"question": "how much did a sub cost", "accept": ["faq_1074", "faq_1339"], "prod_2026_10_01": "faq_1074", "with_patch": "faq_1074"}
+{"question": "how long to build a submarine", "accept": ["faq_1075"], "prod_2026_10_01": "faq_1075", "with_patch": "faq_1075"}
+{"question": "could anyone escape a sunken sub", "accept": ["faq_1087", "faq_1088"], "prod_2026_10_01": "faq_1087", "with_patch": "faq_1087"}
+{"question": "why is it called the silent service", "accept": ["faq_1110"], "prod_2026_10_01": "faq_1110", "with_patch": "faq_1110"}
+{"question": "what was ultra", "accept": ["faq_1085"], "prod_2026_10_01": "faq_1085", "with_patch": "faq_1085"}
+{"question": "how successful were us subs in ww2", "accept": ["faq_1108"], "prod_2026_10_01": "faq_1108", "with_patch": "faq_1108"}
+{"question": "what did subs do at midway", "accept": ["faq_1261"], "prod_2026_10_01": "faq_1259", "with_patch": "faq_1261"}
+{"question": "tell me about the kaiten", "accept": ["faq_1284", "faq_1285", "faq_1286"], "prod_2026_10_01": "faq_1285", "with_patch": "faq_1285"}
+{"question": "did japanese subs attack california", "accept": ["faq_1273"], "prod_2026_10_01": "faq_1265", "with_patch": "faq_1265"}
+{"question": "long lance torpedo", "accept": ["faq_1275", "faq_1276", "faq_1279"], "prod_2026_10_01": "faq_1279", "with_patch": "faq_1279"}
+{"question": "what happened to the sculpin", "accept": ["faq_1242"], "prod_2026_10_01": "faq_1242", "with_patch": "faq_1242"}
+{"question": "who was pampanito's captain", "accept": ["faq_1346"], "prod_2026_10_01": "faq_1346", "with_patch": "faq_1346"}
+{"question": "when was pampanito built", "accept": ["faq_1337", "fix_013"], "prod_2026_10_01": "faq_1336", "with_patch": "faq_1336"}
+{"question": "where was pampanito built", "accept": ["faq_1336"], "prod_2026_10_01": "faq_1336", "with_patch": "faq_1336"}
+{"question": "tell me about the POW rescue", "accept": ["faq_1288", "faq_1350", "faq_1351"], "prod_2026_10_01": "faq_1288", "with_patch": "faq_1288"}
+{"question": "why the broom on the periscope", "accept": ["faq_1361"], "prod_2026_10_01": "faq_1361", "with_patch": "faq_1361"}
+{"question": "can pampanito still dive", "accept": ["faq_1363"], "prod_2026_10_01": "faq_1363", "with_patch": "faq_1363"}
+{"question": "what's pampanito named after", "accept": ["faq_1338"], "prod_2026_10_01": "faq_1338", "with_patch": "faq_1338"}
+{"question": "why is cod in cleveland", "accept": ["faq_1365", "faq_1368"], "prod_2026_10_01": "faq_1365", "with_patch": "faq_1365"}
+{"question": "who was cod's skipper", "accept": ["faq_1378"], "prod_2026_10_01": "faq_1224", "with_patch": "faq_1224"}
+{"question": "why does cod have a dutch flag", "accept": ["faq_1366", "faq_1371", "faq_1380"], "prod_2026_10_01": "faq_1371", "with_patch": "faq_1371"}
+{"question": "what's the martini glass on cod", "accept": ["faq_1384"], "prod_2026_10_01": "faq_1371", "with_patch": "faq_1371"}
+{"question": "what did cod sink", "accept": ["faq_1367"], "prod_2026_10_01": "faq_1367", "with_patch": "faq_1367"}
+{"question": "what's in the control room", "accept": ["faq_605", "faq_786"], "prod_2026_10_01": "faq_786", "with_patch": "faq_786"}
+{"question": "what is the conning tower", "accept": ["faq_785"], "prod_2026_10_01": "faq_785", "with_patch": "faq_785"}
+{"question": "what's the maneuvering room", "accept": ["faq_604"], "prod_2026_10_01": "faq_604", "with_patch": "faq_604"}
+{"question": "why are the doors round", "accept": ["faq_600", "faq_601"], "prod_2026_10_01": "faq_1376", "with_patch": "faq_1376"}
+{"question": "how thick is the hull", "accept": ["faq_1343"], "prod_2026_10_01": "faq_1343", "with_patch": "faq_1343"}
+{"question": "what is a sub vs a ship", "accept": ["faq_591"], "prod_2026_10_01": "faq_591", "with_patch": "faq_591"}
+{"question": "how are modern subs different", "accept": ["faq_800"], "prod_2026_10_01": "faq_800", "with_patch": "faq_800"}
+{"question": "how big was a ww2 sub", "accept": ["faq_1079", "faq_1342"], "prod_2026_10_01": "faq_1079", "with_patch": "faq_1079"}

@@ -1223,7 +1223,16 @@ STOPWORDS = {
 }
 
 
-def tokenize(text: str) -> List[str]:
+# Words that carry no signal in this corpus.  Dropped from the question and from
+# FAQ titles when scoring, but kept when they are all a question has left
+# ("What did U. S. submarines do in WW2?"), so nothing that answered before
+# now refuses.  Body text keeps them.  Added 1 Oct 2026 after a 99-question
+# paraphrase battery: 51/99 before, 62/99 after, self-retrieval 386/386 both.
+SOFT_STOPWORDS = {"submarines", "boats", "subs", "they", "them", "their",
+                  "these", "those", "mean", "means", "ww2", "wwii"}
+
+
+def tokenize(text: str, keep_soft: bool = True) -> List[str]:
     text = (text or "").lower()
     # Preserve known hyphenated terms before stripping punctuation
     text = re.sub(r"\bv-mail\b", "vmail", text)
@@ -1232,6 +1241,8 @@ def tokenize(text: str) -> List[str]:
     text = re.sub(r"[^a-z0-9\s]", " ", text)
     # keep tokens longer than 2 chars, OR 2-char pure numbers (e.g. "14", "18")
     toks = [t for t in text.split() if t not in STOPWORDS and (len(t) > 2 or (len(t) == 2 and t.isdigit()))]
+    if not keep_soft:
+        toks = [t for t in toks if t not in SOFT_STOPWORDS]
     return toks
 
 
@@ -2119,7 +2130,7 @@ def retrieve(
     - Stopword-safe overlap scoring.
     - Intent gating to prevent obviously wrong matches.
     """
-    q_tokens = tokenize(question_text)
+    q_tokens = tokenize(question_text, keep_soft=False) or tokenize(question_text)
     q_tokens = remove_compartment_noise(q_tokens, question_text)
     intent = detect_intent(q_tokens, question_text)
 
@@ -2179,7 +2190,7 @@ def retrieve(
             # "What is in the after torpedo room?" (coverage=0.33) even when
             # both contain the only query token "torpedo".
             if title_text:
-                title_toks = set(tokenize(title_text))
+                title_toks = set(tokenize(title_text, keep_soft=False))
                 q_set = set(q_tokens)
                 if q_set and title_toks:
                     # Use synonym-expanded query tokens so e.g. "served"→"assigned"
@@ -2308,8 +2319,12 @@ def split_sentences(text: str) -> List[str]:
     # Normalize non-breaking spaces; split on whitespace after .!?
     # OR on a period immediately followed by a capital letter (no space in corpus text)
     text = (text or "").replace("\xa0", " ").strip()
+    # Protect "U. S." / "U.S." so the split cannot cut it in two.  The "S."
+    # fragment fell under the 3-character floor and was dropped, so answers drawn
+    # from the 88 records using "U. S." read "U. submarines" or lost it entirely.
+    text = re.sub(r"\bU\.\s?S\.", "U\u2024S\u2024", text)
     parts = re.split(r"(?<=[.!?])\s+|(?<=[.!?])(?=[A-Z])", text)
-    return [p.strip() for p in parts if p.strip()]
+    return [p.strip().replace("U\u2024S\u2024", "U. S.") for p in parts if p.strip()]
 
 
 def best_sentences(text: str, want_terms: List[str], max_sentences: int = 2) -> List[str]:
@@ -2554,7 +2569,7 @@ def synthesize_extractive(
     - Skips any leading title/question line (ends with '?').
     - Supplements with 1-2 sentences from a second chunk if needed.
     """
-    q_tokens = tokenize(question_text)
+    q_tokens = tokenize(question_text, keep_soft=False) or tokenize(question_text)
     q_tokens = remove_compartment_noise(q_tokens, question_text)
     intent = detect_intent(q_tokens, question_text)
 
