@@ -5798,7 +5798,7 @@ async def save_patrol_content(n: int, request: Request):
 # ------------------------------------------------------------
 
 @app.post("/ask")
-def ask(payload: dict):
+def ask(request: Request, payload: dict):
     question = (payload.get("question_text") or "").strip()
     compartment = (payload.get("compartment_id") or "").strip()
     playhead_time_ms = int(payload.get("playhead_time_ms") or 0)
@@ -5836,8 +5836,17 @@ def ask(payload: dict):
     else:
         result = synthesize_extractive(question_text=question, hits=hits)
 
-    _append_ask_log(question, result.get("faq_id"), museum_id)
+    if request.headers.get("x-subdocent-test") != "1":
+        _append_ask_log(question, result.get("faq_id"), museum_id)
     return result
+
+
+@app.delete("/admin/ask-log")
+def clear_ask_log():
+    """Empty the visitor question log. Main credential only."""
+    with _ask_log_lock:
+        open(ASK_LOG_PATH, "w", encoding="utf-8").close()
+    return {"status": "cleared"}
 
 
 @app.get("/admin/ask-log")

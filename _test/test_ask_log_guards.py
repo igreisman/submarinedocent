@@ -2,25 +2,19 @@
 """Two tests for ask-log security and seed hygiene.
 
 1. Museum admin credential must not reach GET /admin/ask-log (expect 401).
+   Runs entirely locally via TestClient with a stand-in credential; never
+   skipped, never hits production.
 2. ask_log.jsonl must not appear in a staged corpora/ seed.
 
 Run with:
-    python3 _test/test_ask_log_guards.py
-
-The first test needs MUSEUM_ADMIN_USERNAME and MUSEUM_ADMIN_PASSWORD in the
-environment (or it is skipped with a warning). The second test is purely local
-and needs no network.
+    CONTENT_ROOT=corpora python3 _test/test_ask_log_guards.py
 """
 import base64
-import json
 import os
 import sys
-import urllib.request
-import urllib.error
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-BASE_URL = os.getenv("SUBDOCENT_BASE_URL", "https://submarinedocent.org").rstrip("/")
+sys.path.insert(0, REPO)
 
 
 def _basic(user: str, pw: str) -> str:
@@ -28,28 +22,38 @@ def _basic(user: str, pw: str) -> str:
 
 
 def test_museum_cannot_reach_ask_log() -> bool:
-    mu = os.getenv("MUSEUM_ADMIN_USERNAME", "").strip()
-    mp = os.getenv("MUSEUM_ADMIN_PASSWORD", "").strip()
-    if not mu or not mp:
-        print("  SKIP museum-credential test: MUSEUM_ADMIN_USERNAME/PASSWORD not set")
-        return True
-    req = urllib.request.Request(
-        f"{BASE_URL}/admin/ask-log",
-        headers={"Authorization": _basic(mu, mp)},
+    """Museum credential is rejected with 401 on /admin/ask-log.
+
+    Uses TestClient with a stand-in credential injected into the environment
+    so the test never requires the real museum password and never hits production.
+    """
+    # Use credentials that do not match the main admin.
+    fake_museum_user = "test-museum-user"
+    fake_museum_pass = "test-museum-pass"
+    os.environ.setdefault("ADMIN_USERNAME", "real-admin")
+    os.environ.setdefault("ADMIN_PASSWORD", "real-admin-pass")
+    os.environ["MUSEUM_ADMIN_USERNAME"] = fake_museum_user
+    os.environ["MUSEUM_ADMIN_PASSWORD"] = fake_museum_pass
+
+    from starlette.testclient import TestClient
+    from api import main as m
+
+    # Force the auth env vars to be read by the module-level variables.
+    m.MUSEUM_ADMIN_USERNAME = fake_museum_user
+    m.MUSEUM_ADMIN_PASSWORD = fake_museum_pass
+    m.ADMIN_USERNAME = os.environ["ADMIN_USERNAME"]
+    m.ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+
+    client = TestClient(m.app, raise_server_exceptions=False)
+    resp = client.get(
+        "/admin/ask-log",
+        headers={"Authorization": _basic(fake_museum_user, fake_museum_pass)},
     )
-    try:
-        with urllib.request.urlopen(req) as r:
-            print(f"  FAIL museum credential reached /admin/ask-log (HTTP {r.status})")
-            return False
-    except urllib.error.HTTPError as e:
-        if e.code == 401:
-            print(f"  OK   museum credential rejected with 401")
-            return True
-        print(f"  FAIL unexpected HTTP {e.code} from /admin/ask-log")
-        return False
-    except Exception as e:
-        print(f"  FAIL unexpected error: {e}")
-        return False
+    if resp.status_code == 401:
+        print("  OK   museum credential rejected with 401")
+        return True
+    print(f"  FAIL /admin/ask-log returned {resp.status_code} for museum credential")
+    return False
 
 
 def test_ask_log_not_in_seed() -> bool:
