@@ -26,7 +26,7 @@ this project outrank reference material:
 | Corpus | Weight | Why |
 |---|---:|---|
 | `dieselsubs_faq_corpus.jsonl` | 1.2 | The source of truth. Written to answer questions. |
-| `dieselsubs_shorts_corpus.jsonl` | 0.8 | Short answers. May answer visitors, but never ahead of a title-matched FAQ. If any `faq_`/`fix_` record earns the all-covered or near-exact title boost, every shorts record is capped below the lowest such score for that query. |
+| `dieselsubs_shorts_corpus.jsonl` | 0.8 | Short answers. May answer visitors, but never ahead of a title-matched FAQ. If any `faq_`/`fix_` record earns the all-covered title boost, every shorts record is capped below the lowest such score for that query. |
 | `dieselsubs_fleetsub_manual.jsonl` | 0.5 | 2,189 chunks of 1946 Navy engineering prose. Answers only what nothing else can. |
 | `dieselsubs_sub_losses_wwii.jsonl` | 0.5 | Primary-source government text, not written as answers. |
 

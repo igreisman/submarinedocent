@@ -2220,11 +2220,11 @@ def retrieve(
                         if cid.startswith(("faq_", "fix_")):
                             _faq_title_boosted.add(cid)
                     elif matched >= max(1, len(q_set) - 1):
-                        # Near-exact (all but one): scale 2x by coverage
+                        # Near-exact (all but one): scale 2x by coverage.
+                        # Does NOT set _faq_title_boosted: coverage-scaled boosts
+                        # can be tiny and wrongly displaced a shorts answer about
+                        # bunks with an FAQ about torpedoes (2026-10-01 correction).
                         effective_weight = weight * 2.0 * coverage
-                        cid = ch.get("chunk_id", "")
-                        if cid.startswith(("faq_", "fix_")):
-                            _faq_title_boosted.add(cid)
 
                     normalized_title_text = " ".join(
                         re.sub(r"[^a-z0-9\s]", " ", title_text.lower()).split()
