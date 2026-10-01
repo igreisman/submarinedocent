@@ -58,6 +58,9 @@ CORPORA = os.path.join(REPO, "corpora")
 ANSWERABLE_PREFIXES = ("faq_", "fix_")
 DEFAULT_BASE_URL = "https://submarinedocent.org"
 
+# Files that live on /data but must never enter corpora/.
+NEVER_SEED = frozenset({"ask_log.jsonl"})
+
 
 def env(name, default=None):
     v = os.getenv(name, "").strip()
@@ -168,6 +171,8 @@ def main():
         members = {os.path.basename(m.name): m for m in tar.getmembers()
                    if m.name.endswith(".jsonl")}
         for filename in sorted(members):
+            if filename in NEVER_SEED:
+                continue  # operational data that must never enter corpora/
             local = os.path.join(CORPORA, filename)
             if not os.path.exists(local):
                 unshipped.append(filename)

@@ -27,6 +27,7 @@ rsync -a \
   --exclude "certs/" \
   --exclude ".env.local" \
   --exclude "feedback.jsonl" \
+  --exclude "ask_log.jsonl" \
   --exclude "nohup.out" \
   --exclude "uvicorn.log" \
   "$ROOT_DIR/" "$TARGET_DIR/"

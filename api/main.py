@@ -585,6 +585,62 @@ GLOSSARY_PATH = _editable_corpus_path("dieselsubs_glossary.jsonl")
 FAQ_PATH = _editable_corpus_path("dieselsubs_faq_corpus.jsonl")
 CATEGORIES_PATH = _editable_corpus_path("dieselsubs_faq_categories.jsonl")
 
+# Visitor question log — persistent disk in production, repo root locally.
+# Never goes in corpora/; refresh_seed.py blocks it explicitly.
+ASK_LOG_PATH = (
+    os.path.join(_RENDER_DATA_DIR, "ask_log.jsonl")
+    if _persistent_disk_available
+    else os.path.join(BASE_DIR, "ask_log.jsonl")
+)
+_ask_log_lock = threading.Lock()
+_ask_log_last_compact: float = 0.0
+
+
+def _compact_ask_log() -> None:
+    """Drop lines older than 12 months. Called at startup and at most once per day."""
+    import datetime
+    cutoff = (datetime.date.today() - datetime.timedelta(days=365)).isoformat()
+    if not os.path.exists(ASK_LOG_PATH):
+        return
+    kept = []
+    try:
+        with open(ASK_LOG_PATH, "r", encoding="utf-8") as fh:
+            for raw in fh:
+                raw = raw.strip()
+                if not raw:
+                    continue
+                try:
+                    if json.loads(raw).get("date", "") >= cutoff:
+                        kept.append(raw)
+                except Exception:
+                    kept.append(raw)
+    except Exception:
+        return
+    tmp = ASK_LOG_PATH + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(kept) + ("\n" if kept else ""))
+    os.replace(tmp, ASK_LOG_PATH)
+
+
+def _append_ask_log(q: str, faq_id: Optional[str], museum_id: str) -> None:
+    import datetime
+    global _ask_log_last_compact
+    today = datetime.date.today().isoformat()
+    line = json.dumps(
+        {"q": q[:500], "faq_id": faq_id or "refusal", "museum_id": museum_id, "date": today},
+        ensure_ascii=False,
+    )
+    try:
+        with _ask_log_lock:
+            now = time.time()
+            if now - _ask_log_last_compact > 86400:
+                _compact_ask_log()
+                _ask_log_last_compact = now
+            with open(ASK_LOG_PATH, "a", encoding="utf-8") as fh:
+                fh.write(line + "\n")
+    except Exception as exc:
+        print(f"[ASK_LOG] write failed: {exc}")
+
 
 # Path for incidents corpus
 INCIDENTS_PATH = _editable_corpus_path("incidents.jsonl")
@@ -5757,7 +5813,7 @@ def ask(payload: dict):
     )
 
     if not hits:
-        return {
+        result = {
             "answer_mode": payload.get("answer_mode", "standard") or "standard",
             "answer_short": "I don’t have that detail in the reference material I’m using.",
             "answer_deep": None,
@@ -5769,17 +5825,39 @@ def ask(payload: dict):
             ],
             "refusal": {"is_refusal": True, "reason": "no_source"},
         }
-
-    if USE_LLM:
+    elif USE_LLM:
         # Later: replace synthesize_openai_stub with a real OpenAI call.
-        return synthesize_openai_stub(
+        result = synthesize_openai_stub(
             question_text=question,
             hits=hits,
             compartment_id=compartment,
             playhead_time_ms=playhead_time_ms
         )
+    else:
+        result = synthesize_extractive(question_text=question, hits=hits)
 
-    return synthesize_extractive(question_text=question, hits=hits)
+    _append_ask_log(question, result.get("faq_id"), museum_id)
+    return result
+
+
+@app.get("/admin/ask-log")
+def download_ask_log():
+    """Download the visitor question log. Main credential only."""
+    if not os.path.exists(ASK_LOG_PATH):
+        return Response(
+            content="",
+            media_type="application/x-ndjson",
+            headers={"Content-Disposition": 'attachment; filename="ask_log.jsonl"',
+                     "Cache-Control": "no-store"},
+        )
+    with _ask_log_lock:
+        content = open(ASK_LOG_PATH, "r", encoding="utf-8").read()
+    return Response(
+        content=content,
+        media_type="application/x-ndjson",
+        headers={"Content-Disposition": 'attachment; filename="ask_log.jsonl"',
+                 "Cache-Control": "no-store"},
+    )
 
 # ── Museum short URLs ────────────────────────────────────────────────────────
 # Registered LAST on purpose.  FastAPI matches routes in registration order, and
