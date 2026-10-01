@@ -2135,6 +2135,8 @@ def retrieve(
     intent = detect_intent(q_tokens, question_text)
 
     hits: List[Hit] = []
+    # faq_/fix_ chunk_ids that earned a title boost this query; shorts stay below them
+    _faq_title_boosted: set[str] = set()
 
     # Terms for comparison-boost: chunk must contain both sides
     _BOTH_MARKS_RE = [
@@ -2214,9 +2216,15 @@ def retrieve(
                         # it work?" lost two thirds of the boost and ranked
                         # below a passing mention in tour narration.
                         effective_weight = max(weight, weight * 4.0)
+                        cid = ch.get("chunk_id", "")
+                        if cid.startswith(("faq_", "fix_")):
+                            _faq_title_boosted.add(cid)
                     elif matched >= max(1, len(q_set) - 1):
                         # Near-exact (all but one): scale 2x by coverage
                         effective_weight = weight * 2.0 * coverage
+                        cid = ch.get("chunk_id", "")
+                        if cid.startswith(("faq_", "fix_")):
+                            _faq_title_boosted.add(cid)
 
                     normalized_title_text = " ".join(
                         re.sub(r"[^a-z0-9\s]", " ", title_text.lower()).split()
@@ -2258,6 +2266,20 @@ def retrieve(
 
     # Shorts (global)
     add_hits(SHORTS, "dieselsubs_shorts", weight=0.8, compartment_filter=False)
+
+    # Shorts never displace a title-matched FAQ: if any faq_/fix_ record earned
+    # the all-covered or near-exact boost, cap every shorts record below the
+    # lowest such score so reviewed answers always outrank convenience clips.
+    if _faq_title_boosted:
+        boosted_floor = min(
+            s for s, ch, _ in hits
+            if ch.get("chunk_id", "") in _faq_title_boosted
+        )
+        hits = [
+            (min(s, boosted_floor * 0.999), ch, src) if src == "dieselsubs_shorts"
+            else (s, ch, src)
+            for s, ch, src in hits
+        ]
 
     # Fleet Type Submarine manual series (global) – 1946 Navy engineering
     # prose, kept as a primary source.  Lowest weight of any corpus.

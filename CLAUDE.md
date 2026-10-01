@@ -24,6 +24,7 @@ Maintainer: Irving Greisman. Public repo: github.com/igreisman/submarinedocent. 
 - Any change to scoring, `retrieve()`, `add_hits`, or the gate moves answers site-wide. Measure with the self-retrieval sweep (every `faq_` title plus the golden questions) before and after, and show the full diff including regressions, before committing.
 - `compare_gate.py` refuses to run against a corpus or gate setting that does not match production. Do not bypass with `--force` unless Irving says so.
 - Only `faq_` and `fix_` records answer visitors. `der_` records are unreviewed and stay behind the gate until a person accepts them. `pam_` is extinct: the last of those records was removed on 17 September 2026 and the prefix should not come back. Per-museum draft prefixes are intended but do not exist yet; they belong to the museum-pages plan.
+- `shorts_` records may also answer visitors, but never ahead of a title-matched FAQ. If any `faq_` or `fix_` record earns the all-covered or near-exact title boost in `add_hits`, every `shorts_` record is capped below the lowest such score. When no FAQ earns a boost, shorts compete on score as normal.
 - `accept_faq()` must preserve `original_source`. Provenance is what a rights question reads.
 - Production corpora live on `/data`, not in git. `corpora/` is the seed. Run `make refresh-seed` before any release or announcement; it stages, never commits.
 - After any bulk admin-API change, pull a fresh backup and diff it against the previous one. A 200 response is not proof the record is intact.
