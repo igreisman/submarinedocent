@@ -99,7 +99,7 @@
 {"question": "how big was a ww2 sub", "accept": ["faq_1079", "faq_1342"], "prod_2026_10_01": "faq_1079", "with_patch": "faq_1079"}
 {"question": "Where do you store your trash?", "accept": ["faq_1114"], "added": "2026-10-01, Reddit report"}
 {"question": "What did you do with your trash", "accept": ["faq_1114"], "added": "2026-10-01, Reddit report"}
-{"question": "If an average museum guide gave a tour of a diving submarine, does that make them a decent descent docent?", "accept": ["refusal", "fix_017"], "added": "2026-10-01, Reddit report"}
+{"question": "If an average museum guide gave a tour of a diving submarine, does that make them a decent descent docent?", "accept": ["refusal", "fix_228"], "added": "2026-10-01, Reddit report"}
 {"question": "What's the weather in San Francisco today?", "accept": ["refusal"], "added": "2026-10-01, off-topic"}
 {"question": "Can you recommend a good pizza place nearby?", "accept": ["refusal"], "added": "2026-10-01, off-topic"}
 {"question": "Who won the World Series last year?", "accept": ["refusal"], "added": "2026-10-01, off-topic"}

@@ -730,7 +730,7 @@
       <div class="hint">e.g. https://museum-docent.local:8443, or leave blank to use this page's origin</div>
     </div>
     <div class="field">
-      <label>ElevenLabs API Key <span style="color:#4a5a7a;">(optional — for AI voice)</span></label>
+      <label>ElevenLabs API Key <span style="color:#4a5a7a;">(optional, for AI voice)</span></label>
       <input id="settElKey" type="password" placeholder="sk_..." />
       <div class="hint">Leave blank to use the built-in server voice when available, otherwise recorded answer audio
         only</div>
@@ -1696,7 +1696,7 @@
         // 'not-allowed' = the visitor denied the microphone.  Server transcription
         // needs the same microphone, so there is nothing left but the keyboard.
         if (e.error === 'not-allowed') {
-          showTextFallback('Microphone blocked — type your question below.');
+          showTextFallback('Microphone blocked. Type your question below.');
           return;
         }
 
@@ -1716,7 +1716,7 @@
             enableRecordMode();
             startRecordTranscribe();  // their tap already asked to speak
           } else {
-            showTextFallback('Speech recognition unavailable — type your question below.');
+            showTextFallback('Speech recognition unavailable. Type your question below.');
           }
           return;
         }
@@ -1752,7 +1752,7 @@
     // SpeechRecognition requires Google's cloud (network error on local server).
     function startRecordTranscribe() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showTextFallback('Microphone not available — type your question below.');
+        showTextFallback('Microphone not available. Type your question below.');
         return;
       }
       isListening = true;
@@ -1790,7 +1790,7 @@
           lastQuestionAudio = blob;
 
           if (blob.size < 500) {
-            askStatus.textContent = 'No audio captured — try again.';
+            askStatus.textContent = 'No audio captured. Try again.';
             return;
           }
 
@@ -1807,13 +1807,13 @@
             const data = await resp.json();
             const transcript = (data.transcript || '').trim();
             if (!transcript) {
-              askStatus.textContent = 'Could not understand — try again.';
+              askStatus.textContent = 'Could not understand. Try again.';
               return;
             }
             handleQuestion(correctTranscript(transcript));
           } catch (err) {
             console.error('[transcribe]', err);
-            showTextFallback('Transcription failed — type your question below.');
+            showTextFallback('Transcription failed. Type your question below.');
           }
         };
         mediaRecorder.start(250);
@@ -1824,7 +1824,7 @@
         micBtn.textContent = '🎤';
         micBtn.title = 'Tap to record your question';
         micBtn.onclick = () => { unlockAudio(); startRecordTranscribe(); };
-        showTextFallback('Microphone access denied — type your question below.');
+        showTextFallback('Microphone access denied. Type your question below.');
       });
     }
 
