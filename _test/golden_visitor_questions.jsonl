@@ -15,8 +15,8 @@
 {"question": "top speed of a gato class sub", "accept": ["faq_1090", "faq_1345"], "prod_2026_10_01": "faq_1345", "with_patch": "faq_1345"}
 {"question": "did they run on diesel or batteries", "accept": ["faq_1090", "faq_1290", "faq_778", "faq_779", "faq_780", "faq_782"], "prod_2026_10_01": "faq_778", "with_patch": "faq_778"}
 {"question": "how many guys were on the crew", "accept": ["faq_1118"], "prod_2026_10_01": "faq_1118", "with_patch": "faq_1118"}
-{"question": "where did everyone sleep", "accept": ["faq_1119", "faq_1160", "fix_002"], "prod_2026_10_01": "shorts_short_4_0004", "with_patch": "shorts_short_4_0004"}
-{"question": "did sailors sleep next to the torpedoes", "accept": ["faq_1160", "faq_1161", "fix_002"], "prod_2026_10_01": "shorts_short_4_0004", "with_patch": "shorts_short_4_0004"}
+{"question": "where did everyone sleep", "accept": ["faq_1119", "faq_1160"], "prod_2026_10_01": "shorts_short_4_0004", "with_patch": "shorts_short_4_0004", "pending_replacement": "fix_002 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
+{"question": "did sailors sleep next to the torpedoes", "accept": ["faq_1160", "faq_1161"], "prod_2026_10_01": "shorts_short_4_0004", "with_patch": "shorts_short_4_0004", "pending_replacement": "fix_002 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "what did they eat", "accept": ["faq_1177"], "prod_2026_10_01": "faq_1178", "with_patch": "faq_1178"}
 {"question": "was the food good on submarines", "accept": ["faq_1177"], "prod_2026_10_01": "faq_1148", "with_patch": "faq_1148"}
 {"question": "how often could they shower", "accept": ["faq_1173"], "prod_2026_10_01": "faq_780", "with_patch": "faq_780"}
@@ -31,12 +31,12 @@
 {"question": "what did they do for fun", "accept": ["faq_1185"], "prod_2026_10_01": "faq_1190", "with_patch": null}
 {"question": "were submariners volunteers", "accept": ["faq_1132"], "prod_2026_10_01": "faq_1131", "with_patch": "faq_1131"}
 {"question": "how tall could a submariner be", "accept": ["faq_1123"], "prod_2026_10_01": "faq_1076", "with_patch": "faq_1076"}
-{"question": "did submarine sailors get extra pay", "accept": ["fix_016"], "prod_2026_10_01": "fix_016", "with_patch": "fix_016"}
+{"question": "did submarine sailors get extra pay", "accept": [], "prod_2026_10_01": "fix_016", "with_patch": "fix_016", "pending_replacement": "fix_016 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "what is the goat locker", "accept": ["faq_607"], "prod_2026_10_01": "faq_607", "with_patch": "faq_607"}
 {"question": "what does COB mean", "accept": ["faq_1146"], "prod_2026_10_01": "faq_1133", "with_patch": "faq_1146"}
 {"question": "why is the lighting red", "accept": ["faq_1188"], "prod_2026_10_01": "faq_1188", "with_patch": "faq_1188"}
 {"question": "how did they get mail at sea", "accept": ["faq_1098", "faq_1189"], "prod_2026_10_01": "faq_1189", "with_patch": "faq_1189"}
-{"question": "how did families know their sailor was ok", "accept": ["fix_014"], "prod_2026_10_01": "faq_1189", "with_patch": "fix_014"}
+{"question": "how did families know their sailor was ok", "accept": [], "prod_2026_10_01": "faq_1189", "with_patch": "fix_014", "pending_replacement": "fix_014 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "could you feel the waves underwater", "accept": ["faq_1163", "faq_1187"], "prod_2026_10_01": "faq_799", "with_patch": "faq_799"}
 {"question": "did people get seasick", "accept": ["faq_1162", "faq_1187"], "prod_2026_10_01": "faq_1187", "with_patch": "faq_1187"}
 {"question": "what was a watch rotation", "accept": ["faq_1156", "faq_1158"], "prod_2026_10_01": "faq_1156", "with_patch": "faq_1156"}
@@ -50,18 +50,18 @@
 {"question": "did torpedoes ever come back and hit the sub", "accept": ["faq_1212"], "prod_2026_10_01": "faq_1198", "with_patch": "faq_1198"}
 {"question": "how do you aim a torpedo", "accept": ["faq_1197", "faq_1252"], "prod_2026_10_01": "faq_1274", "with_patch": "faq_1274"}
 {"question": "what was the TDC", "accept": ["faq_1197", "faq_1252"], "prod_2026_10_01": "faq_1251", "with_patch": "faq_1251"}
-{"question": "how did they reload torpedoes", "accept": ["faq_1228", "faq_1230", "fix_006"], "prod_2026_10_01": "faq_1198", "with_patch": "fix_006"}
+{"question": "how did they reload torpedoes", "accept": ["faq_1228", "faq_1230"], "prod_2026_10_01": "faq_1198", "with_patch": "fix_006", "pending_replacement": "fix_006 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "how many torpedoes to sink a ship", "accept": ["faq_1226"], "prod_2026_10_01": "faq_1254", "with_patch": "faq_1254"}
 {"question": "what explosive was in torpedoes", "accept": ["faq_1231"], "prod_2026_10_01": "faq_1231", "with_patch": "faq_1231"}
 {"question": "what is the big gun on deck for", "accept": ["faq_1047", "faq_1048", "faq_1058"], "prod_2026_10_01": "faq_1370", "with_patch": "faq_1370"}
 {"question": "did subs shoot down planes", "accept": ["faq_1056"], "prod_2026_10_01": "faq_1261", "with_patch": "faq_1056"}
-{"question": "what is a depth charge", "accept": ["fix_015"], "prod_2026_10_01": "fix_015", "with_patch": "fix_015"}
+{"question": "what is a depth charge", "accept": [], "prod_2026_10_01": "fix_015", "with_patch": "fix_015", "pending_replacement": "fix_015 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "how did destroyers find submarines", "accept": ["faq_1256"], "prod_2026_10_01": "faq_1265", "with_patch": "faq_1265"}
 {"question": "how did subs escape depth charges", "accept": ["faq_1257"], "prod_2026_10_01": "faq_1089", "with_patch": "faq_1089"}
 {"question": "how did they know where they were", "accept": ["faq_1012", "faq_1013"], "prod_2026_10_01": "faq_1017", "with_patch": "faq_595"}
 {"question": "did WWII subs have GPS", "accept": ["faq_1013", "faq_1018", "faq_1020"], "prod_2026_10_01": "faq_1020", "with_patch": "faq_1020"}
 {"question": "did they have radar", "accept": ["faq_1111", "faq_1112", "faq_1245"], "prod_2026_10_01": "faq_1143", "with_patch": "faq_1112"}
-{"question": "how did sonar work", "accept": ["fix_010"], "prod_2026_10_01": "fix_010", "with_patch": "fix_010"}
+{"question": "how did sonar work", "accept": [], "prod_2026_10_01": "fix_010", "with_patch": "fix_010", "pending_replacement": "fix_010 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "how does a periscope work", "accept": ["faq_1245", "faq_1248", "faq_785"], "prod_2026_10_01": "faq_786", "with_patch": "faq_786"}
 {"question": "were there windows", "accept": ["faq_1106"], "prod_2026_10_01": "faq_1106", "with_patch": "faq_1106"}
 {"question": "how many submarines did america lose", "accept": ["faq_1080"], "prod_2026_10_01": "faq_1080", "with_patch": "faq_1080"}
@@ -78,7 +78,7 @@
 {"question": "long lance torpedo", "accept": ["faq_1275", "faq_1276", "faq_1279"], "prod_2026_10_01": "faq_1279", "with_patch": "faq_1279"}
 {"question": "what happened to the sculpin", "accept": ["faq_1242"], "prod_2026_10_01": "faq_1242", "with_patch": "faq_1242"}
 {"question": "who was pampanito's captain", "accept": ["faq_1346"], "prod_2026_10_01": "faq_1346", "with_patch": "faq_1346"}
-{"question": "when was pampanito built", "accept": ["faq_1337", "fix_013"], "prod_2026_10_01": "faq_1336", "with_patch": "faq_1336"}
+{"question": "when was pampanito built", "accept": ["faq_1337"], "prod_2026_10_01": "faq_1336", "with_patch": "faq_1336", "pending_replacement": "fix_013 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "where was pampanito built", "accept": ["faq_1336"], "prod_2026_10_01": "faq_1336", "with_patch": "faq_1336"}
 {"question": "tell me about the POW rescue", "accept": ["faq_1288", "faq_1350", "faq_1351"], "prod_2026_10_01": "faq_1288", "with_patch": "faq_1288"}
 {"question": "why the broom on the periscope", "accept": ["faq_1361"], "prod_2026_10_01": "faq_1361", "with_patch": "faq_1361"}

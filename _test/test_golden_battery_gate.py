@@ -13,7 +13,9 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO)
 
 GOLDEN = os.path.join(REPO, "_test", "golden_visitor_questions.jsonl")
-PASS_FLOOR = 62   # 51/99 before patch 2026-10-01; floor set at post-patch score
+# 2 Oct 2026: 7 pam_-derived fix_ records removed; raise to at least 65 when replacements land.
+# (Was 62: 51/99 before patch 2026-10-01; floor set at post-patch score.)
+PASS_FLOOR = 60
 
 
 def main() -> int:
