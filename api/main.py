@@ -2171,6 +2171,24 @@ Hit = Tuple[float, Dict[str, Any], str]
 MUSEUM_BOOST = float(os.getenv("MUSEUM_BOOST", "2.0"))
 
 
+def _title_covers_question(q_tokens: List[str], title_text: str) -> bool:
+    """Every query token appears in the title, directly or as a synonym.
+
+    This is the confident title match: add_hits gives it the full title boost,
+    shorts are capped below it, and the "why" check in synthesize_extractive
+    trusts it.  One definition so those three cannot drift apart.
+    """
+    title_toks = set(tokenize(title_text, keep_soft=False))
+    q_set = set(q_tokens)
+    if not (q_set and title_toks):
+        return False
+    return all(
+        t in title_toks or
+        any(syn in title_toks for syn in QUERY_SYNONYMS.get(t, []))
+        for t in q_set
+    )
+
+
 def retrieve(
     question_text: str,
     compartment_id: str,
@@ -2256,13 +2274,7 @@ def retrieve(
                     q_expanded_set = set(expand_query_tokens(q_tokens))
                     matched = len(q_expanded_set & title_toks)
                     coverage = matched / len(title_toks)  # fraction of title covered by query
-                    # "All covered" = every original query token appears directly
-                    # or via synonym expansion in the title
-                    all_q_covered = all(
-                        t in title_toks or
-                        any(syn in title_toks for syn in QUERY_SYNONYMS.get(t, []))
-                        for t in q_set
-                    )
+                    all_q_covered = _title_covers_question(q_tokens, title_text)
                     if all_q_covered:
                         # Every query token appears in the title, so the entry
                         # answers the whole question: apply the full boost and
@@ -2928,7 +2940,18 @@ def synthesize_extractive(
         "goal", "aim", "embargo", "retaliation", "threat", "feared",
         "since", "so that", "designed to", "meant to", "required to",
     ]
-    if intent.get("is_why_question"):
+    # A record whose title covers the whole question is the answer, whether or
+    # not its prose happens to use a causal word.  Without this, eight records
+    # that answer their own "why" titles were swapped for a neighbour's text:
+    # "Why does Pampanito have the number 383?" read faq_1070's.  The check is
+    # also triggered by "cause" or "reason" anywhere in a question, which is
+    # how "Did the added pressure ever cause an issue?" (faq_1321) reached it.
+    _top = hits[0][1] if hits else {}
+    _confident_title = (
+        str(_top.get("chunk_id", "")).startswith(("faq_", "fix_"))
+        and _title_covers_question(q_tokens, _top.get("title") or "")
+    )
+    if intent.get("is_why_question") and not _confident_title:
         answer_lower = answer_short.lower()
         has_causal = any(m in answer_lower for m in CAUSAL_MARKERS)
         if not has_causal:
@@ -2958,6 +2981,11 @@ def synthesize_extractive(
                         "display_citation": ch_why.get("display_citation"),
                         "chunk_id": ch_why.get("chunk_id"),
                     }]
+                    # faq_id names the record whose text is shown, or nothing
+                    # when that text is not an FAQ; it used to keep naming the
+                    # record that was rejected.
+                    faq_chunk_id = (ch_why.get("chunk_id") or None) if ch_why.get(
+                        "doc_type") in ("dieselsubs_faq", "dieselsubs_shorts") else None
                     rebuilt = True
                     break
             if not rebuilt:
