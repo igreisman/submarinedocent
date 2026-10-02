@@ -1,6 +1,196 @@
 {
   "entries": [
     {
+      "week_ending": "2026-10-02",
+      "from": "2026-09-25",
+      "to": "2026-10-02",
+      "generated": "2026-10-02T02:11:35-07:00",
+      "commits_total": 20,
+      "commits_listed": 9,
+      "commits": [
+        {
+          "sha": "406b2f9",
+          "summary": "CI: golden battery gate and FAQ answer opening test",
+          "date": "2026-10-01T21:25:39-04:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "57273c1",
+          "summary": "Refuse when the answering record covers too little of the question",
+          "date": "2026-10-01T21:10:51-04:00",
+          "area": "",
+          "files": 5,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "1ee8a76",
+          "summary": "\"Why\" check trusts a confident title match; faq_id names the text shown",
+          "date": "2026-10-01T20:51:00-04:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "598394c",
+          "summary": "FAQ answers keep their paragraphs; fix lost openings",
+          "date": "2026-10-01T20:32:45-04:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "41e8b0f",
+          "summary": "Ask-log follow-ups: test header, no DELETE, Groq notice, production battery",
+          "date": "2026-10-01T10:09:22-04:00",
+          "area": "Ask the Docent",
+          "files": 4,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "403884c",
+          "summary": "Skip ask-log on X-SubDocent-Test header; museum 401 test never skips",
+          "date": "2026-10-01T09:58:08-04:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "5888d04",
+          "summary": "Log visitor questions anonymously on each /ask",
+          "date": "2026-10-01T09:45:27-04:00",
+          "area": "Ask the Docent",
+          "files": 6,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "4c2a898",
+          "summary": "Golden file: remove faq_1254 from accept list (record deleted)",
+          "date": "2026-10-01T09:33:10-04:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "f0a26c9",
+          "summary": "Corpus: 14 above/below fixes, 8 retitles, delete faq_1293 and faq_1335",
+          "date": "2026-10-01T09:23:14-04:00",
+          "area": "Answers",
+          "files": 2,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "264c631",
+          "summary": "Corpus: faq_1185/1188 above-below fixes, faq_1226 cross-ref, delete faq_1254, faq_1370 to Guns",
+          "date": "2026-10-01T09:03:06-04:00",
+          "area": "Answers",
+          "files": 2,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "66d1aea",
+          "summary": "Correct shorts rule: clamp on all-covered only, not near-exact",
+          "date": "2026-10-01T08:56:26-04:00",
+          "area": "",
+          "files": 3,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "a7f4918",
+          "summary": "Shorts never rank above a title-boosted FAQ; sweep 386/386, battery 63/99",
+          "date": "2026-10-01T08:46:18-04:00",
+          "area": "",
+          "files": 3,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "925131a",
+          "summary": "Delete retrieval_config.yaml: nothing reads it, still names the old tour",
+          "date": "2026-10-01T08:42:19-04:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "48b7b29",
+          "summary": "Soft stopwords + U. S. split fix; golden battery 51→62/99, sweep 386/386",
+          "date": "2026-10-01T08:42:08-04:00",
+          "area": "",
+          "files": 4,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "bcb6016",
+          "summary": "Welcome page: neutral hero text, glossary link in transcript",
+          "date": "2026-09-29T09:31:34-04:00",
+          "area": "Pages and layout",
+          "files": 1,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "7f42e67",
+          "summary": "Correct transcript: stern plane, not trim pump (confirmed by Irving)",
+          "date": "2026-09-29T09:24:50-04:00",
+          "area": "Pages and layout",
+          "files": 1,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "a404877",
+          "summary": "Spoken welcome on welcome.html, in Irving's voice",
+          "date": "2026-09-27T12:48:16-07:00",
+          "area": "Pages and layout",
+          "files": 3,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "ee97f09",
+          "summary": "Report transcription as available only when Groq accepts the key",
+          "date": "2026-09-27T18:12:10-07:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "2b7068c",
+          "summary": "Split the changelog: visible changes public, everything on the admin page",
+          "date": "2026-09-25T07:18:59-07:00",
+          "area": "Pages and layout",
+          "files": 8,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "c6625a2",
+          "summary": "Add a What's New page, refreshed every Friday at 02:00 Pacific",
+          "date": "2026-09-25T07:04:27-07:00",
+          "area": "Pages and layout",
+          "files": 5,
+          "public": true,
+          "reason": ""
+        }
+      ]
+    },
+    {
       "week_ending": "2026-09-25",
       "from": "2026-09-18",
       "to": "2026-09-25",

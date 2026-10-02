@@ -1,6 +1,89 @@
 {
   "entries": [
     {
+      "week_ending": "2026-10-02",
+      "from": "2026-09-25",
+      "to": "2026-10-02",
+      "generated": "2026-10-02T02:11:35-07:00",
+      "commits_total": 20,
+      "commits_listed": 9,
+      "totals": [
+        {
+          "label": "Answers",
+          "was": 386,
+          "now": 383
+        },
+        {
+          "label": "Videos",
+          "was": 108,
+          "now": 108
+        },
+        {
+          "label": "Museums listed",
+          "was": 20,
+          "now": 20
+        },
+        {
+          "label": "Museum pages",
+          "was": 2,
+          "now": 2
+        }
+      ],
+      "groups": [
+        {
+          "area": "Answers",
+          "changes": [
+            {
+              "sha": "f0a26c9",
+              "summary": "Corpus: 14 above/below fixes, 8 retitles, delete faq_1293 and faq_1335"
+            },
+            {
+              "sha": "264c631",
+              "summary": "Corpus: faq_1185/1188 above-below fixes, faq_1226 cross-ref, delete faq_1254, faq_1370 to Guns"
+            }
+          ]
+        },
+        {
+          "area": "Ask the Docent",
+          "changes": [
+            {
+              "sha": "41e8b0f",
+              "summary": "Ask-log follow-ups: test header, no DELETE, Groq notice, production battery"
+            },
+            {
+              "sha": "5888d04",
+              "summary": "Log visitor questions anonymously on each /ask"
+            }
+          ]
+        },
+        {
+          "area": "Pages and layout",
+          "changes": [
+            {
+              "sha": "bcb6016",
+              "summary": "Welcome page: neutral hero text, glossary link in transcript"
+            },
+            {
+              "sha": "7f42e67",
+              "summary": "Correct transcript: stern plane, not trim pump (confirmed by Irving)"
+            },
+            {
+              "sha": "a404877",
+              "summary": "Spoken welcome on welcome.html, in Irving's voice"
+            },
+            {
+              "sha": "2b7068c",
+              "summary": "Split the changelog: visible changes public, everything on the admin page"
+            },
+            {
+              "sha": "c6625a2",
+              "summary": "Add a What's New page, refreshed every Friday at 02:00 Pacific"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "week_ending": "2026-09-25",
       "from": "2026-09-18",
       "to": "2026-09-25",
