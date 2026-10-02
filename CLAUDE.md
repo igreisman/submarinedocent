@@ -64,6 +64,6 @@ Each of these cost real work. They are here so the next person does not pay agai
 ## Working style
 
 - Irving prefers one strong recommendation over a list of options, and direct language over hedging.
-- No em dashes in email drafts or in **new** visitor-facing prose. Existing files keep theirs; do not run a cleanup pass.
+- No em dashes in email drafts, or in new or edited visitor-facing text. Existing ones are being removed under the em dash cleanup Irving ordered on 2 October 2026; the order of work is in the release plan. Source lines are mechanical: each em dash becomes a colon. Answer text and pages are rewritten sentence by sentence, not substituted, and each before/after goes to Irving first. Never change an em dash inside quoted historical material (patrol reports, letters, official text); list it for Irving instead.
 - When you find a problem outside the task, report it and continue; do not fix it silently unless leaving it would break the current task.
 - When a comparison or check turns out to have used the wrong setting, say so plainly and rerun. Corrections to your own earlier reports go in the record, not quietly into the file.
