@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CI gate: golden visitor-question battery must score at least 62/99.
+"""CI gate: golden visitor-question battery must score at least PASS_FLOOR.
 
 Run with:
     CONTENT_ROOT=corpora python3 _test/test_golden_battery_gate.py
@@ -32,6 +32,9 @@ def main() -> int:
         resp = m.synthesize_extractive(question_text=q, hits=hits) if hits else {}
         ids = [h[1].get("chunk_id") for h in hits]
         got = resp.get("faq_id") or (ids[0] if ids else None)
+        # Rows that should refuse carry accept: ["refusal"].
+        if not hits or (resp.get("refusal") or {}).get("is_refusal"):
+            got = "refusal"
         if got in accept:
             passed += 1
 

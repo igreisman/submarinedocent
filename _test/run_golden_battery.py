@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the 99-question golden battery and report pass/fail per question.
+"""Run the golden visitor-question battery and report pass/fail per question.
 
 Usage:
     CONTENT_ROOT=corpora python3 _test/run_golden_battery.py [golden.jsonl]
@@ -35,6 +35,9 @@ def main(golden_path: str | None = None) -> int:
         ids = [h[1].get("chunk_id") for h in hits]
         resp = m.synthesize_extractive(question_text=q, hits=hits) if hits else {}
         got = resp.get("faq_id") or (ids[0] if ids else None)
+        # Rows that should refuse carry accept: ["refusal"].
+        if not hits or (resp.get("refusal") or {}).get("is_refusal"):
+            got = "refusal"
         ok = got in accept
         entry = {"q": q, "got": got, "accept": sorted(accept)}
         if ok:

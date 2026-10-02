@@ -2360,7 +2360,42 @@ def retrieve(
              weight=SUB_LOSSES_WEIGHT, compartment_filter=False)
 
     hits.sort(key=lambda x: x[0], reverse=True)
-    return hits[:top_k]
+    hits = hits[:top_k]
+    if hits and _question_unanswered(q_tokens, hits[0][1]):
+        return []
+    return hits
+
+
+# A score is not evidence that the question was answered.  Scores sum idf over
+# matched words without normalising for question length, so a long joke that
+# brushes six common words ("If an average museum guide gave a tour of a diving
+# submarine, does that make them a decent descent docent?", 13.6) outscores a
+# real one-word question ("did WWII subs have GPS", 6.2), and no score floor
+# can refuse the first without refusing the second.  What separates them is
+# how much of the question the answering record actually mentions.
+#
+#   coverage     idf-weighted share of the question's words found in the top
+#                record's title or text, synonyms included.  The joke: 0.07.
+#                Lowest correctly answered golden question: 0.20.
+#   unexplained  idf weight of the question's words the record never mentions.
+#                Off (0) by default; see the Decisions log, 1 October 2026.
+MIN_QUESTION_COVERAGE = float(os.getenv("MIN_QUESTION_COVERAGE", "0.15"))
+MAX_UNEXPLAINED_IDF = float(os.getenv("MAX_UNEXPLAINED_IDF", "0"))
+
+
+def _question_unanswered(q_tokens: List[str], ch: Dict[str, Any]) -> bool:
+    if not q_tokens:
+        return False
+    rec = set(tokenize((ch.get("title") or "") + " " + (ch.get("text") or "")))
+    total = missing = 0.0
+    for t in dict.fromkeys(q_tokens):
+        w = _idf(t)
+        total += w
+        if t not in rec and not any(s in rec for s in QUERY_SYNONYMS.get(t, [])):
+            missing += w
+    if total and (total - missing) / total < MIN_QUESTION_COVERAGE:
+        return True
+    return bool(MAX_UNEXPLAINED_IDF) and missing >= MAX_UNEXPLAINED_IDF
 
 
 # ------------------------------------------------------------

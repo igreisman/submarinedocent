@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the 99-question golden battery against production and report pass/fail.
+"""Run the golden visitor-question battery against production and report pass/fail.
 
 Always sends X-SubDocent-Test: 1 so questions do not reach the visitor log.
 
@@ -32,7 +32,11 @@ def ask(base_url: str, question: str) -> str | None:
     )
     try:
         with urllib.request.urlopen(req, timeout=15) as r:
-            return json.loads(r.read()).get("faq_id")
+            j = json.loads(r.read())
+            # Rows that should refuse carry accept: ["refusal"].
+            if (j.get("refusal") or {}).get("is_refusal"):
+                return "refusal"
+            return j.get("faq_id")
     except Exception as exc:
         return f"ERROR:{exc}"
 
