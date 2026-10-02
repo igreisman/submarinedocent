@@ -3242,6 +3242,17 @@ def _save_faq_corpus() -> None:
     FAQ = _retrievable_faq(FAQ_ALL)
 
 
+def _faq_display_citation(title: str) -> str:
+    """The Source line a visitor reads under an answer.
+
+    Derived from the title on every save, because it was once stored and left
+    alone: by 2 October 2026, 13 answerable records named a title they no
+    longer had, 7 had none and showed their bare id, and 26 carried an older
+    "DieselSubs FAQ" label.  A colon, not a dash: the site carries no em dashes.
+    """
+    return f"SubmarineDocent FAQ: {title}"
+
+
 def _make_slug(title: str) -> str:
     s = title.lower()
     s = re.sub(r"[^a-z0-9\s-]", "", s)
@@ -4877,7 +4888,7 @@ async def create_faq(request: Request):
             "chunk_id": new_id,
             "doc_type": "dieselsubs_faq",
             "source": "manual_editor",
-            "display_citation": f"SubmarineDocent FAQ — {title}",
+            "display_citation": _faq_display_citation(title),
             "title": title,
             "text": text,
             "category": category,
@@ -4914,6 +4925,9 @@ async def update_faq(chunk_id: str, request: Request):
             entry["title"] = title
         if text:
             entry["text"] = text
+        # Drafts keep theirs until acceptance, which rewrites it.
+        if chunk_id.startswith(("faq_", "fix_")):
+            entry["display_citation"] = _faq_display_citation(entry.get("title", ""))
         if "category" in body:
             entry["category"] = (body.get("category") or "").strip()
         # Only touched when the caller sends the key, so an ordinary title/text
@@ -5047,7 +5061,7 @@ async def accept_faq(chunk_id: str, request: Request):
         entry["source"] = f"accepted_from_{old_id}"
         if accepted_by:
             entry["accepted_by"] = accepted_by
-        entry["display_citation"] = f"SubmarineDocent FAQ — {entry.get('title', new_id)}"
+        entry["display_citation"] = _faq_display_citation(entry.get("title", new_id))
         entry.pop("type", None)  # pam_ entries carry a spurious "type" key
         _save_faq_corpus()
     return {"status": "accepted", "old_id": old_id, "new_id": new_id}
