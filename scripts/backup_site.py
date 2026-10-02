@@ -60,7 +60,9 @@ def main():
     keep_days = int(env["KEEP_DAYS"])
     os.makedirs(backup_dir, exist_ok=True)
 
-    stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
+    # Seconds, not minutes: two backups in one minute (before and after an
+    # admin edit) shared a name on 2 October 2026 and the second overwrote the first.
+    stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
     out = os.path.join(backup_dir, f"submarinedocent-{stamp}.tar.gz")
     tmp = out + ".part"
 
