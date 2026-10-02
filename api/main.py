@@ -2722,22 +2722,33 @@ def synthesize_extractive(
                 """True if the paragraph is an ASCII diagram, not speakable prose."""
                 return bool(_DIAGRAM_RE.search(p))
 
-            result_paras: List[str] = []
+            # None marks a paragraph that was dropped, so a lead-in such as
+            # "The after torpedo room includes:" is kept when the list it
+            # introduces survives and dropped only when that list was removed.
+            built: List[Optional[str]] = []
             for para in answer_paragraphs:
                 # Skip un-speakable ASCII diagrams entirely
                 if is_diagram_para(para):
+                    built.append(None)
                     continue
                 if is_list_para(para):
-                    result_paras.append(para.strip())
+                    built.append(para.strip())
                     continue
                 sents = [s for s in split_sentences(para) if len(s.strip()) >= 3]
-                if not sents:
+                # The 3-character floor removes split fragments inside prose.  A
+                # paragraph that is short as a whole is a table cell ("41", "-")
+                # and has to stay, or the row totals read against the wrong rows.
+                if not sents and para.strip():
+                    sents = [para.strip()]
+                built.append(" ".join(sents) if sents else None)
+            result_paras: List[str] = []
+            for i, para in enumerate(built):
+                if para is None:
                     continue
-                # Drop dangling header sentences (end with ':' and are the only
-                # sentence in the paragraph — the body they introduced was removed)
-                if len(sents) == 1 and sents[0].rstrip().endswith(":"):
+                nxt = built[i + 1] if i + 1 < len(built) else None
+                if para.rstrip().endswith(":") and len(split_sentences(para)) == 1 and nxt is None:
                     continue
-                result_paras.append(" ".join(sents))
+                result_paras.append(para)
             faq_body = "\n\n".join(result_paras).strip()
             sents = chunk_sentences(ch)
             used_sentences = sents
@@ -2817,8 +2828,14 @@ def synthesize_extractive(
                 "source_url": ch.get("source_url"),
             }]
 
-    if faq_question and faq_body is not None:
-        answer_short = faq_question + "\n\n" + faq_body
+    # Most FAQ records keep the question in `title`, not in the text, so
+    # faq_question is usually None.  The body must still be used: joining
+    # used_sentences flattened every paragraph break but the one after a
+    # "The basic process is:" lead-in, and clean_for_audio then deleted the
+    # whole opening as a dangling header.  faq_1114 lost its trash paragraph
+    # that way and opened on the after torpedo room flushing list.
+    if faq_body:
+        answer_short = (faq_question + "\n\n" + faq_body) if faq_question else faq_body
     else:
         answer_short = " ".join(used_sentences).strip()
 
@@ -2842,13 +2859,13 @@ def synthesize_extractive(
         r"==>|-->"                          # arrow diagrams
         r"|\[[A-Z][\w\s]{0,20}\].{0,40}\["  # [Foo] ... [Bar] bracket chains
         r"|^\s*[|+][-+|]+[|+]\s*$"          # box-drawing lines
-        r"|^Note\s*:",                      # "NOTE :" headers from FAQ
+        r"|^Note\s*:\s*$",                  # bare "NOTE :" headers; a NOTE with text is content
         re.IGNORECASE,
     )
 
     def clean_for_audio(text: str) -> str:
         """Remove lines that are diagrams, ASCII art, or dangling colon-headers."""
-        out_paras: List[str] = []
+        kept: List[Optional[str]] = []
         for para in re.split(r"\n\n+", text):
             out_lines: List[str] = []
             for line in para.splitlines():
@@ -2861,13 +2878,22 @@ def synthesize_extractive(
                 # Drop orphaned paragraph-header lines (end with ':',
                 # contain no full sentence, and are the only line)
                 out_lines.append(line)
-            # After filtering, drop the paragraph if its only remaining content
-            # is a dangling header (single short line ending with ':')
-            if len(out_lines) == 1 and out_lines[0].rstrip().endswith(":"):
-                continue
             joined = "\n".join(out_lines).strip()
-            if joined:
-                out_paras.append(joined)
+            kept.append(joined or None)
+        # Drop a paragraph that is only a header (one sentence ending with
+        # ':') when what it introduced is gone.  A header followed by its list
+        # stays, and a paragraph of several sentences that happens to end in
+        # ':' is prose, not a header.
+        out_paras: List[str] = []
+        for i, para in enumerate(kept):
+            if para is None:
+                continue
+            nxt = kept[i + 1] if i + 1 < len(kept) else None
+            is_header = (len(para.splitlines()) == 1 and para.rstrip().endswith(":")
+                         and len(split_sentences(para)) == 1)
+            if is_header and nxt is None:
+                continue
+            out_paras.append(para)
         return "\n\n".join(out_paras)
 
     answer_short = clean_for_audio(answer_short)

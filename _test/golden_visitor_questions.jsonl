@@ -97,3 +97,5 @@
 {"question": "what is a sub vs a ship", "accept": ["faq_591"], "prod_2026_10_01": "faq_591", "with_patch": "faq_591"}
 {"question": "how are modern subs different", "accept": ["faq_800"], "prod_2026_10_01": "faq_800", "with_patch": "faq_800"}
 {"question": "how big was a ww2 sub", "accept": ["faq_1079", "faq_1342"], "prod_2026_10_01": "faq_1079", "with_patch": "faq_1079"}
+{"question": "Where do you store your trash?", "accept": ["faq_1114"], "added": "2026-10-01, Reddit report"}
+{"question": "What did you do with your trash", "accept": ["faq_1114"], "added": "2026-10-01, Reddit report"}
