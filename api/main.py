@@ -2174,9 +2174,10 @@ MUSEUM_BOOST = float(os.getenv("MUSEUM_BOOST", "2.0"))
 def _title_covers_question(q_tokens: List[str], title_text: str) -> bool:
     """Every query token appears in the title, directly or as a synonym.
 
-    This is the confident title match: add_hits gives it the full title boost,
-    shorts are capped below it, and the "why" check in synthesize_extractive
-    trusts it.  One definition so those three cannot drift apart.
+    This is the confident title match: add_hits gives it the full title boost
+    and shorts are capped below it.  One definition so the two cannot drift
+    apart.  (The "why" check in synthesize_extractive used it too until
+    2 October 2026; it now trusts any faq_ or fix_ top hit.)
     """
     title_toks = set(tokenize(title_text, keep_soft=False))
     q_set = set(q_tokens)
@@ -2981,12 +2982,18 @@ def synthesize_extractive(
     # "Why does Pampanito have the number 383?" read faq_1070's.  The check is
     # also triggered by "cause" or "reason" anywhere in a question, which is
     # how "Did the added pressure ever cause an issue?" (faq_1321) reached it.
+    #
+    # Trusting only a full title match was not enough.  181 answerable records
+    # use none of these words, so any "why" question that did not repeat its
+    # record's title word for word was handed to the first lower-ranked hit
+    # with a stray "since" or "aim": on 2 October 2026 "Why exactly is there a
+    # broom on the periscope shears..." read faq_1170, on oxygen.  A curated
+    # record ranked first is the answer; a causal word is not evidence that a
+    # neighbour is more relevant.  The check now applies only when the top hit
+    # is not a faq_ or fix_ record.
     _top = hits[0][1] if hits else {}
-    _confident_title = (
-        str(_top.get("chunk_id", "")).startswith(("faq_", "fix_"))
-        and _title_covers_question(q_tokens, _top.get("title") or "")
-    )
-    if intent.get("is_why_question") and not _confident_title:
+    _curated_top = str(_top.get("chunk_id", "")).startswith(("faq_", "fix_"))
+    if intent.get("is_why_question") and not _curated_top:
         answer_lower = answer_short.lower()
         has_causal = any(m in answer_lower for m in CAUSAL_MARKERS)
         if not has_causal:

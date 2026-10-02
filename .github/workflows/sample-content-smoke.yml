@@ -108,6 +108,11 @@ jobs:
         env:
           CONTENT_ROOT: corpora
 
+      - name: "\"Why\" questions keep their FAQ record"
+        run: python3 _test/test_why_keeps_curated_answer.py
+        env:
+          CONTENT_ROOT: corpora
+
       - name: Stop app
         if: always()
         run: |
