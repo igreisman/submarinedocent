@@ -95,6 +95,9 @@ jobs:
       - name: FAQ boat field test
         run: python3 _test/test_faq_boat_field.py
 
+      - name: Upload types test
+        run: python3 _test/test_upload_types.py
+
       - name: FAQ self-retrieval test
         run: python3 _test/test_faq_self_retrieval.py
         env:

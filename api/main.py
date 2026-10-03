@@ -5472,9 +5472,11 @@ _MUSEUM_PAGES_PATH = _editable_corpus_path("museum_pages.jsonl")
 _MUSEUM_UPLOADS_DIR = _editable_corpus_dir("museum_uploads")
 # Images are allowed so a page can carry a header photograph in its content;
 # the attachment record is what keeps the credit and the file together.
-_MUSEUM_UPLOAD_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+# No .html, .htm or .svg: uploads are served from the site's own origin, so a
+# file that can carry script would run as submarinedocent.org for anyone who
+# opened it.  Removed 3 October 2026, before any museum gets its own login.
+_MUSEUM_UPLOAD_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 _MUSEUM_UPLOAD_ALLOWED_EXTS = _MUSEUM_UPLOAD_IMAGE_EXTS | {
-    ".html", ".htm",
     ".doc", ".docx",
     ".xls", ".xlsx",
     ".ppt", ".pptx",
@@ -5484,16 +5486,38 @@ _MUSEUM_UPLOAD_MAX_BYTES = 25 * 1024 * 1024  # 25 MB per file
 _museum_pages_cache: list | None = None
 _museum_pages_write_lock = threading.Lock()
 
+# Extensions a browser may treat as active content.  Refused at upload, and
+# refused again when served in case such a file is already on the disk.
+_UPLOAD_ACTIVE_EXTS = (".html", ".htm", ".xhtml", ".svg", ".svgz", ".xml", ".js", ".mjs")
+
+
+class _InertUploadFiles(StaticFiles):
+    """Serves uploads so that nothing in them can run as the site.
+
+    Active types are not served at all; everything else goes out with
+    nosniff, so a mislabelled file is not guessed into HTML, and a sandbox
+    policy, so even a file a browser renders gets no script and no origin.
+    """
+
+    async def get_response(self, path, scope):
+        if str(path).lower().endswith(_UPLOAD_ACTIVE_EXTS):
+            raise HTTPException(status_code=404)
+        response = await super().get_response(path, scope)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Security-Policy"] = "sandbox; default-src 'none'; img-src 'self'; style-src 'unsafe-inline'"
+        return response
+
+
 os.makedirs(_MUSEUM_UPLOADS_DIR, exist_ok=True)
 app.mount(
     "/museum_uploads",
-    StaticFiles(directory=_MUSEUM_UPLOADS_DIR),
+    _InertUploadFiles(directory=_MUSEUM_UPLOADS_DIR),
     name="museum_uploads",
 )
 
 # ── FAQ answer attachments (images + documents embedded in FAQ answers) ──────
 _FAQ_UPLOADS_DIR = _editable_corpus_dir("faq_uploads")
-_FAQ_UPLOAD_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+_FAQ_UPLOAD_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}   # no .svg: see _UPLOAD_ACTIVE_EXTS
 _FAQ_UPLOAD_ALLOWED_EXTS = _FAQ_UPLOAD_IMAGE_EXTS | {
     ".pdf", ".txt", ".md", ".rtf",
     ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt",
@@ -5503,7 +5527,7 @@ _FAQ_UPLOAD_MAX_BYTES = 25 * 1024 * 1024  # 25 MB per file
 os.makedirs(_FAQ_UPLOADS_DIR, exist_ok=True)
 app.mount(
     "/faq_uploads",
-    StaticFiles(directory=_FAQ_UPLOADS_DIR),
+    _InertUploadFiles(directory=_FAQ_UPLOADS_DIR),
     name="faq_uploads",
 )
 
