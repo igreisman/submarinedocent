@@ -107,20 +107,42 @@
       margin-bottom: 18px;
     }
 
-    #cat-grid {
+    #cat-grid,
+    #boat-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
     }
 
+    #boat-heading {
+      margin-top: 32px;
+    }
+
+    #boat-filter-bar {
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+
+    #boat-filter-bar button {
+      margin-left: 8px;
+    }
+
+    .faq-boat {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #4a5a7a;
+    }
+
     @media (max-width: 700px) {
-      #cat-grid {
+      #cat-grid,
+      #boat-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
     @media (max-width: 440px) {
-      #cat-grid {
+      #cat-grid,
+      #boat-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -1242,6 +1264,8 @@
     <div id="cat-grid">
       <div id="dash-loading">Loading&hellip;</div>
     </div>
+    <h2 id="boat-heading" style="display:none">Browse by Boat</h2>
+    <div id="boat-grid"></div>
   </div>
 
   <!-- FAQ list view (drill-down) -->
@@ -1260,6 +1284,7 @@
         </div>
       </div>
     </nav>
+    <div id="boat-filter-bar" style="display:none"></div>
     <div id="content">
       <div id="no-results">
         <h3>No results found</h3>
@@ -1402,6 +1427,9 @@
 
     let allGroups = [];
     let activeCategory = 'all';
+    // Hull number of the boat being browsed, or '' for all boats.  Set from a
+    // By boat card or ?boat=; combines with the category and search filters.
+    let activeBoat = '';
     let searchQuery = '';
     let categorySortOrder = new Map();
 
@@ -1500,6 +1528,7 @@
           allGroups = sortGroupsByCategoryOrder(allGroups);
         }
         buildDashboard();
+        buildBoatGrid();
         buildCategoryNav();
 
         const params = new URLSearchParams(location.search);
@@ -1512,6 +1541,10 @@
 
         if (initialCategory) {
           activeCategory = initialCategory;
+        }
+        const initialBoat = (params.get('boat') || '').trim();
+        if (initialBoat) {
+          activeBoat = initialBoat;
         }
 
         document.getElementById('ls-era-filter').value = lsEraFilter;
@@ -1532,7 +1565,7 @@
           document.getElementById('dash-search').value = searchQuery;
           document.getElementById('search').value = searchQuery;
           showFaqView();
-        } else if (initialCategory) {
+        } else if (initialCategory || initialBoat) {
           showFaqView();
         }
       } catch (e) {
@@ -1842,6 +1875,69 @@
     }
     // ...existing code...
 
+    // One card per boat that has records, from the boat field each FAQ entry
+    // carries.  Sorted by name, so no boat is first by design.
+    function boatsWithRecords() {
+      const boats = new Map();
+      allGroups.forEach(group => group.faqs.forEach(faq => {
+        if (!faq.boat) return;
+        const entry = boats.get(faq.boat) || { hull: faq.boat, name: faq.boat_name || faq.boat, count: 0 };
+        entry.count += 1;
+        boats.set(faq.boat, entry);
+      }));
+      return Array.from(boats.values()).sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function buildBoatGrid() {
+      const grid = document.getElementById('boat-grid');
+      const heading = document.getElementById('boat-heading');
+      grid.innerHTML = '';
+      const boats = boatsWithRecords();
+      heading.style.display = boats.length ? '' : 'none';
+      boats.forEach(boat => {
+        const card = document.createElement('div');
+        card.className = 'cat-card';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `${boat.name}, ${boat.count} FAQs`);
+        card.innerHTML = `
+          <span class="cat-card-icon">⚓</span>
+          <div class="cat-card-body">
+            <div class="cat-card-title">${escHtml(boat.name)} <span class="cat-count">(${boat.count})</span></div>
+          </div>`;
+        const openBoat = () => {
+          activeBoat = boat.hull;
+          setCategory('all');
+          showFaqView();
+        };
+        card.addEventListener('click', openBoat);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openBoat();
+          }
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function renderBoatFilterBar() {
+      const bar = document.getElementById('boat-filter-bar');
+      if (!activeBoat) {
+        bar.style.display = 'none';
+        bar.innerHTML = '';
+        return;
+      }
+      const boat = boatsWithRecords().find(b => b.hull === activeBoat);
+      bar.innerHTML = `Showing records about <strong>${escHtml(boat ? boat.name : activeBoat)}</strong>
+        <button type="button" id="btn-clear-boat">Show all boats</button>`;
+      bar.style.display = 'block';
+      document.getElementById('btn-clear-boat').addEventListener('click', () => {
+        activeBoat = '';
+        render();
+      });
+    }
+
     function buildCategoryNav() {
       const select = document.getElementById('cat-select');
       select.innerHTML = '<option value="all">All categories</option>';
@@ -1938,6 +2034,7 @@
       document.getElementById('incidents-view').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
       activeCategory = 'all';
+      activeBoat = '';
       searchQuery = '';
       document.getElementById('search').value = '';
       document.getElementById('dash-search').value = '';
@@ -1957,7 +2054,7 @@
     }
 
     function clearVisitorShareParams(url) {
-      ['view', 'q', 'cat', 'lost_sub', 'ls_era', 'ls_q', 'inc_q'].forEach(name => {
+      ['view', 'q', 'cat', 'boat', 'lost_sub', 'ls_era', 'ls_q', 'inc_q'].forEach(name => {
         url.searchParams.delete(name);
       });
     }
@@ -1972,6 +2069,9 @@
       if (activeView === 'faq') {
         if (activeCategory !== 'all') {
           url.searchParams.set('cat', activeCategory);
+        }
+        if (activeBoat) {
+          url.searchParams.set('boat', activeBoat);
         }
         if (searchQuery) {
           url.searchParams.set('q', searchQuery);
@@ -2505,12 +2605,14 @@
       const content = document.getElementById('content');
       const noResults = document.getElementById('no-results');
 
+      renderBoatFilterBar();
       const groups = sortGroupsByCategoryOrder(allGroups)
         .filter(g => activeCategory === 'all' || g.category === activeCategory)
         .map(g => ({
           category: g.category,
           faqs: sortFaqsByDisplayOrder(
-            g.faqs.filter(f => !q || (f.title + ' ' + f.answer).toLowerCase().includes(q))
+            g.faqs.filter(f => (!activeBoat || f.boat === activeBoat)
+              && (!q || (f.title + ' ' + f.answer).toLowerCase().includes(q)))
           )
         }))
         .filter(g => g.faqs.length > 0);
@@ -2545,7 +2647,7 @@
               <span class="faq-q-text">${highlight(faq.title, q)}</span>
               <span class="faq-chevron">&#9654;</span>
             </div>
-            <div class="faq-answer">${answerToHtml(faq.answer, q)}${faqVideoHtml(faq.video)}${relatedLinksHtml(faq.related_links)}</div>`;
+            <div class="faq-answer">${answerToHtml(faq.answer, q)}${faqVideoHtml(faq.video)}${relatedLinksHtml(faq.related_links)}${faq.boat_name ? `<p class="faq-boat">Boat: ${escHtml(faq.boat_name)}</p>` : ''}</div>`;
           item.querySelector('.faq-q').addEventListener('click', () => {
             const isOpen = item.classList.toggle('open');
             item.querySelector('.faq-q').setAttribute('aria-expanded', String(isOpen));

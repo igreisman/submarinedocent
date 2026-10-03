@@ -521,6 +521,12 @@ if os.path.isdir(WEB_DIR):
 ETERNAL_PATROL_IMAGE_DIR = os.path.join(WEB_DIR, "images", "extracted")
 
 SHORTS_PATH = os.path.join(CORPORA_DIR, "dieselsubs_shorts_corpus.jsonl")
+# Boats a record can be about, keyed by hull number.  A record's ``boat`` is its
+# subject matter; ``museum_id`` is which participating museum owns or vets it.
+# They are separate on purpose: Pampanito's records carry a boat and never a
+# museum_id.  Hull numbers rather than names, because names repeat (Shark I and
+# II) and are written several ways.  Static seed data, not curator-editable.
+BOATS_PATH = os.path.join(CORPORA_DIR, "boats.jsonl")
 # Fleet Type Submarine manual series (NAVPERS 16160-16169) — reference text,
 # not museum-authored content, so it is read-only and deliberately absent from
 # REQUIRED_CORPORA_FILES: the app runs normally without it.
@@ -980,6 +986,11 @@ else:
           f"({_detail}); set INCLUDE_GENERATED_FAQS=1 to answer from drafts too")
 
 SHORTS = load_jsonl(SHORTS_PATH)
+BOATS: Dict[str, Dict[str, Any]] = {
+    str(b.get("hull") or "").strip(): b
+    for b in (load_jsonl(BOATS_PATH) if os.path.exists(BOATS_PATH) else [])
+    if str(b.get("hull") or "").strip()
+}
 CATEGORIES = load_jsonl(CATEGORIES_PATH)
 FLEETSUB_MANUAL = load_jsonl(FLEETSUB_MANUAL_PATH)
 SUB_LOSSES = load_jsonl(SUB_LOSSES_PATH)
@@ -3517,6 +3528,16 @@ def _validate_faq_write(body: Dict[str, Any]) -> None:
                 ),
             )
 
+    # Same rule as category: an unknown hull number is refused, never created,
+    # so a typo cannot start a one-record boat section.
+    if "boat" in body:
+        boat = str(body.get("boat") or "").strip()
+        if boat and boat not in BOATS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"boat must be a hull number in corpora/boats.jsonl, e.g. SS-383. Got {boat!r}.",
+            )
+
 
 @app.get("/admin/generated-faqs")
 def get_generated_faqs():
@@ -4080,8 +4101,24 @@ async def upload_admin_eternal_patrol_image(
     return {"status": "uploaded", "field_name": field_name, "path": relative_path, "boat": target}
 
 
+def _boat_display_name(hull: Any) -> str:
+    """ "USS Cod (SS-224)" for a known hull number, "" otherwise."""
+    hull = str(hull or "").strip()
+    b = BOATS.get(hull)
+    return f"{b.get('name')} ({hull})" if b else ""
+
+
+@app.get("/api/boats")
+def public_boats():
+    """Every boat a record may be about, for pickers and the By boat list."""
+    return [
+        {"hull": h, "name": b.get("name", ""), "display_name": _boat_display_name(h)}
+        for h, b in BOATS.items()
+    ]
+
+
 @app.get("/api/faqs")
-def public_faqs(museum_id: str = ""):
+def public_faqs(museum_id: str = "", boat: str = ""):
     """Published faq_ entries grouped by category, for the public FAQ page.
 
     ``museum_id`` narrows the result to records scoped to one boat, which is
@@ -4091,6 +4128,7 @@ def public_faqs(museum_id: str = ""):
     from shared ones.
     """
     wanted_museum = str(museum_id or "").strip()
+    wanted_boat = str(boat or "").strip()
     from collections import defaultdict
 
     def _display_order_key(entry: dict[str, Any]) -> tuple[int, int | str]:
@@ -4105,6 +4143,8 @@ def public_faqs(museum_id: str = ""):
         if not e.get("chunk_id", "").startswith("faq_"):
             continue
         if wanted_museum and str(e.get("museum_id") or "").strip() != wanted_museum:
+            continue
+        if wanted_boat and str(e.get("boat") or "").strip() != wanted_boat:
             continue
         title = e.get("title", "")
         # The stored ``text`` field holds the answer HTML only; the question is
@@ -4126,6 +4166,8 @@ def public_faqs(museum_id: str = ""):
                 "related_links": _related_links_payload(e),
                 "display_order": e.get("display_order"),
                 "museum_id": str(e.get("museum_id") or "").strip(),
+                "boat": str(e.get("boat") or "").strip(),
+                "boat_name": _boat_display_name(e.get("boat")),
             }
         )
     for cat, faqs in groups.items():
@@ -4908,7 +4950,7 @@ async def create_faq(request: Request):
         # Fields a draft may carry that the standard shape does not assume.
         # museum_id is the one that matters: it scopes the record to a boat and
         # survives acceptance, because it is a field and not a prefix.
-        for field in ("museum_id", "source", "slug", "display_order"):
+        for field in ("museum_id", "boat", "source", "slug", "display_order"):
             value = str(body.get(field) or "").strip()
             if value:
                 new_entry[field] = value
@@ -4937,6 +4979,17 @@ async def update_faq(chunk_id: str, request: Request):
             entry["display_citation"] = _faq_display_citation(entry.get("title", ""))
         if "category" in body:
             entry["category"] = (body.get("category") or "").strip()
+        # Only touched when sent, like category, so an editor that does not know
+        # the field cannot clear it.  An empty value removes it.  Writing a boat
+        # also retires pampanito_specific, the flag it replaces: two fields
+        # saying the same thing drift apart.
+        if "boat" in body:
+            boat = (body.get("boat") or "").strip()
+            if boat:
+                entry["boat"] = boat
+            else:
+                entry.pop("boat", None)
+            entry.pop("pampanito_specific", None)
         # Only touched when the caller sends the key, so an ordinary title/text
         # save from the editor can't silently drop a record's links.  Stored
         # through the same validator that serves them, so an unsafe URL is

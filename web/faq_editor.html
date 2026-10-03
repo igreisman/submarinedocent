@@ -867,15 +867,24 @@
       return faqCategories;
     }
 
+    // Boats a record may be about (hull number + display name), from /api/boats.
+    // The record's boat is its subject matter, not which museum owns it.
+    let boatOptions = [];
+
     // ── Load ────────────────────────────────────────────────────────────────────
     async function init() {
       try {
-        const [faqRes, categoryRes] = await Promise.all([
+        const [faqRes, categoryRes, boatRes] = await Promise.all([
           fetch(`${API}/admin/faqs`),
           fetch(`${API}/api/faq-categories`).catch(() => null),
+          fetch(`${API}/api/boats`).catch(() => null),
         ]);
         if (!faqRes.ok) throw new Error(`HTTP ${faqRes.status}`);
         allFaqs = await faqRes.json();
+        if (boatRes && boatRes.ok) {
+          boatOptions = (await boatRes.json())
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        }
         if (categoryRes && categoryRes.ok) {
           const categories = await categoryRes.json();
           setFaqCategories(categories.map(entry => entry.title));
@@ -963,6 +972,11 @@
       const catOpts = '<option value="">\u2014 Uncategorized \u2014</option>' +
         allCats.map(c => `<option value="${esc(c)}"${c === category ? ' selected' : ''}>${esc(c)}</option>`).join('') +
         '<option value="__new__">\u2795 New category\u2026</option>';
+      const boat = ((typeof selected !== 'undefined' && selected && selected.chunk_id === chunkId) ? selected.boat : '') || '';
+      const boatKnown = boatOptions.some(b => b.hull === boat);
+      const boatOpts = '<option value="">Not about one boat</option>' +
+        (boat && !boatKnown ? `<option value="${esc(boat)}" selected>${esc(boat)}</option>` : '') +
+        boatOptions.map(b => `<option value="${esc(b.hull)}"${b.hull === boat ? ' selected' : ''}>${esc(b.display_name || b.hull)}</option>`).join('');
       const prefix = chunkId ? chunkId.split('_')[0] : 'new';
       const badgeClass = ['faq', 'der', 'pam', 'fix'].includes(prefix) ? `badge-${prefix}` : 'badge-unk';
       const panel = document.getElementById('edit-panel');
@@ -979,6 +993,11 @@
       <div>
         <div class="field-label">Category</div>
         <select id="edit-category">${catOpts}</select>
+      </div>
+      <div>
+        <div class="field-label">Boat</div>
+        <div class="field-help">Only when the record is about one particular boat. It puts the record in that boat's section of the FAQ page.</div>
+        <select id="edit-boat">${boatOpts}</select>
       </div>
       <div>
         <div class="field-label">Answer HTML</div>
@@ -1311,6 +1330,7 @@
         return document.getElementById('edit-html-source').value.trim();
       })();
       const category = document.getElementById('edit-category').value;
+      const boat = document.getElementById('edit-boat').value;
       if (!title) { setActionStatus('Title is required.', 'err'); return; }
       if (!text) { setActionStatus('Answer HTML is required.', 'err'); return; }
       setBtns(false); setActionStatus('');
@@ -1319,12 +1339,12 @@
         if (isNew) {
           res = await fetch(`${API}/admin/faq`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, text, category }),
+            body: JSON.stringify({ title, text, category, boat }),
           });
         } else {
           res = await fetch(`${API}/admin/faq/${encodeURIComponent(selected.chunk_id)}`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, text, category }),
+            body: JSON.stringify({ title, text, category, boat }),
           });
         }
         if (!res.ok) throw new Error((await res.json()).detail || `HTTP ${res.status}`);
@@ -1342,7 +1362,7 @@
           renderEdit(selected.title, selected.text, selected.chunk_id, selected.category);
           setActionStatus(`Created ${data.chunk_id}`, 'ok');
         } else {
-          selected.title = title; selected.text = text; selected.category = category;
+          selected.title = title; selected.text = text; selected.category = category; selected.boat = boat;
           applyFilter();
           setActionStatus('Saved.', 'ok');
         }

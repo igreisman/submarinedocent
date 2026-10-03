@@ -92,6 +92,9 @@ jobs:
       - name: FAQ display citation test
         run: python3 _test/test_faq_display_citation.py
 
+      - name: FAQ boat field test
+        run: python3 _test/test_faq_boat_field.py
+
       - name: FAQ self-retrieval test
         run: python3 _test/test_faq_self_retrieval.py
         env:
