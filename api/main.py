@@ -492,10 +492,24 @@ if os.path.isdir(WEB_DIR):
         return RedirectResponse(url="/web/faqs.html")
 
     # Removed 3 October 2026: the hub was built for the withdrawn Pampanito
-    # audio tour.  Its one remaining job, linking the war patrols, now belongs to
-    # Pampanito's By boat section, so old links land there.
+    # audio tour.  Old links land on Pampanito's By boat section instead.
     @app.get("/web/pampanito-hub.html", include_in_schema=False)
     def redirect_pampanito_hub():
+        return RedirectResponse(url="/web/faqs.html?boat=SS-383", status_code=301)
+
+    # Removed 3 October 2026: the war patrol pages were machine-read from a
+    # scanned Navy microfilm reel and then edited, with errors against the
+    # scan; the index went with them, and so did the editor and the
+    # /admin/patrol API that wrote them, so a save cannot rebuild them.
+    # Registered ahead of the /web mount so these addresses land on Pampanito's
+    # boat section.
+    @app.get("/web/pampanito-patrols.html", include_in_schema=False)
+    @app.get("/web/pampanito-patrol-1.html", include_in_schema=False)
+    @app.get("/web/pampanito-patrol-2.html", include_in_schema=False)
+    @app.get("/web/pampanito-patrol-3.html", include_in_schema=False)
+    @app.get("/web/pampanito-patrol-4.html", include_in_schema=False)
+    @app.get("/web/pampanito-patrol-5.html", include_in_schema=False)
+    def redirect_pampanito_patrols():
         return RedirectResponse(url="/web/faqs.html?boat=SS-383", status_code=301)
 
 
@@ -5847,124 +5861,6 @@ async def update_whisper_prompt(request: Request):
             f.write(prompt)
         _WHISPER_PROMPT = prompt
     return {"status": "updated"}
-
-
-# ------------------------------------------------------------
-# Admin: War Patrol HTML pages
-# ------------------------------------------------------------
-
-_PATROL_ORDINALS = ["First", "Second", "Third", "Fourth", "Fifth"]
-_patrol_write_lock = threading.Lock()
-_PATROL_BODY_START = "<!-- PATROL-BODY-START -->"
-_PATROL_BODY_END = "<!-- PATROL-BODY-END -->"
-
-
-def _patrol_page_path(n: int) -> str:
-    return os.path.join(WEB_DIR, f"pampanito-patrol-{n}.html")
-
-
-def _patrol_page_html(n: int, body_html: str) -> str:
-    ordinal = _PATROL_ORDINALS[n - 1]
-    return f"""<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>USS Pampanito \u2014 {ordinal} Patrol</title>
-  <link rel="stylesheet" href="/web/site-header.css">
-  <style>
-    body {{
-      margin: 0;
-      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
-    }}
-    .patrol-content {{
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 40px 24px 56px;
-      line-height: 1.7;
-    }}
-    .patrol-content h1, .patrol-content h2, .patrol-content h3 {{
-      font-weight: 700;
-      line-height: 1.25;
-    }}
-    .patrol-content h1 {{ font-size: 28px; margin: 1.5em 0 0.5em; }}
-    .patrol-content h2 {{ font-size: 22px; margin: 1.4em 0 0.4em; }}
-    .patrol-content h3 {{ font-size: 18px; margin: 1.2em 0 0.4em; }}
-    .patrol-content p {{ margin: 0 0 1em; }}
-    .patrol-content ul, .patrol-content ol {{ padding-left: 1.5em; margin: 0 0 1em; }}
-    .patrol-content blockquote {{
-      border-left: 3px solid #30363d;
-      margin: 0 0 1em;
-      padding-left: 1em;
-      color: #8b949e;
-    }}
-    .patrol-content table {{
-      border-collapse: collapse;
-      width: 100%;
-      margin: 1em 0;
-      font-size: 14px;
-    }}
-    .patrol-content th, .patrol-content td {{
-      border: 1px solid #30363d;
-      padding: 8px 12px;
-      text-align: left;
-    }}
-    .patrol-content th {{ background: #161b22; font-weight: 600; }}
-    .patrol-content a {{ color: #58a6ff; }}
-  </style>
-</head>
-<body>
-  <article class="patrol-content">
-{_PATROL_BODY_START}
-{body_html}
-{_PATROL_BODY_END}
-  </article>
-  <script src="/web/site-footer.js"></script>
-  <script src="/web/site-header.js"></script>
-  <script>
-    SiteFooter.render();
-    SiteHeader.render({{
-      title: '{ordinal} Patrol',
-    }});
-  </script>
-</body>
-</html>
-"""
-
-
-@app.get("/admin/patrol/{n}")
-def get_patrol_content(n: int):
-    if not 1 <= n <= 5:
-        raise HTTPException(status_code=404, detail="Patrol number must be 1-5")
-    path = _patrol_page_path(n)
-    if not os.path.exists(path):
-        return {"exists": False, "html": ""}
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-    start = content.find(_PATROL_BODY_START)
-    end = content.find(_PATROL_BODY_END)
-    if start == -1 or end == -1:
-        return {"exists": True, "html": content}
-    body = content[start + len(_PATROL_BODY_START):end].strip()
-    return {"exists": True, "html": body}
-
-
-@app.put("/admin/patrol/{n}")
-async def save_patrol_content(n: int, request: Request):
-    if not 1 <= n <= 5:
-        raise HTTPException(status_code=404, detail="Patrol number must be 1-5")
-    body = await request.json()
-    body_html = (body.get("html") or "").strip()
-    page = _patrol_page_html(n, body_html)
-    path = _patrol_page_path(n)
-    tmp = path + ".tmp"
-    with _patrol_write_lock:
-        with open(tmp, "w", encoding="utf-8") as f:
-            f.write(page)
-        os.replace(tmp, path)
-    return {"status": "saved", "patrol": n}
 
 
 # ------------------------------------------------------------

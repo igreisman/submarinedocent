@@ -38,7 +38,7 @@ Maintainer: Irving Greisman. Public repo: github.com/igreisman/submarinedocent. 
 
 ## Identity and rights
 
-- USS Pampanito is subject matter, not the site's identity. It appears in content as one boat among many. It must not appear in the **site identity**: the site name, the tagline, the repo description, the Ask the Docent prompts, or the domain. Page titles for boat content are content, not identity: `pampanito-patrols.html` and `pampanito-patrol-1.html` name the boat and that is correct.
+- USS Pampanito is subject matter, not the site's identity. It appears in content as one boat among many. It must not appear in the **site identity**: the site name, the tagline, the repo description, the Ask the Docent prompts, or the domain. Content about the boat is content, not identity: a record or page about Pampanito names her, and that is correct.
 - Content derived from the San Francisco Maritime National Park Association's tour or website was removed on 17 and 18 September 2026 and must not be reintroduced. Anything sourced from maritime.org or the audio tour is out.
 - Photographs and third-party video are used with credit and are excluded from the CC BY grant. Never relicense them. Every video record carries `rights_status`; the `_rights_cleared()` gate decides what is shown.
 - When a rights holder grants permission, record it on the record with the date, the person, and the condition, and update `corpora/README.md` if the licensing statement changes.

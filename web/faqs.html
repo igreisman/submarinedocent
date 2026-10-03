@@ -1434,9 +1434,8 @@
     // Hull number of the boat being browsed, or '' for all boats.  Set from a
     // By boat card or ?boat=; combines with the category and search filters.
     let activeBoat = '';
-    // From /api/boats: hull -> { name, links }.  Links are pages about the boat
-    // (Pampanito's war patrols); a boat with links is listed even before any
-    // record carries it.
+    // From /api/boats: hull -> { name, links }.  Links are pages about the boat;
+    // a boat with links is listed even before any record carries it.
     let boatInfo = new Map();
     let searchQuery = '';
     let categorySortOrder = new Map();
