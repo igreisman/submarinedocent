@@ -127,6 +127,10 @@
       margin-left: 8px;
     }
 
+    #boat-filter-bar .boat-links {
+      margin-top: 6px;
+    }
+
     .faq-boat {
       margin-top: 12px;
       font-size: 13px;
@@ -1430,6 +1434,10 @@
     // Hull number of the boat being browsed, or '' for all boats.  Set from a
     // By boat card or ?boat=; combines with the category and search filters.
     let activeBoat = '';
+    // From /api/boats: hull -> { name, links }.  Links are pages about the boat
+    // (Pampanito's war patrols); a boat with links is listed even before any
+    // record carries it.
+    let boatInfo = new Map();
     let searchQuery = '';
     let categorySortOrder = new Map();
 
@@ -1507,12 +1515,16 @@
 
     async function init() {
       try {
-        const [faqRes, categoryRes] = await Promise.all([
+        const [faqRes, categoryRes, boatRes] = await Promise.all([
           fetch('/api/faqs'),
           fetch('/api/faq-categories').catch(() => null),
+          fetch('/api/boats').catch(() => null),
         ]);
         if (!faqRes.ok) throw new Error(`HTTP ${faqRes.status}`);
         allGroups = await faqRes.json();
+        if (boatRes && boatRes.ok) {
+          (await boatRes.json()).forEach(b => boatInfo.set(b.hull, b));
+        }
         if (categoryRes && categoryRes.ok) {
           const categories = await categoryRes.json();
           categorySortOrder = new Map(
@@ -1885,6 +1897,11 @@
         entry.count += 1;
         boats.set(faq.boat, entry);
       }));
+      boatInfo.forEach(info => {
+        if ((info.links || []).length && !boats.has(info.hull)) {
+          boats.set(info.hull, { hull: info.hull, name: info.display_name || info.name, count: 0 });
+        }
+      });
       return Array.from(boats.values()).sort((a, b) => a.name.localeCompare(b.name));
     }
 
@@ -1929,8 +1946,11 @@
         return;
       }
       const boat = boatsWithRecords().find(b => b.hull === activeBoat);
+      const links = ((boatInfo.get(activeBoat) || {}).links || [])
+        .map(l => `<a href="${escHtml(l.url)}">${escHtml(l.label)}</a>`).join(' · ');
       bar.innerHTML = `Showing records about <strong>${escHtml(boat ? boat.name : activeBoat)}</strong>
-        <button type="button" id="btn-clear-boat">Show all boats</button>`;
+        <button type="button" id="btn-clear-boat">Show all boats</button>
+        ${links ? `<div class="boat-links">Also: ${links}</div>` : ''}`;
       bar.style.display = 'block';
       document.getElementById('btn-clear-boat').addEventListener('click', () => {
         activeBoat = '';

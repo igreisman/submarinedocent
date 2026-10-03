@@ -75,7 +75,7 @@
 {"hull": "SS-361", "name": "USS Golet"}
 {"hull": "SS-369", "name": "USS Kete"}
 {"hull": "SS-371", "name": "USS Lagarto"}
-{"hull": "SS-383", "name": "USS Pampanito", "description": "Balao-class Fleet Submarine"}
+{"hull": "SS-383", "name": "USS Pampanito", "description": "Balao-class Fleet Submarine", "links": [{"label": "War patrols", "url": "/web/pampanito-patrols.html"}]}
 {"hull": "SS-394", "name": "USS Razorback", "description": "Balao-class Fleet Submarine"}
 {"hull": "SS-415", "name": "USS Stickleback"}
 {"hull": "SS-423", "name": "USS Torsk", "description": "Tench-class Fleet Submarine"}

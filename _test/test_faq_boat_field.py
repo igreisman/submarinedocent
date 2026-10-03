@@ -95,6 +95,12 @@ def main():
     boats = client.get("/api/boats").json()
     check("/api/boats lists display names",
           any(b["hull"] == "SS-224" and b["display_name"] == "USS Cod (SS-224)" for b in boats))
+    check("SS-383 links the war patrols index",
+          any(b["hull"] == "SS-383" and any(l["url"] == "/web/pampanito-patrols.html" for l in b["links"]) for b in boats))
+    r = client.get("/web/pampanito-hub.html", follow_redirects=False)
+    check("old hub address redirects to Pampanito's boat section",
+          r.status_code == 301 and r.headers.get("location") == "/web/faqs.html?boat=SS-383",
+          f"{r.status_code} {r.headers.get('location')}")
 
     shutil.rmtree(root, ignore_errors=True)
     print(f"\n  {'OK' if not failures else str(len(failures)) + ' FAILED'}")

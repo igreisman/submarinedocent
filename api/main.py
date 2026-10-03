@@ -491,6 +491,13 @@ if os.path.isdir(WEB_DIR):
     def redirect_index_html():
         return RedirectResponse(url="/web/faqs.html")
 
+    # Removed 3 October 2026: the hub was built for the withdrawn Pampanito
+    # audio tour.  Its one remaining job, linking the war patrols, now belongs to
+    # Pampanito's By boat section, so old links land there.
+    @app.get("/web/pampanito-hub.html", include_in_schema=False)
+    def redirect_pampanito_hub():
+        return RedirectResponse(url="/web/faqs.html?boat=SS-383", status_code=301)
+
 
     class _RevalidatingStaticFiles(StaticFiles):
         """Static files a browser must revalidate before reusing.
@@ -4112,7 +4119,11 @@ def _boat_display_name(hull: Any) -> str:
 def public_boats():
     """Every boat a record may be about, for pickers and the By boat list."""
     return [
-        {"hull": h, "name": b.get("name", ""), "display_name": _boat_display_name(h)}
+        {"hull": h, "name": b.get("name", ""), "display_name": _boat_display_name(h),
+         # Pages about the boat, shown in its By boat section.  A boat with a
+         # link is listed even before any record carries it, so the page it
+         # links to always has a way in.
+         "links": [l for l in (b.get("links") or []) if str(l.get("url") or "").startswith("/")]}
         for h, b in BOATS.items()
     ]
 
