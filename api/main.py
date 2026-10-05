@@ -188,6 +188,10 @@ ADMIN_PAGE_PATHS = {
     "/web/faq_editor.html",
     "/edit.html",
     "/web/edit.html",
+    # A debug page that calls /ask with any compartment and playhead; it was
+    # public until 5 October 2026.
+    "/test.html",
+    "/web/test.html",
 }
 def _request_host(request: Request) -> str:
     host = request.headers.get("x-forwarded-host") or request.headers.get("host", "")

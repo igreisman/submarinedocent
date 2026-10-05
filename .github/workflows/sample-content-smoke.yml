@@ -78,6 +78,9 @@ jobs:
           test "$feedback_status" = "503"
           grep -qi '^www-authenticate: Basic realm="SubmarineDocent Admin"' /tmp/feedback.headers
 
+          test_page_status=$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8001/web/test.html)
+          test "$test_page_status" = "503"
+
       - name: Video enrichment regression test
         run: python3 _test/test_video_enrichment.py
 
