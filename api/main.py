@@ -5898,13 +5898,27 @@ def ask(request: Request, payload: dict):
     playhead_time_ms = int(payload.get("playhead_time_ms") or 0)
     museum_id = str(payload.get("museum_id") or "").strip()
 
-    hits = retrieve(
-        question_text=question,
-        compartment_id=compartment,
-        playhead_time_ms=playhead_time_ms,
-        top_k=8,
-        museum_id=museum_id
-    )
+    # A suggested-question balloon names the record it was written for.  The
+    # answer then comes from that record, not from searching the balloon's
+    # words: on 5 October 2026 "What ships did Pampanito sink?" was answered by
+    # a record about Japanese submarines.  The record's own title is the
+    # question synthesised against, the path the sweep and opening tests check,
+    # so the visitor gets the record's full opening.  An id that is not an
+    # answerable record (deleted, or a draft) falls back to an ordinary search.
+    faq_id = str(payload.get("faq_id") or "").strip()
+    pinned = next((c for c in FAQ if c.get("chunk_id") == faq_id), None) if faq_id else None
+    if pinned is not None:
+        hits = [(1.0, pinned, "dieselsubs_faq")]
+        synth_question = pinned.get("title") or question
+    else:
+        hits = retrieve(
+            question_text=question,
+            compartment_id=compartment,
+            playhead_time_ms=playhead_time_ms,
+            top_k=8,
+            museum_id=museum_id
+        )
+        synth_question = question
 
     if not hits:
         result = {
@@ -5922,13 +5936,13 @@ def ask(request: Request, payload: dict):
     elif USE_LLM:
         # Later: replace synthesize_openai_stub with a real OpenAI call.
         result = synthesize_openai_stub(
-            question_text=question,
+            question_text=synth_question,
             hits=hits,
             compartment_id=compartment,
             playhead_time_ms=playhead_time_ms
         )
     else:
-        result = synthesize_extractive(question_text=question, hits=hits)
+        result = synthesize_extractive(question_text=synth_question, hits=hits)
 
     if request.headers.get("x-subdocent-test") != "1":
         _append_ask_log(question, result.get("faq_id"), museum_id)

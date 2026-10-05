@@ -1400,18 +1400,22 @@
     // ── API call ───────────────────────────────────────────────────────────────
     // No compartment and no playhead: a visitor here isn't standing anywhere in
     // particular, so retrieval falls back to the global FAQ and reference corpora.
-    async function askQuestion(questionText) {
+    async function askQuestion(questionText, faqId) {
       const s = loadSettings();
+      const body = {
+        compartment_id: '',
+        audio_track_id: '',
+        playhead_time_ms: 0,
+        question_text: questionText,
+        answer_mode: 'standard',
+      };
+      // Only a suggestion balloon sends a record id; typed and spoken
+      // questions are searched.
+      if (faqId) body.faq_id = faqId;
       const res = await fetch(`${s.apiBase}/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          compartment_id: '',
-          audio_track_id: '',
-          playhead_time_ms: 0,
-          question_text: questionText,
-          answer_mode: 'standard',
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
@@ -1977,33 +1981,37 @@
     }
 
     // ── Suggestion chips ──────────────────────────────────────────────────────
-    // No compartment context here, so these are ship-wide openers.
+    // No compartment context here, so these are ship-wide openers.  Each names
+    // the record that answers it: a balloon is a promise of a particular
+    // answer, and searching its words once returned a record about Japanese
+    // submarines for "What ships did Pampanito sink?" (5 October 2026).
+    // _test/test_suggestion_balloons.py checks every id here is answerable.
     const DEFAULT_SUGGESTIONS = [
-      'How deep could Pampanito dive?',
-      'How many men were in the crew?',
-      'How long were patrols?',
-      'What ships did Pampanito sink?',
-      'Did anyone on Pampanito get killed?',
-      'Where did the crew sleep?',
-      'What did the crew eat?',
-      'How did the torpedoes work?',
-      'How did Pampanito rescue POWs?',
+      { q: 'How deep could Pampanito dive?',      faq: 'faq_1344' },
+      { q: 'How many men were in the crew?',      faq: 'faq_1118' },
+      { q: 'How long were patrols?',              faq: 'faq_1094' },
+      { q: 'What ships did Pampanito sink?',      faq: 'faq_1360' },
+      { q: 'Did anyone on Pampanito get killed?', faq: 'faq_1349' },
+      { q: 'Where did the crew sleep?',           faq: 'faq_1160' },
+      { q: 'What did the crew eat?',              faq: 'faq_1177' },
+      { q: 'How did the torpedoes work?',         faq: 'faq_1201' },
+      { q: 'How did Pampanito rescue POWs?',      faq: 'faq_1288' },
     ];
 
     function showSuggestions() {
       const row = document.getElementById('suggestionsRow');
       const shuffled = DEFAULT_SUGGESTIONS.slice().sort(() => Math.random() - 0.5);
-      row.innerHTML = shuffled.slice(0, 3).map(q =>
-        `<button class="sugChip" data-q="${q.replace(/"/g, '&quot;')}">${q}</button>`
+      row.innerHTML = shuffled.slice(0, 3).map(s =>
+        `<button class="sugChip" data-q="${s.q.replace(/"/g, '&quot;')}" data-faq="${s.faq}">${s.q}</button>`
       ).join('');
     }
 
     document.getElementById('suggestionsRow').addEventListener('click', (e) => {
       const chip = e.target.closest('.sugChip');
-      if (chip) { unlockAudio(); handleQuestion(chip.dataset.q); }
+      if (chip) { unlockAudio(); handleQuestion(chip.dataset.q, chip.dataset.faq); }
     });
 
-    async function handleQuestion(question) {
+    async function handleQuestion(question, faqId) {
       document.getElementById('suggestionsRow').innerHTML = '';
       askStatus.style.display = '';
       askStatus.textContent = `Heard: "${question}"`;
@@ -2020,7 +2028,7 @@
       answerPanel.classList.add('visible');
 
       try {
-        const data = await askQuestion(question);
+        const data = await askQuestion(question, faqId);
 
         // ── No-source refusal: play nothits.mp3, then listen for yes/no ──────
         if (data.refusal && data.refusal.is_refusal) {

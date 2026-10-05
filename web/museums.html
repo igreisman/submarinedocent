@@ -1105,7 +1105,7 @@
     // carrying it are boosted, and the suggestion chips are drawn from that
     // boat's own entries rather than written by hand, so they cannot drift out
     // of step with what the corpus can actually answer.
-    async function askForMuseum(museumId, question) {
+    async function askForMuseum(museumId, question, faqId) {
       const out = document.getElementById('museum-answer');
       if (!out || !question.trim()) return;
       out.innerHTML = '<span style="color:#6a737d">Asking\u2026</span>';
@@ -1113,12 +1113,14 @@
         const res = await fetch('/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          // A chip sends the id of the record whose title it shows, so the
+          // answer is that record rather than whatever its words match.
+          body: JSON.stringify(Object.assign({
             question_text: question.trim(),
             museum_id: String(museumId),
             compartment_id: '',
             playhead_time_ms: 0
-          })
+          }, faqId ? { faq_id: faqId } : {}))
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
@@ -1135,7 +1137,7 @@
 
     function museumAskHtml(museumId, faqs) {
       const chips = faqs.slice(0, 3).map(f =>
-        `<button type="button" class="museum-chip" data-ask="${esc(f.title)}">${esc(f.title)}</button>`
+        `<button type="button" class="museum-chip" data-ask="${esc(f.title)}" data-faq="${esc(f.id)}">${esc(f.title)}</button>`
       ).join('');
       return `
         <div class="museum-ask">
@@ -1258,7 +1260,7 @@
       main.querySelectorAll('.museum-chip').forEach(chip => {
         chip.addEventListener('click', () => {
           if (input) input.value = chip.dataset.ask;
-          askForMuseum(museumId, chip.dataset.ask);
+          askForMuseum(museumId, chip.dataset.ask, chip.dataset.faq);
         });
       });
       main.querySelectorAll('.faq-item').forEach(item => {

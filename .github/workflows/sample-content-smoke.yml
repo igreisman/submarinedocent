@@ -114,6 +114,11 @@ jobs:
         env:
           CONTENT_ROOT: corpora
 
+      - name: Suggested-question balloons
+        run: python3 _test/test_suggestion_balloons.py
+        env:
+          CONTENT_ROOT: corpora
+
       - name: "\"Why\" questions keep their FAQ record"
         run: python3 _test/test_why_keeps_curated_answer.py
         env:
