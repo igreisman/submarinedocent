@@ -5,7 +5,7 @@
 {"question": "how did they come back up to the surface", "accept": ["faq_1325", "faq_1329", "faq_1330"], "prod_2026_10_01": "faq_1052", "with_patch": "faq_1370"}
 {"question": "what are ballast tanks", "accept": ["faq_1297"], "prod_2026_10_01": "faq_1299", "with_patch": "faq_1299"}
 {"question": "what is the christmas tree panel", "accept": ["faq_1300"], "prod_2026_10_01": "faq_1300", "with_patch": "faq_1300"}
-{"question": "did the hull creak when they went deep", "accept": ["faq_1322"], "prod_2026_10_01": "faq_1186", "with_patch": "faq_1186"}
+{"question": "did the hull creak when they went deep", "accept": ["faq_1322", "faq_1186"], "prod_2026_10_01": "faq_1186", "with_patch": "faq_1186", "accept_note": "faq_1186 added 2026-10-06: it answers the question (battery-failures-2026-10-06.md)"}
 {"question": "did sailors get the bends", "accept": ["faq_1332"], "prod_2026_10_01": "faq_1080", "with_patch": "faq_1080"}
 {"question": "what are the dive planes for", "accept": ["faq_1296"], "prod_2026_10_01": "faq_1290", "with_patch": "faq_1290"}
 {"question": "how long could they stay underwater", "accept": ["faq_1102", "faq_1104", "faq_1324"], "prod_2026_10_01": "faq_799", "with_patch": "faq_1104"}
@@ -45,7 +45,7 @@
 {"question": "where did the captain sleep", "accept": ["faq_1192"], "prod_2026_10_01": "faq_1192", "with_patch": "faq_1192"}
 {"question": "how many torpedoes did it carry", "accept": ["faq_1220"], "prod_2026_10_01": "faq_1220", "with_patch": "faq_1220"}
 {"question": "how big is a torpedo", "accept": ["faq_1194", "faq_1199", "faq_1201"], "prod_2026_10_01": "faq_1211", "with_patch": "faq_1198"}
-{"question": "why didn't the torpedoes work", "accept": ["faq_1208", "faq_1210", "faq_1211"], "prod_2026_10_01": "faq_1209", "with_patch": "faq_1209"}
+{"question": "why didn't the torpedoes work", "accept": ["faq_1208", "faq_1210", "faq_1211", "faq_1209"], "prod_2026_10_01": "faq_1209", "with_patch": "faq_1209", "accept_note": "faq_1209 added 2026-10-06: it answers the question (battery-failures-2026-10-06.md)"}
 {"question": "what was wrong with the mark 14", "accept": ["faq_1201", "faq_1208", "faq_1209", "faq_1210", "faq_1211"], "prod_2026_10_01": "faq_1201", "with_patch": "faq_1201"}
 {"question": "did torpedoes ever come back and hit the sub", "accept": ["faq_1212"], "prod_2026_10_01": "faq_1198", "with_patch": "faq_1198"}
 {"question": "how do you aim a torpedo", "accept": ["faq_1197", "faq_1252"], "prod_2026_10_01": "faq_1274", "with_patch": "faq_1274"}
@@ -53,7 +53,7 @@
 {"question": "how did they reload torpedoes", "accept": ["faq_1228", "faq_1230"], "prod_2026_10_01": "faq_1198", "with_patch": "fix_006", "pending_replacement": "fix_006 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "how many torpedoes to sink a ship", "accept": ["faq_1226"], "prod_2026_10_01": "faq_1254", "with_patch": "faq_1254"}
 {"question": "what explosive was in torpedoes", "accept": ["faq_1231"], "prod_2026_10_01": "faq_1231", "with_patch": "faq_1231"}
-{"question": "what is the big gun on deck for", "accept": ["faq_1047", "faq_1048", "faq_1058"], "prod_2026_10_01": "faq_1370", "with_patch": "faq_1370"}
+{"question": "what is the big gun on deck for", "accept": ["faq_1047", "faq_1048", "faq_1058", "faq_1370"], "prod_2026_10_01": "faq_1370", "with_patch": "faq_1370", "accept_note": "faq_1370 added 2026-10-06: it answers the question (battery-failures-2026-10-06.md)"}
 {"question": "did subs shoot down planes", "accept": ["faq_1056"], "prod_2026_10_01": "faq_1261", "with_patch": "faq_1056"}
 {"question": "what is a depth charge", "accept": [], "prod_2026_10_01": "fix_015", "with_patch": "fix_015", "pending_replacement": "fix_015 removed 2 Oct 2026 (pam_-derived); re-point accept to the replacement record when it exists"}
 {"question": "how did destroyers find submarines", "accept": ["faq_1256"], "prod_2026_10_01": "faq_1265", "with_patch": "faq_1265"}
