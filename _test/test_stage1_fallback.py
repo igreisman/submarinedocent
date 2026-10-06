@@ -71,6 +71,12 @@ CHATTY = [
      "What happened with the Dutch submarine O-19?"),
 ]
 
+# What nothits.mp3 says.  Ask the Docent plays it on every refusal, so the
+# words on screen must be the words the visitor hears.
+NOTHITS_RECORDING = ("I don't have an answer for that right now, but I can pass it along to "
+                     "our historians and get back to you by email or text. "
+                     "Would you like me to do that?")
+
 # A boat named only in the preamble still picks the boat.
 BOAT_IN_PREAMBLE = [
     ("My uncle served on Cod. What did his boat sink?", "faq_1367"),
@@ -104,7 +110,7 @@ def main() -> int:
         got, d = ask(q)
         check(f"falls back: {q!r}", got == "fallback", f"got {got}")
         if got == "fallback":
-            check(f"fallback text: {q!r}", d.get("answer_short") == m.FALLBACK_ANSWER)
+            check(f"fallback text is the recording: {q!r}", d.get("answer_short") == NOTHITS_RECORDING)
 
     gaps = [(q, ask(q)[0]) for q in KNOWN_GAPS]
     closed = [q for q, got in gaps if got in ("fallback", "refusal")]

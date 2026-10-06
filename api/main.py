@@ -2489,8 +2489,11 @@ MIN_QUESTION_COVERAGE = float(os.getenv("MIN_QUESTION_COVERAGE", "0.15"))
 MAX_UNEXPLAINED_IDF = float(os.getenv("MAX_UNEXPLAINED_IDF", "7.0"))
 _UNEXPLAINED_EXEMPT = frozenset(
     "you your my our their his her its i me we us them they".split())
-FALLBACK_ANSWER = ("I don't have a good answer to that one yet. "
-                   "I've passed the question along to the docents so we can add it.")
+# Word for word what nothits.mp3 says: Ask the Docent plays it on any refusal,
+# then listens for yes or no and asks for an email address or phone number.
+FALLBACK_ANSWER = ("I don't have an answer for that right now, but I can pass it along to "
+                   "our historians and get back to you by email or text. "
+                   "Would you like me to do that?")
 
 
 def _question_unanswered(q_tokens: List[str], ch: Dict[str, Any]) -> Tuple[bool, float]:
