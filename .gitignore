@@ -93,3 +93,6 @@ docs/internal/
 
 # Editor config carrying machine-specific terminal auto-approve rules.
 .vscode/
+
+# Spoken-answer audio the server generates and caches; regenerable, and large.
+corpora/tts_cache/
