@@ -25,7 +25,7 @@ human has read. See Withheld below.
 |---|---:|---|---|
 | `dieselsubs_faq_corpus.jsonl` | 376 | Written by Irving Greisman, some of it first published on dieselsubs.com — his own site. | **CC BY 4.0** |
 | `dieselsubs_shorts_corpus.jsonl` | 31 | Written by Irving Greisman, derived from the DieselSubs YouTube channel — his own channel. | **CC BY 4.0** |
-| `dieselsubs_faq_categories.jsonl` | 13 | Category names, from the dieselsubs.com FAQ structure — his own site. | **CC BY 4.0** |
+| `dieselsubs_faq_categories.jsonl` | 12 | Category names, from the dieselsubs.com FAQ structure — his own site. | **CC BY 4.0** |
 | `eternal_patrol.jsonl` | 65 | Lost-boat records written by Irving Greisman. **References photographs** in `web/images/extracted/`. | Text **CC BY 4.0**. **Photographs are not** — see below. |
 | `incidents.jsonl` | 16 | Written by Irving Greisman. | **CC BY 4.0** |
 | `museums.jsonl`, `museum_pages.jsonl` | 20, 2 | Museum directory and per-museum pages written by Irving Greisman. **References a header photograph** in `museum_uploads/`. | Text **CC BY 4.0**. **The photograph is not**, see below. |
