@@ -448,6 +448,64 @@
     }
 
     /* ── Feedback widget ─────────────────────────────── */
+    /* Yes / No under the fallback answer, which asks a question. */
+    #contactOffer {
+      margin-top: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #contactOffer.visible {
+      display: flex;
+    }
+
+    #contactAsk {
+      display: flex;
+      gap: 10px;
+    }
+
+    .contactBtn, #contactSend {
+      background: #1e3a6e;
+      color: #c9d8f0;
+      border: 1px solid #3a78cc;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .contactBtn:hover, #contactSend:hover {
+      background: #2a4f8f;
+    }
+
+    #contactForm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    #contactInput {
+      flex: 1 1 220px;
+      min-width: 0;
+      background: #131d30;
+      border: 1px solid #1e2d4a;
+      border-radius: 8px;
+      color: #c9d8f0;
+      font-size: 14px;
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    #contactInput:focus {
+      border-color: #3a78cc;
+    }
+
+    #contactThanks {
+      font-size: 13px;
+      color: #4a9a6a;
+    }
+
     #feedbackRow {
       margin-top: 14px;
       padding-top: 12px;
@@ -702,6 +760,17 @@
       <div id="questionEcho"></div>
       <div id="answerText"></div>
       <div id="answerSource"></div>
+      <div id="contactOffer">
+        <div id="contactAsk">
+          <button type="button" class="contactBtn" id="contactYes">Yes</button>
+          <button type="button" class="contactBtn" id="contactNo">No</button>
+        </div>
+        <div id="contactForm" style="display:none">
+          <input id="contactInput" type="text" placeholder="Email address or phone number" autocomplete="email" aria-label="Email address or phone number" />
+          <button type="button" id="contactSend">Send</button>
+        </div>
+        <span id="contactThanks" style="display:none">Thank you. Your question is on its way to our historians.</span>
+      </div>
       <button id="answerSpeakBtn" type="button" style="display:none">Listen to answer</button>
       <div id="answerDebug"></div>
       <!-- Feedback widget -->
@@ -890,6 +959,7 @@
     const feedbackSend = document.getElementById('feedbackSend');
 
     function resetFeedback() {
+      hideContactOffer();
       _feedbackRating = null;
       feedbackRow.classList.remove('visible');
       feedbackExtra.classList.remove('visible');
@@ -1952,7 +2022,9 @@
 
     // ── Yes/no listener (used after nothits.mp3) ────────────────────────────
     function listenYesNo(callback) {
-      if (!SpeechRec) { callback(false); return; }
+      // callback(true) for yes, false for a clear no, null for silence or
+      // anything unclear.  Callers that only test for yes treat null as no.
+      if (!SpeechRec) { callback(null); return; }
       const rec = new SpeechRec();
       rec.lang = LANG_BCP47[loadSettings().lang] || 'en-US';
       rec.interimResults = false;
@@ -1966,18 +2038,116 @@
         callback(heard);
       };
 
-      const timer = setTimeout(() => finish(false), 6000);
+      const timer = setTimeout(() => finish(null), 6000);
 
       rec.onresult = (e) => {
         clearTimeout(timer);
         const t = (e.results[0][0].transcript || '').trim().toLowerCase();
-        finish(/\byes\b|\byeah\b|\byep\b|\bsure\b|\bplease\b|\baffirmative\b/.test(t));
+        if (/\byes\b|\byeah\b|\byep\b|\bsure\b|\bplease\b|\baffirmative\b/.test(t)) finish(true);
+        else if (/\bno\b|\bnope\b|\bnah\b|\bnegative\b/.test(t)) finish(false);
+        else finish(null);
       };
-      rec.onerror = () => { clearTimeout(timer); finish(false); };
-      rec.onend = () => { clearTimeout(timer); if (!done) finish(false); };
+      rec.onerror = () => { clearTimeout(timer); finish(null); };
+      rec.onend = () => { clearTimeout(timer); if (!done) finish(null); };
 
       askStatus.textContent = 'Say "yes" or "no"…';
       rec.start();
+    }
+
+    // ── Contact offer under the fallback answer ───────────────────────────────
+    // The fallback answer is nothits.mp3 word for word and ends "Would you like
+    // me to do that?".  Speech used to be the only way to answer, and a
+    // browser without speech recognition counted as "no".  The buttons answer
+    // it for everyone, including when the recording fails to load; speech
+    // still works alongside them, and silence leaves them in place.
+    const contactOffer = document.getElementById('contactOffer');
+    const contactAsk = document.getElementById('contactAsk');
+    const contactForm = document.getElementById('contactForm');
+    const contactInput = document.getElementById('contactInput');
+    const contactThanks = document.getElementById('contactThanks');
+    let _contactGen = 0;
+
+    function hideContactOffer() {
+      _contactGen++;   // callbacks from an earlier offer see they are stale
+      contactOffer.classList.remove('visible');
+    }
+
+    // Plays a recording; calls onended only if it played.  Never throws.
+    async function playPrompt(file, onended) {
+      try {
+        return await fetchAndPlay(getAudioUrl(file), onended, 2.0);
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function startContactOffer(question) {
+      const gen = ++_contactGen;
+      const live = () => gen === _contactGen;
+      let answered = false;
+      let sent = false;
+
+      contactAsk.style.display = '';
+      contactForm.style.display = 'none';
+      contactThanks.style.display = 'none';
+      contactInput.value = '';
+      contactOffer.classList.add('visible');
+
+      const finished = () => { if (live()) { askStatus.textContent = ''; showAskBtn(); } };
+
+      const no = () => {
+        if (!live() || answered) return;
+        answered = true;
+        stopAnswerAudio();
+        hideContactOffer();
+        askStatus.textContent = '';
+        showAskBtn();
+      };
+
+      const send = (response) => {
+        if (!live() || sent || !response) return;
+        sent = true;
+        sendContact(question, response);
+        stopAnswerAudio();
+        contactForm.style.display = 'none';
+        contactThanks.style.display = '';
+        askStatus.textContent = '';
+        showStopBtn();
+        playPrompt('wewillgetbacktoyou.mp3', finished).then(played => { if (!played) finished(); });
+      };
+
+      const yes = () => {
+        if (!live() || answered) return;
+        answered = true;
+        stopAnswerAudio();
+        contactAsk.style.display = 'none';
+        contactForm.style.display = '';
+        askStatus.textContent = '';
+        contactInput.focus();
+        showStopBtn();
+        playPrompt('emailaddressorphonenumber.mp3', () => {
+          if (!live() || sent) return;
+          showAskBtn();
+          if (SpeechRec) listenFreeform((r) => { if (r) send(r); else if (live() && !sent) askStatus.textContent = ''; });
+        }).then(played => { if (!played && live() && !sent) showAskBtn(); });
+      };
+
+      document.getElementById('contactYes').onclick = yes;
+      document.getElementById('contactNo').onclick = no;
+      document.getElementById('contactSend').onclick = () => send(contactInput.value.trim());
+      contactInput.onkeydown = (e) => { if (e.key === 'Enter') send(contactInput.value.trim()); };
+
+      showStopBtn();
+      playPrompt('nothits.mp3', () => {
+        if (!live() || answered) return;
+        showAskBtn();
+        if (!SpeechRec) return;   // the buttons are the answer
+        listenYesNo((heard) => {
+          if (heard === true) yes();
+          else if (heard === false) no();
+          else if (live() && !answered) askStatus.textContent = '';
+        });
+      }).then(played => { if (!played && live() && !answered) showAskBtn(); });
     }
 
     // ── Suggestion chips ──────────────────────────────────────────────────────
@@ -2029,6 +2199,15 @@
 
       try {
         const data = await askQuestion(question, faqId);
+
+        // ── Fallback: the answer asks whether to pass the question on ────────
+        if (data.refusal && data.refusal.reason === 'fallback') {
+          renderAnswer(data);
+          askStatus.textContent = '';
+          startContactOffer(question);
+          showSuggestions();
+          return;
+        }
 
         // ── No-source refusal: play nothits.mp3, then listen for yes/no ──────
         if (data.refusal && data.refusal.is_refusal) {
