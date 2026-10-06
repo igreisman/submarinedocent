@@ -133,13 +133,21 @@ def main() -> int:
         try:
             ask("Why was the sail fairwater cut down?", headers={})
             ask("How many men were in the crew?", headers={})
+            manual, _ = ask("how did sonar work", headers={})   # answered from the manual
+            refused, _ = ask("tdu", headers={})
             ask("Why was the sail fairwater cut down?")      # test traffic: not logged
             lines = [json.loads(l) for l in open(m.ASK_LOG_PATH, encoding="utf-8") if l.strip()]
         finally:
             m.ASK_LOG_PATH = saved
-    check("two visitor lines logged, test traffic not", len(lines) == 2, f"got {len(lines)}")
-    if len(lines) == 2:
-        fb, ok = lines
+    check("four visitor lines logged, test traffic not", len(lines) == 4, f"got {len(lines)}")
+    if len(lines) == 4:
+        fb, ok, man, ref = lines
+        # Until 6 October 2026 an answer from the manual was logged as a refusal.
+        check("premise: sonar is answered, not from an FAQ", manual is None, f"got {manual}")
+        check("manual answer not logged as a refusal",
+              man.get("faq_id") is None and str(man.get("source_id") or "").startswith("fsm_"), str(man))
+        check("premise: 'tdu' is refused", refused == "refusal", f"got {refused}")
+        check("refusal logged as refusal", ref.get("faq_id") == "refusal", str(ref))
         check("fallback logged as fallback", fb.get("faq_id") == "fallback", str(fb))
         check("fallback line keys", set(fb) == {"q", "faq_id", "museum_id", "date",
                                                 "top_id", "top_score", "unexplained"}, str(sorted(fb)))

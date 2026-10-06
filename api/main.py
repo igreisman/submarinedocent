@@ -658,7 +658,7 @@ def _append_ask_log(q: str, faq_id: Optional[str], museum_id: str,
     import datetime
     global _ask_log_last_compact
     today = datetime.date.today().isoformat()
-    entry = {"q": q[:500], "faq_id": faq_id or "refusal", "museum_id": museum_id, "date": today}
+    entry = {"q": q[:500], "faq_id": faq_id, "museum_id": museum_id, "date": today}
     entry.update(extra or {})
     line = json.dumps(entry, ensure_ascii=False)
     try:
@@ -6063,10 +6063,17 @@ def ask(request: Request, payload: dict):
         result = synthesize_extractive(question_text=synth_question, hits=hits)
 
     if request.headers.get("x-subdocent-test") != "1":
+        # Until 6 October 2026 any answer without an faq_id was logged as a
+        # refusal, so answers quoted from the manual read as refusals.
         if diag:
             _append_ask_log(question, "fallback", museum_id, diag)
-        else:
+        elif (result.get("refusal") or {}).get("is_refusal"):
+            _append_ask_log(question, "refusal", museum_id)
+        elif result.get("faq_id"):
             _append_ask_log(question, result.get("faq_id"), museum_id)
+        else:
+            cite = (result.get("citations") or [{}])[0]
+            _append_ask_log(question, None, museum_id, {"source_id": cite.get("chunk_id")})
     return result
 
 
