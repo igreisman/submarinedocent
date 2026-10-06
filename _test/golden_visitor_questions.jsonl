@@ -110,3 +110,9 @@
 {"question": "Can a submarine fly if you give it wings?", "accept": ["refusal"], "added": "2026-10-01, off-topic"}
 {"question": "Tell me a joke about pirates", "accept": ["refusal"], "added": "2026-10-01, off-topic"}
 {"question": "Do fish ever get lost at sea?", "accept": ["refusal"], "added": "2026-10-01, off-topic"}
+{"question": "what ships did the Pampanito sink", "accept": ["faq_1360"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}
+{"question": "what did Pampanito sink", "accept": ["faq_1360"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}
+{"question": "ships sunk by Pampanito", "accept": ["faq_1360"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}
+{"question": "how many ships did Pampanito sink", "accept": ["faq_1360"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}
+{"question": "where did the crew sleep on Pampanito", "accept": ["faq_1160", "faq_1119"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}
+{"question": "what ships did Cod sink", "accept": ["faq_1367"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}

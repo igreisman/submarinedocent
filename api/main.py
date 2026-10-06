@@ -1720,10 +1720,15 @@ QUERY_SYNONYMS: Dict[str, List[str]] = {
     "volunteers":["volunteer", "volunteered", "selected", "selection", "screened"],
     "screened":  ["volunteer", "selected", "selection", "screen", "testing", "physical"],
     "selection": ["volunteer", "volunteers", "selected", "screened", "choose", "pick"],
-    # sunk / survive (pam_184)
-    "sunk":      ["sink", "sinking", "lost", "survival", "survive", "casualty", "casualties"],
-    "sink":      ["sunk", "sinking", "lost", "survival", "survive", "casualty"],
-    "sinking":   ["sunk", "sink", "lost", "survival", "survive", "casualty"],
+    # sunk / survive.  The sink family once also expanded to lost, survival,
+    # survive and casualty, written for pam_184 (surviving one's own boat being
+    # sunk).  pam_ was removed on 17 September 2026, and the expansion then
+    # pulled survivor and loss records into "what ships did Pampanito sink"
+    # (5 October 2026).  It now means sinking ships, and includes "sank", the
+    # word the records use.
+    "sunk":      ["sink", "sinking", "sank"],
+    "sink":      ["sunk", "sinking", "sank"],
+    "sinking":   ["sunk", "sink", "sank"],
     "survival":  ["sunk", "sink", "survive", "casualty", "casualties", "escape"],
     "survive":   ["sunk", "sink", "sinking", "survival", "casualty", "casualties"],
     # night surface attack / deck gun (pam_185, pam_222)
@@ -1849,7 +1854,7 @@ QUERY_SYNONYMS: Dict[str, List[str]] = {
     "batfish":    ["enemy submarine", "japanese submarine", "sank", "killed", "sink"],
     "engagements":["enemy submarine", "submarine", "batfish", "sank", "fight"],
     "engagement": ["enemy submarine", "submarine", "batfish", "sank", "fight"],
-    "sank":       ["sunk", "sink", "sinking", "enemy", "batfish", "submarine", "pampanito", "ships", "merchant"],
+    "sank":       ["sunk", "sink", "sinking"],
     # magnetic vs contact exploder distinction (pam_209) — extends existing "magnetic/exploder" entries
     "mark":       ["mark 6", "magnetic", "exploder", "torpedo", "mark 14", "mark 18"],
     "detonate":   ["magnetic", "exploder", "contact", "dud", "fuze", "fuse", "fire"],
@@ -2205,6 +2210,16 @@ Hit = Tuple[float, Dict[str, Any], str]
 
 
 MUSEUM_BOOST = float(os.getenv("MUSEUM_BOOST", "2.0"))
+# A question that names a boat (by name, or by hull number written with "SS")
+# ranks that boat's own records above general ones.  Without it "what ships
+# did the Pampanito sink" was answered by a short record about Japanese
+# submarines that shared "ships" and synonyms of "sink", while the Pampanito
+# record that answers it ranked 22nd (5 October 2026).  A boost, not a filter:
+# a boat with no record on the subject still gets the general answer.
+# 5.0 measured best of 2, 3, 4, 5 and 8 on 6 October 2026 (with the sink
+# synonyms narrowed): sweep and battery unchanged, typed boat questions 9 -> 15
+# of 19.
+BOAT_BOOST = float(os.getenv("BOAT_BOOST", "5.0"))
 
 
 def _title_covers_question(q_tokens: List[str], title_text: str) -> bool:
@@ -2265,6 +2280,8 @@ def retrieve(
         if raw_paras and raw_paras[0].rstrip().endswith("?"):
             return raw_paras[0]
         return ""
+
+    boats_named = _boats_named(question_text) if BOAT_BOOST != 1.0 else set()
 
     normalized_question = re.sub(r"[^a-z0-9\s]", " ", (question_text or "").lower()).split()
     normalized_question_text = " ".join(normalized_question)
@@ -2344,6 +2361,10 @@ def retrieve(
             # stranded with only whatever has been written about one boat.
             if museum_id and str(ch.get("museum_id") or "").strip() == museum_id:
                 effective_weight *= MUSEUM_BOOST
+
+            # The question names this record's boat: see BOAT_BOOST.
+            if boats_named and str(ch.get("boat") or "").strip() in boats_named:
+                effective_weight *= BOAT_BOOST
 
             # For comparison queries, strongly boost chunks that discuss both sides
             if intent.get("wants_mark_compare") and _has_both_marks(text):
@@ -4124,6 +4145,31 @@ async def upload_admin_eternal_patrol_image(
         _save_eternal_patrol()
 
     return {"status": "uploaded", "field_name": field_name, "path": relative_path, "boat": target}
+
+
+def _boats_named(question_text: str) -> set:
+    """Hull numbers of boats with records that the question names.
+
+    By the boat's name ("Pampanito", "USS Cod") or by hull number written with
+    its SS prefix ("SS-383"); a bare number is not taken as a hull, so "191
+    men" does not mean Sculpin.  Only boats that have records count, so naming
+    a boat the corpus says nothing about changes nothing.
+    """
+    raw = (question_text or "").lower()
+    tokens = set(tokenize(question_text or ""))
+    with_records = {str(c.get("boat") or "").strip() for c in FAQ if c.get("boat")}
+    named = set()
+    for hull in with_records:
+        b = BOATS.get(hull) or {}
+        name = re.sub(r"^uss\s+", "", str(b.get("name") or "").lower()).strip()
+        name_tokens = tokenize(name)
+        if name_tokens and all(t in tokens for t in name_tokens):
+            named.add(hull)
+            continue
+        digits = re.sub(r"\D", "", hull)
+        if digits and re.search(r"\bss[\s-]?" + digits + r"\b", raw):
+            named.add(hull)
+    return named
 
 
 def _boat_display_name(hull: Any) -> str:
