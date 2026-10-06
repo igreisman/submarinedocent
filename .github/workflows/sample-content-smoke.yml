@@ -127,6 +127,11 @@ jobs:
         env:
           CONTENT_ROOT: corpora
 
+      - name: Stage 1 fallback
+        run: python3 _test/test_stage1_fallback.py
+        env:
+          CONTENT_ROOT: corpora
+
       - name: Stop app
         if: always()
         run: |

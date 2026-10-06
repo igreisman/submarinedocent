@@ -653,14 +653,14 @@ def _compact_ask_log() -> None:
     os.replace(tmp, ASK_LOG_PATH)
 
 
-def _append_ask_log(q: str, faq_id: Optional[str], museum_id: str) -> None:
+def _append_ask_log(q: str, faq_id: Optional[str], museum_id: str,
+                    extra: Optional[Dict[str, Any]] = None) -> None:
     import datetime
     global _ask_log_last_compact
     today = datetime.date.today().isoformat()
-    line = json.dumps(
-        {"q": q[:500], "faq_id": faq_id or "refusal", "museum_id": museum_id, "date": today},
-        ensure_ascii=False,
-    )
+    entry = {"q": q[:500], "faq_id": faq_id or "refusal", "museum_id": museum_id, "date": today}
+    entry.update(extra or {})
+    line = json.dumps(entry, ensure_ascii=False)
     try:
         with _ask_log_lock:
             now = time.time()
@@ -1321,7 +1321,9 @@ STOPWORDS = {
 # now refuses.  Body text keeps them.  Added 1 Oct 2026 after a 99-question
 # paraphrase battery: 51/99 before, 62/99 after, self-retrieval 386/386 both.
 SOFT_STOPWORDS = {"submarines", "boats", "subs", "they", "them", "their",
-                  "these", "those", "mean", "means", "ww2", "wwii"}
+                  "these", "those", "mean", "means", "ww2", "wwii",
+                  "his", "her", "hers", "him", "she", "our", "your", "yours",
+                  "my", "mine", "we", "us"}
 
 
 def tokenize(text: str, keep_soft: bool = True) -> List[str]:
@@ -2246,7 +2248,8 @@ def retrieve(
     compartment_id: str,
     playhead_time_ms: Optional[int] = None,
     top_k: int = 8,
-    museum_id: str = ""
+    museum_id: str = "",
+    diag: Optional[Dict[str, Any]] = None,
 ) -> List[Hit]:
     """
     Local demo retriever:
@@ -2255,7 +2258,11 @@ def retrieve(
     - Shorts is lowest authority.
     - Stopword-safe overlap scoring.
     - Intent gating to prevent obviously wrong matches.
+
+    When the floor below refuses the question, `diag` (if given) receives the
+    record that would have answered, its score and the unexplained weight.
     """
+    question_text = _question_part(question_text)
     q_tokens = tokenize(question_text, keep_soft=False) or tokenize(question_text)
     q_tokens = remove_compartment_noise(q_tokens, question_text)
     intent = detect_intent(q_tokens, question_text)
@@ -2419,9 +2426,43 @@ def retrieve(
 
     hits.sort(key=lambda x: x[0], reverse=True)
     hits = hits[:top_k]
-    if hits and _question_unanswered(q_tokens, hits[0][1]):
-        return []
+    if hits:
+        unanswered, unexplained = _question_unanswered(q_tokens, hits[0][1])
+        if unanswered:
+            if diag is not None:
+                diag.update({"top_id": hits[0][1].get("chunk_id"),
+                             "top_score": round(hits[0][0], 2),
+                             "unexplained": round(unexplained, 2)})
+            return []
     return hits
+
+
+# A visitor often says something before asking: "My grandfather served on a
+# sub in the Pacific. How deep could they dive?"  Searched whole, the preamble
+# chose the record for 6 of 10 such questions and pushed 8 of 10 over the
+# unexplained-weight floor (6 October 2026).  When statements come before the
+# first question sentence, search from that sentence on.  The split does not
+# break after an initial ("U. S."), and a question that leans on what came
+# before ("What was that for?", under two content words) keeps the whole text.
+# A boat named only in the preamble is carried into the question: "My uncle
+# served on Cod. What did his boat sink?" is searched as "... sink? Cod".
+_SENTENCE_SPLIT_RE = re.compile(r"(?<![\s.][A-Za-z]\.)(?<=[.!?])\s+")
+
+
+def _question_part(question_text: str) -> str:
+    q = (question_text or "").strip()
+    parts = [p.strip() for p in _SENTENCE_SPLIT_RE.split(q) if p.strip()]
+    if len(parts) < 2:
+        return q
+    first = next((i for i, p in enumerate(parts) if p.endswith("?")), None)
+    if not first:
+        return q
+    tail = " ".join(parts[first:])
+    carried = sorted(_boats_named(q) - _boats_named(tail))
+    names = [re.sub(r"(?i)^uss\s+", "", str((BOATS.get(h) or {}).get("name") or "")).strip()
+             for h in carried]
+    tail = " ".join([tail] + [n for n in names if n])
+    return tail if len(tokenize(tail, keep_soft=False)) >= 2 else q
 
 
 # A score is not evidence that the question was answered.  Scores sum idf over
@@ -2435,25 +2476,39 @@ def retrieve(
 #   coverage     idf-weighted share of the question's words found in the top
 #                record's title or text, synonyms included.  The joke: 0.07.
 #                Lowest correctly answered golden question: 0.20.
-#   unexplained  idf weight of the question's words the record never mentions.
-#                Off (0) by default; see the Decisions log, 1 October 2026.
+#   unexplained  idf weight of the question's words the record never mentions,
+#                personal pronouns not counted ("Where do you store your
+#                trash?" is a real question).  7.0 refuses "Why was the sail
+#                fairwater cut down?" (10.1), which no record answers, and no
+#                correctly answered battery question or FAQ title.  Words, not
+#                scores, so the boat and title boosts play no part.  See the
+#                Decisions log, 6 October 2026.
+#
+# Either one shows the visitor FALLBACK_ANSWER and logs the question.
 MIN_QUESTION_COVERAGE = float(os.getenv("MIN_QUESTION_COVERAGE", "0.15"))
-MAX_UNEXPLAINED_IDF = float(os.getenv("MAX_UNEXPLAINED_IDF", "0"))
+MAX_UNEXPLAINED_IDF = float(os.getenv("MAX_UNEXPLAINED_IDF", "7.0"))
+_UNEXPLAINED_EXEMPT = frozenset(
+    "you your my our their his her its i me we us them they".split())
+FALLBACK_ANSWER = ("I don't have a good answer to that one yet. "
+                   "I've passed the question along to the docents so we can add it.")
 
 
-def _question_unanswered(q_tokens: List[str], ch: Dict[str, Any]) -> bool:
+def _question_unanswered(q_tokens: List[str], ch: Dict[str, Any]) -> Tuple[bool, float]:
+    """(refuse?, unexplained weight) for the record that would answer."""
     if not q_tokens:
-        return False
+        return False, 0.0
     rec = set(tokenize((ch.get("title") or "") + " " + (ch.get("text") or "")))
-    total = missing = 0.0
+    total = missing = unexplained = 0.0
     for t in dict.fromkeys(q_tokens):
         w = _idf(t)
         total += w
         if t not in rec and not any(s in rec for s in QUERY_SYNONYMS.get(t, [])):
             missing += w
+            if t not in _UNEXPLAINED_EXEMPT:
+                unexplained += w
     if total and (total - missing) / total < MIN_QUESTION_COVERAGE:
-        return True
-    return bool(MAX_UNEXPLAINED_IDF) and missing >= MAX_UNEXPLAINED_IDF
+        return True, unexplained
+    return bool(MAX_UNEXPLAINED_IDF) and unexplained >= MAX_UNEXPLAINED_IDF, unexplained
 
 
 # ------------------------------------------------------------
@@ -5957,6 +6012,7 @@ def ask(request: Request, payload: dict):
     # answerable record (deleted, or a draft) falls back to an ordinary search.
     faq_id = str(payload.get("faq_id") or "").strip()
     pinned = next((c for c in FAQ if c.get("chunk_id") == faq_id), None) if faq_id else None
+    diag: Dict[str, Any] = {}
     if pinned is not None:
         hits = [(1.0, pinned, "dieselsubs_faq")]
         synth_question = pinned.get("title") or question
@@ -5966,11 +6022,23 @@ def ask(request: Request, payload: dict):
             compartment_id=compartment,
             playhead_time_ms=playhead_time_ms,
             top_k=8,
-            museum_id=museum_id
+            museum_id=museum_id,
+            diag=diag,
         )
-        synth_question = question
+        synth_question = _question_part(question)
 
-    if not hits:
+    if diag:
+        # The floor refused it: say so plainly, and the log tells the docents.
+        result = {
+            "answer_mode": payload.get("answer_mode", "standard") or "standard",
+            "answer_short": FALLBACK_ANSWER,
+            "answer_deep": None,
+            "what_you_are_seeing": None,
+            "citations": [],
+            "followups": [],
+            "refusal": {"is_refusal": True, "reason": "fallback"},
+        }
+    elif not hits:
         result = {
             "answer_mode": payload.get("answer_mode", "standard") or "standard",
             "answer_short": "I don’t have that detail in the reference material I’m using.",
@@ -5995,7 +6063,10 @@ def ask(request: Request, payload: dict):
         result = synthesize_extractive(question_text=synth_question, hits=hits)
 
     if request.headers.get("x-subdocent-test") != "1":
-        _append_ask_log(question, result.get("faq_id"), museum_id)
+        if diag:
+            _append_ask_log(question, "fallback", museum_id, diag)
+        else:
+            _append_ask_log(question, result.get("faq_id"), museum_id)
     return result
 
 
