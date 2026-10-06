@@ -1105,6 +1105,8 @@
     // carrying it are boosted, and the suggestion chips are drawn from that
     // boat's own entries rather than written by hand, so they cannot drift out
     // of step with what the corpus can actually answer.
+    const MUSEUM_FALLBACK_ANSWER = "I don't have an answer for that right now.";
+
     async function askForMuseum(museumId, question, faqId) {
       const out = document.getElementById('museum-answer');
       if (!out || !question.trim()) return;
@@ -1124,7 +1126,12 @@
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-        const answer = (data.answer_short || '').trim();
+        // The site's fallback offers to pass the question to historians, but
+        // who receives museum-page questions is not decided (Track D), so
+        // this page makes no offer.
+        const answer = (data.refusal && data.refusal.reason === 'fallback')
+          ? MUSEUM_FALLBACK_ANSWER
+          : (data.answer_short || '').trim();
         if (!answer) { out.textContent = 'No answer came back for that one.'; return; }
         const cite = (data.citations && data.citations[0]) || null;
         out.innerHTML = `<div>${esc(answer).replace(/\n+/g, '<br><br>')}</div>`
