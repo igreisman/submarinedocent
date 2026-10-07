@@ -71,6 +71,18 @@ CHATTY = [
      "What happened with the Dutch submarine O-19?"),
 ]
 
+# Typed with no punctuation: the question starts at its last what, how, why
+# or who.  "did anyone die ..." has none of those and still falls back.
+UNPUNCTUATED = [
+    ("my grandfather served on a sub how deep could they dive", "How deep could the sub dive?"),
+    ("im visiting with my kids this weekend and they keep asking me how many men were in the crew",
+     "How many men were in the crew?"),
+    ("just curious ive always wondered about this how long were war patrols", "How long were war patrols?"),
+    ("my uncle was a torpedoman and never talked about it what was the mark 14 torpedo",
+     "What was the Mark 14 torpedo?"),
+]
+UNPUNCTUATED_GAP = "sorry if this is a dumb question im new to all this did anyone die while on the pampanito"
+
 # What nothits.mp3 says.  Ask the Docent plays it on every refusal, so the
 # words on screen must be the words the visitor hears.
 NOTHITS_RECORDING = ("I don't have an answer for that right now, but I can pass it along to "
@@ -122,6 +134,15 @@ def main() -> int:
         want, _ = ask(plain)
         check(f"preamble ignored: {chatty[:50]!r}", got == want, f"got {got}, plain form {want}")
 
+    for chatty, plain in UNPUNCTUATED:
+        got, _ = ask(chatty)
+        want, _ = ask(plain)
+        check(f"unpunctuated: {chatty[:50]!r}", got == want, f"got {got}, plain form {want}")
+    if ask(UNPUNCTUATED_GAP)[0] != "fallback":
+        print(f"  NOTE  unpunctuated gap now answered, record it in the Stage 1 plan: {UNPUNCTUATED_GAP!r}")
+    check("a clause word does not start the question",
+          m._question_part("did the hull creak when they went deep") == "did the hull creak when they went deep")
+
     for q, want in BOAT_IN_PREAMBLE:
         got, _ = ask(q)
         check(f"boat carried: {q!r}", got == want, f"got {got}")
@@ -161,7 +182,8 @@ def main() -> int:
         check("unexplained at or over the floor", (fb.get("unexplained") or 0) >= m.MAX_UNEXPLAINED_IDF, str(fb))
         check("answered line unchanged", set(ok) == {"q", "faq_id", "museum_id", "date"}, str(sorted(ok)))
 
-    print(f"  {len(MUST_FALL_BACK)} fall back, {len(CHATTY)} chatty, {len(BOAT_IN_PREAMBLE)} boat carries, "
+    print(f"  {len(MUST_FALL_BACK)} fall back, {len(CHATTY)} chatty, {len(UNPUNCTUATED)} unpunctuated, "
+          f"{len(BOAT_IN_PREAMBLE)} boat carries, "
           f"{len(KNOWN_GAPS) - len(closed)}/{len(KNOWN_GAPS)} known gaps still open: "
           f"{'OK' if not failures else str(len(failures)) + ' FAILED'}")
     return 1 if failures else 0

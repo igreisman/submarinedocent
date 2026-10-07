@@ -2465,18 +2465,32 @@ def retrieve(
 # before ("What was that for?", under two content words) keeps the whole text.
 # A boat named only in the preamble is carried into the question: "My uncle
 # served on Cod. What did his boat sink?" is searched as "... sink? Cod".
+#
+# Typed with no punctuation at all ("my grandfather served on a sub how deep
+# could they dive"), the question starts at its last what, how, why or who.
+# Where, when and which are left out: they join clauses ("did the hull creak
+# when they went deep").  Measured 6 October 2026: 4 of 5 such questions get
+# their plain form's answer; no FAQ title, battery row or logged visitor
+# question changes.
 _SENTENCE_SPLIT_RE = re.compile(r"(?<![\s.][A-Za-z]\.)(?<=[.!?])\s+")
+_QUESTION_WORD_RE = re.compile(r"\b(what|how|why|who)\b", re.I)
 
 
 def _question_part(question_text: str) -> str:
     q = (question_text or "").strip()
     parts = [p.strip() for p in _SENTENCE_SPLIT_RE.split(q) if p.strip()]
-    if len(parts) < 2:
+    if len(parts) >= 2:
+        first = next((i for i, p in enumerate(parts) if p.endswith("?")), None)
+        if not first:
+            return q
+        tail = " ".join(parts[first:])
+    elif not re.search(r"[.!?]", q[:-1]):
+        starts = [m.start() for m in _QUESTION_WORD_RE.finditer(q)]
+        if not starts or starts[-1] == 0:
+            return q
+        tail = q[starts[-1]:]
+    else:
         return q
-    first = next((i for i, p in enumerate(parts) if p.endswith("?")), None)
-    if not first:
-        return q
-    tail = " ".join(parts[first:])
     carried = sorted(_boats_named(q) - _boats_named(tail))
     names = [re.sub(r"(?i)^uss\s+", "", str((BOATS.get(h) or {}).get("name") or "")).strip()
              for h in carried]
