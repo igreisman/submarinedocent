@@ -973,6 +973,7 @@
         allCats.map(c => `<option value="${esc(c)}"${c === category ? ' selected' : ''}>${esc(c)}</option>`).join('') +
         '<option value="__new__">\u2795 New category\u2026</option>';
       const boat = ((typeof selected !== 'undefined' && selected && selected.chunk_id === chunkId) ? selected.boat : '') || '';
+      const phrasings = ((typeof selected !== 'undefined' && selected && selected.chunk_id === chunkId) ? selected.phrasings : null) || [];
       const boatKnown = boatOptions.some(b => b.hull === boat);
       const boatOpts = '<option value="">Not about one boat</option>' +
         (boat && !boatKnown ? `<option value="${esc(boat)}" selected>${esc(boat)}</option>` : '') +
@@ -998,6 +999,11 @@
         <div class="field-label">Boat</div>
         <div class="field-help">Only when the record is about one particular boat. It puts the record in that boat's section of the FAQ page.</div>
         <select id="edit-boat">${boatOpts}</select>
+      </div>
+      <div>
+        <div class="field-label">Other wordings of this question</div>
+        <div class="field-help">One per line. Ways visitors ask this question in words the title does not use. They help Ask the Docent find this record and are never shown to visitors. Only answerable records (faq_, fix_) use them.</div>
+        <textarea id="edit-phrasings" rows="3" placeholder="e.g. how did the crew pass the time">${esc(phrasings.join('\n'))}</textarea>
       </div>
       <div>
         <div class="field-label">Answer HTML</div>
@@ -1032,6 +1038,7 @@
       </div>`;
 
       document.getElementById('edit-title').addEventListener('input', () => { dirty = true; });
+      document.getElementById('edit-phrasings').addEventListener('input', () => { dirty = true; });
       document.getElementById('edit-category').addEventListener('change', e => {
         if (e.target.value === '__new__') {
           const name = prompt('New category name:');
@@ -1331,6 +1338,8 @@
       })();
       const category = document.getElementById('edit-category').value;
       const boat = document.getElementById('edit-boat').value;
+      const phrasings = document.getElementById('edit-phrasings').value
+        .split('\n').map(p => p.trim()).filter(Boolean);
       if (!title) { setActionStatus('Title is required.', 'err'); return; }
       if (!text) { setActionStatus('Answer HTML is required.', 'err'); return; }
       setBtns(false); setActionStatus('');
@@ -1339,12 +1348,12 @@
         if (isNew) {
           res = await fetch(`${API}/admin/faq`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, text, category, boat }),
+            body: JSON.stringify({ title, text, category, boat, phrasings }),
           });
         } else {
           res = await fetch(`${API}/admin/faq/${encodeURIComponent(selected.chunk_id)}`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, text, category, boat }),
+            body: JSON.stringify({ title, text, category, boat, phrasings }),
           });
         }
         if (!res.ok) throw new Error((await res.json()).detail || `HTTP ${res.status}`);
@@ -1362,7 +1371,7 @@
           renderEdit(selected.title, selected.text, selected.chunk_id, selected.category);
           setActionStatus(`Created ${data.chunk_id}`, 'ok');
         } else {
-          selected.title = title; selected.text = text; selected.category = category; selected.boat = boat;
+          selected.title = title; selected.text = text; selected.category = category; selected.boat = boat; selected.phrasings = phrasings;
           applyFilter();
           setActionStatus('Saved.', 'ok');
         }

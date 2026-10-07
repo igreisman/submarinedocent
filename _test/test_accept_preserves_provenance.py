@@ -49,6 +49,10 @@ def main():
         {"chunk_id": "der_902", "doc_type": "dieselsubs_faq", "title": "A twice-promoted draft",
          "text": "<p>Body.</p>", "source": "accepted_from_der_1",
          "original_source": "the_true_origin", "category": "Museums"},
+        # Phrasings are how a record is found; acceptance must not drop them.
+        {"chunk_id": "der_903", "doc_type": "dieselsubs_faq", "title": "A draft with phrasings",
+         "text": "<p>Body.</p>", "source": "some_museum_tour", "category": "Museums",
+         "phrasings": ["one other wording", "a second wording"]},
     ]
     with open(os.path.join(corpora, "dieselsubs_faq_corpus.jsonl"), "w", encoding="utf-8") as f:
         for d in drafts:
@@ -91,6 +95,17 @@ def main():
     if got:
         check("an existing original_source is not clobbered",
               got.get("original_source") == "the_true_origin", repr(got.get("original_source")))
+
+    got, _ = accept("der_903")
+    check("a draft with phrasings is accepted", got is not None)
+    if got:
+        check("phrasings survive acceptance",
+              got.get("phrasings") == ["one other wording", "a second wording"], repr(got.get("phrasings")))
+        with open(os.path.join(corpora, "dieselsubs_faq_corpus.jsonl"), encoding="utf-8") as f:
+            saved = {r["chunk_id"]: r for r in (json.loads(l) for l in f if l.strip())}
+        check("phrasings survive acceptance on disk",
+              (saved.get(got["chunk_id"]) or {}).get("phrasings") == ["one other wording", "a second wording"],
+              repr((saved.get(got["chunk_id"]) or {}).get("phrasings")))
 
     shutil.rmtree(root, ignore_errors=True)
     print()

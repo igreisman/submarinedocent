@@ -2312,6 +2312,56 @@ def retrieve(
     normalized_question = re.sub(r"[^a-z0-9\s]", " ", (question_text or "").lower()).split()
     normalized_question_text = " ".join(normalized_question)
 
+    def _title_weight(title_text: str, weight: float, phrasing: bool = False) -> tuple:
+        """(weight, all-covered?) for a record titled title_text.
+
+        FAQ question-title match bonus: reward titles whose vocabulary
+        closely matches the query.  Scale by title coverage so a short,
+        specific title like "What is a torpedo?" (coverage=1.0) beats
+        "What is in the after torpedo room?" (coverage=0.33) even when both
+        contain the only query token "torpedo".
+        """
+        effective_weight = weight
+        all_q_covered = False
+        if title_text:
+            title_toks = set(tokenize(title_text, keep_soft=False))
+            q_set = set(q_tokens)
+            if q_set and title_toks:
+                # Use synonym-expanded query tokens so e.g. "served"→"assigned"
+                # still matches a FAQ title like "How many men were assigned?"
+                q_expanded_set = set(expand_query_tokens(q_tokens))
+                matched = len(q_expanded_set & title_toks)
+                coverage = matched / len(title_toks)  # fraction of title covered by query
+                all_q_covered = _title_covers_question(q_tokens, title_text)
+                # A phrasing must also be mostly covered by the question: "how
+                # big is the boat" searches as "big" alone, and a phrasing "how
+                # big is a torpedo" would otherwise cover it entirely.
+                if phrasing and coverage < PHRASING_MIN_COVERAGE:
+                    all_q_covered = False
+                if all_q_covered:
+                    # Every query token appears in the title, so the entry
+                    # answers the whole question: apply the full boost and
+                    # do NOT scale by coverage.  Scaling diluted the match
+                    # for titles carrying extra words — "what is a depth
+                    # charge" against "What is a depth charge and how did
+                    # it work?" lost two thirds of the boost and ranked
+                    # below a passing mention in tour narration.
+                    effective_weight = max(weight, weight * 4.0)
+                elif matched >= max(1, len(q_set) - 1):
+                    # Near-exact (all but one): scale 2x by coverage.
+                    # Does NOT set _faq_title_boosted: coverage-scaled boosts
+                    # can be tiny and wrongly displaced a shorts answer about
+                    # bunks with an FAQ about torpedoes (2026-10-01 correction).
+                    effective_weight = weight * 2.0 * coverage
+
+            normalized_title_text = " ".join(
+                re.sub(r"[^a-z0-9\s]", " ", title_text.lower()).split()
+            )
+            if normalized_question_text and normalized_question_text == normalized_title_text:
+                # Exact FAQ wording should outrank broader topical chunks.
+                effective_weight = max(effective_weight, weight * EXACT_TITLE_BOOST)
+        return effective_weight, all_q_covered
+
     # helper
     def add_hits(chunks: List[Dict[str, Any]], source_id: str, weight: float, compartment_filter: bool):
         for ch in chunks:
@@ -2329,57 +2379,31 @@ def retrieve(
             # record's body, so it scored zero and was dropped while a record
             # about missiles answered instead.  An FAQ title is the question a
             # visitor asks, so a match there is evidence, not noise.
-            s = overlap_score(q_tokens, text)
-            if title_text:
-                s = max(s, overlap_score(q_tokens, title_text))
+            # The record's title and its phrasings (other wordings of the same
+            # question, written by a curator) are scored alike, and the record
+            # takes the best of them.  Phrasings are never shown to visitors.
+            body_score = overlap_score(q_tokens, text)
+            if body_score <= 0 and not title_text:
+                continue
+            best = None
+            for n, candidate in enumerate([title_text] + _record_phrasings(ch)):
+                cs = body_score
+                if candidate:
+                    cs = max(cs, overlap_score(q_tokens, candidate))
+                cw, boosted = _title_weight(candidate, weight, phrasing=n > 0)
+                if best is None or cs * cw > best[0] * best[1]:
+                    best = (cs, cw, boosted)
+            s, effective_weight, boosted = best
             if s <= 0:
                 continue
 
             if not intent_gate(text, intent):
                 continue
 
-            effective_weight = weight
-
-            # FAQ question-title match bonus: reward titles whose vocabulary
-            # closely matches the query. Scale by title coverage so a short,
-            # specific title like "What is a torpedo?" (coverage=1.0) beats
-            # "What is in the after torpedo room?" (coverage=0.33) even when
-            # both contain the only query token "torpedo".
-            if title_text:
-                title_toks = set(tokenize(title_text, keep_soft=False))
-                q_set = set(q_tokens)
-                if q_set and title_toks:
-                    # Use synonym-expanded query tokens so e.g. "served"→"assigned"
-                    # still matches a FAQ title like "How many men were assigned?"
-                    q_expanded_set = set(expand_query_tokens(q_tokens))
-                    matched = len(q_expanded_set & title_toks)
-                    coverage = matched / len(title_toks)  # fraction of title covered by query
-                    all_q_covered = _title_covers_question(q_tokens, title_text)
-                    if all_q_covered:
-                        # Every query token appears in the title, so the entry
-                        # answers the whole question: apply the full boost and
-                        # do NOT scale by coverage.  Scaling diluted the match
-                        # for titles carrying extra words — "what is a depth
-                        # charge" against "What is a depth charge and how did
-                        # it work?" lost two thirds of the boost and ranked
-                        # below a passing mention in tour narration.
-                        effective_weight = max(weight, weight * 4.0)
-                        cid = ch.get("chunk_id", "")
-                        if cid.startswith(("faq_", "fix_")):
-                            _faq_title_boosted.add(cid)
-                    elif matched >= max(1, len(q_set) - 1):
-                        # Near-exact (all but one): scale 2x by coverage.
-                        # Does NOT set _faq_title_boosted: coverage-scaled boosts
-                        # can be tiny and wrongly displaced a shorts answer about
-                        # bunks with an FAQ about torpedoes (2026-10-01 correction).
-                        effective_weight = weight * 2.0 * coverage
-
-                    normalized_title_text = " ".join(
-                        re.sub(r"[^a-z0-9\s]", " ", title_text.lower()).split()
-                    )
-                    if normalized_question_text and normalized_question_text == normalized_title_text:
-                        # Exact FAQ wording should outrank broader topical chunks.
-                        effective_weight = max(effective_weight, weight * EXACT_TITLE_BOOST)
+            if boosted:
+                cid = ch.get("chunk_id", "")
+                if cid.startswith(("faq_", "fix_")):
+                    _faq_title_boosted.add(cid)
 
             # Asked from a museum's own page, its records come first.  A boost
             # and not a filter: a visitor on the Cod page still gets the shared
@@ -2529,11 +2553,30 @@ FALLBACK_ANSWER = ("I don't have an answer for that right now, but I can pass it
                    "Would you like me to do that?")
 
 
+PHRASING_MIN_COVERAGE = float(os.getenv("PHRASING_MIN_COVERAGE", "0.67"))
+
+
+def _record_phrasings(ch: Dict[str, Any]) -> List[str]:
+    """Other wordings of a record's question, written by a curator.
+
+    Only faq_ and fix_ records carry them; anything else is ignored, so a
+    phrasing cannot lift an unreviewed draft or a short.
+    """
+    if not str(ch.get("chunk_id", "")).startswith(("faq_", "fix_")):
+        return []
+    raw = ch.get("phrasings") or []
+    return [p.strip() for p in raw if isinstance(p, str) and p.strip()] if isinstance(raw, list) else []
+
+
 def _question_unanswered(q_tokens: List[str], ch: Dict[str, Any]) -> Tuple[bool, float]:
-    """(refuse?, unexplained weight) for the record that would answer."""
+    """(refuse?, unexplained weight) for the record that would answer.
+
+    A word in one of the record's phrasings counts as explained: a curator
+    has said the record answers that wording.
+    """
     if not q_tokens:
         return False, 0.0
-    rec = set(tokenize((ch.get("title") or "") + " " + (ch.get("text") or "")))
+    rec = set(tokenize(" ".join([ch.get("title") or "", ch.get("text") or ""] + _record_phrasings(ch))))
     total = missing = unexplained = 0.0
     for t in dict.fromkeys(q_tokens):
         w = _idf(t)
@@ -2777,6 +2820,40 @@ def _video_payload(entry: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 
 RIGHTS_FIELDS = ("museum_id", "rights_status", "rights_note", "rights_expires")
+
+
+PHRASINGS_MAX = 20
+PHRASING_MAX_CHARS = 200
+
+
+def _phrasings_for_storage(raw: Any) -> List[str]:
+    """Validate a record's phrasings for storage: plain-text questions only.
+
+    Rejected at write time, like related_links, so a bad value never persists.
+    Duplicates (ignoring case and spacing) are dropped; an empty list is valid
+    and clears the field.
+    """
+    if raw is None:
+        return []
+    if not isinstance(raw, list) or not all(isinstance(p, str) for p in raw):
+        raise HTTPException(status_code=400, detail="phrasings must be a list of strings")
+    kept: List[str] = []
+    seen: set = set()
+    for p in raw:
+        p = " ".join(p.split())
+        if not p:
+            continue
+        if "<" in p or ">" in p:
+            raise HTTPException(status_code=400, detail=f"phrasings are plain text, no HTML: {p[:60]!r}")
+        if len(p) > PHRASING_MAX_CHARS:
+            raise HTTPException(status_code=400,
+                                detail=f"each phrasing is at most {PHRASING_MAX_CHARS} characters: {p[:60]!r}")
+        if p.lower() not in seen:
+            seen.add(p.lower())
+            kept.append(p)
+    if len(kept) > PHRASINGS_MAX:
+        raise HTTPException(status_code=400, detail=f"at most {PHRASINGS_MAX} phrasings per record")
+    return kept
 
 
 def _related_links_for_storage(raw: Any) -> List[Dict[str, Any]]:
@@ -3705,6 +3782,7 @@ def get_all_faqs():
             "video_credit": e.get("video_credit", ""),
             "video_credit_url": e.get("video_credit_url", ""),
             "related_links": e.get("related_links") or [],
+            "phrasings": e.get("phrasings") or [],
         }
         for e in FAQ_ALL
     ]
@@ -5123,6 +5201,9 @@ async def create_faq(request: Request):
             value = str(body.get(field) or "").strip()
             if value:
                 new_entry[field] = value
+        phrasings = _phrasings_for_storage(body.get("phrasings"))
+        if phrasings:
+            new_entry["phrasings"] = phrasings
         FAQ_ALL.append(new_entry)
         _save_faq_corpus()
     return {"status": "created", "chunk_id": new_id}
@@ -5139,6 +5220,9 @@ async def update_faq(chunk_id: str, request: Request):
         raise HTTPException(status_code=404, detail=f"{chunk_id} not found")
     with _faq_write_lock:
         _validate_faq_write(body)
+        # Checked before anything is written, so a rejected phrasing leaves the
+        # record exactly as it was.
+        phrasings = _phrasings_for_storage(body.get("phrasings")) if "phrasings" in body else None
         if title:
             entry["title"] = title
         if text:
@@ -5166,6 +5250,12 @@ async def update_faq(chunk_id: str, request: Request):
         # every later read.  An empty list clears them.
         if "related_links" in body:
             entry["related_links"] = _related_links_for_storage(body.get("related_links"))
+        # Same contract: only touched when sent, and an empty list removes it.
+        if phrasings is not None:
+            if phrasings:
+                entry["phrasings"] = phrasings
+            else:
+                entry.pop("phrasings", None)
         # Same contract as related_links: only touched when the key is sent, so
         # an ordinary text save can't strip a record's video.  Sending an empty
         # video_url clears the whole attachment rather than leaving orphaned

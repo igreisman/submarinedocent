@@ -132,6 +132,9 @@ jobs:
         env:
           CONTENT_ROOT: corpora
 
+      - name: Phrasings test
+        run: python3 _test/test_phrasings.py
+
       - name: Stop app
         if: always()
         run: |
