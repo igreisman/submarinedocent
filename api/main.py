@@ -1323,7 +1323,10 @@ STOPWORDS = {
 SOFT_STOPWORDS = {"submarines", "boats", "subs", "they", "them", "their",
                   "these", "those", "mean", "means", "ww2", "wwii",
                   "his", "her", "hers", "him", "she", "our", "your", "yours",
-                  "my", "mine", "we", "us"}
+                  "my", "mine", "we", "us",
+                  # "What was the temperature and humidity like ...?": filler
+                  # in "what was X like", added 6 October 2026.
+                  "like"}
 
 
 def tokenize(text: str, keep_soft: bool = True) -> List[str]:
@@ -1823,9 +1826,25 @@ QUERY_SYNONYMS: Dict[str, List[str]] = {
     "tropical":  ["heat", "hot", "temperature", "tropics", "pacific", "equator"],
     "tropics":   ["tropical", "heat", "hot", "temperature", "pacific", "equator"],
     "humid":     ["heat", "hot", "tropical", "sweat", "temperature"],
+    # Visitor questions the 7.0 floor refused on 6 October although the record
+    # answers them: faq_1114 says the tanks were "emptied overboard", faq_1171
+    # names the "dehumidifier", faq_1301 gives test "depth".  Each entry is as
+    # narrow as its question allows: broad expansions are how the old "sink"
+    # rule went stale.  Wider forms were measured and changed nothing.
+    "humidity":  ["humid", "dehumidifier", "moisture"],
+    "dump":      ["emptied", "overboard"],
+    "diving":    ["depth"],
     # submarine captain qualities (pam_203) — extends existing "ace/best" entries
-    "captain":   ["commander", "co", "qualities", "leadership", "commanding", "officer"],
-    "commander": ["captain", "co", "qualities", "leadership", "commanding", "officer"],
+    "captain":   ["commander", "co", "qualities", "leadership", "commanding", "officer", "skipper"],
+    "commander": ["captain", "co", "qualities", "leadership", "commanding", "officer", "skipper"],
+    # Navy words a visitor uses for what the records call something else
+    # (6 October 2026).  "skipper" is in six records but not "Who commanded
+    # USS Cod?"; no record says "bathroom" or "bends".
+    "skipper":   ["captain", "commander", "commanding", "commanded"],
+    "bathroom":  ["head", "heads", "toilet", "toilets"],
+    "bathrooms": ["head", "heads", "toilet", "toilets"],
+    "restroom":  ["head", "heads", "toilet", "toilets"],
+    "bends":     ["decompression", "decompress"],
     "commanding":["captain", "commander", "co", "officer", "leadership"],
     "qualities": ["captain", "commander", "co", "leadership", "good", "best", "ace"],
     "leadership":["qualities", "captain", "commander", "co", "best", "ace"],
