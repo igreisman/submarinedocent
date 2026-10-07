@@ -135,6 +135,11 @@ jobs:
       - name: Phrasings test
         run: python3 _test/test_phrasings.py
 
+      - name: When and where questions
+        run: python3 _test/test_question_words.py
+        env:
+          CONTENT_ROOT: corpora
+
       - name: Stop app
         if: always()
         run: |

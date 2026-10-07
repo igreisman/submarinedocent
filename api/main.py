@@ -2312,6 +2312,8 @@ def retrieve(
     normalized_question = re.sub(r"[^a-z0-9\s]", " ", (question_text or "").lower()).split()
     normalized_question_text = " ".join(normalized_question)
 
+    q_lead = _lead_word(question_text)
+
     def _title_weight(title_text: str, weight: float, phrasing: bool = False) -> tuple:
         """(weight, all-covered?) for a record titled title_text.
 
@@ -2360,6 +2362,8 @@ def retrieve(
             if normalized_question_text and normalized_question_text == normalized_title_text:
                 # Exact FAQ wording should outrank broader topical chunks.
                 effective_weight = max(effective_weight, weight * EXACT_TITLE_BOOST)
+        if QUESTION_WORD_MATCH != 1.0 and title_text and q_lead and q_lead == _lead_word(title_text):
+            effective_weight *= QUESTION_WORD_MATCH
         return effective_weight, all_q_covered
 
     # helper
@@ -2554,6 +2558,19 @@ FALLBACK_ANSWER = ("I don't have an answer for that right now, but I can pass it
 
 
 PHRASING_MIN_COVERAGE = float(os.getenv("PHRASING_MIN_COVERAGE", "0.67"))
+# "when" and "where" are stopwords, so "When was the Pampanito built?" and
+# "Where was the Pampanito built?" are the same search.  A title opening with
+# the question's own when or where gets a small edge to break that tie.  Other
+# question words were measured and rejected, 6 October 2026: at 1.1 they moved
+# three visitor answers and broke the Balao vs Gato question.
+QUESTION_WORD_MATCH = float(os.getenv("QUESTION_WORD_MATCH", "1.1"))
+_LEAD_WORDS = {"when", "where"}
+
+
+def _lead_word(text: str) -> str:
+    """The question word a question or title opens with, if any."""
+    words = re.findall(r"[a-z']+", (text or "").lower())
+    return words[0] if words and words[0] in _LEAD_WORDS else ""
 
 
 def _record_phrasings(ch: Dict[str, Any]) -> List[str]:
