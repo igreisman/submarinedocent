@@ -85,6 +85,13 @@ def main():
     else:
         print("  (no pampanito_specific record left; flag checks skipped)")
 
+    # The editor reads a record's boat from /admin/faqs and sends it back on
+    # every save.  Until 6 October 2026 the list left it out, so saving any
+    # tagged record in the editor cleared its boat.
+    tagged = next(e for e in m.FAQ_ALL if e.get("boat"))
+    listed = next(e for e in client.get("/admin/faqs", headers=auth).json() if e["chunk_id"] == tagged["chunk_id"])
+    check("the editor's list carries the boat", listed.get("boat") == tagged["boat"], repr(listed.get("boat")))
+
     r = client.post("/admin/faq", json={"title": "A boat field test record", "text": "<p>Body.</p>",
                                         "category": target.get("category", ""), "boat": "SS-224"},
                     headers=auth)

@@ -3695,6 +3695,9 @@ def get_all_faqs():
             "title": e.get("title", ""),
             "text": e.get("text", ""),
             "category": e.get("category", ""),
+            # The editor pre-selects the record's boat from this list and sends
+            # it back on every save; without it, saving cleared the tag.
+            "boat": e.get("boat", ""),
             "display_order": e.get("display_order"),
             "video_url": e.get("video_url", ""),
             "video_start": e.get("video_start"),
