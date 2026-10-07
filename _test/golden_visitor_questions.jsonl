@@ -116,3 +116,7 @@
 {"question": "how many ships did Pampanito sink", "accept": ["faq_1360"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}
 {"question": "where did the crew sleep on Pampanito", "accept": ["faq_1160", "faq_1119"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}
 {"question": "what ships did Cod sink", "accept": ["faq_1367"], "added": "2026-10-06, boat-name ranking (Reddit report: typed 'what ships did the Pampanito sink' answered by faq_1272)"}
+{"question": "how often do you dump your sanitary tanks", "accept": ["faq_1114"], "added": "2026-10-06, visitor log: refused by the 7.0 floor although the record answers it"}
+{"question": "What was the temperature and humidity like serving in the Pacific?", "accept": ["faq_1171"], "added": "2026-10-06, visitor log: refused by the 7.0 floor although the record answers it"}
+{"question": "what were the diving depth differences between Balao and Gato class boats", "accept": ["faq_1301"], "added": "2026-10-06, visitor log: refused by the 7.0 floor although the record answers it"}
+{"question": "Has anyway ever escaped a submarine?", "accept": ["faq_1088"], "tag": "typo", "added": "2026-10-06, visitor log: refused by the 7.0 floor although the record answers it; a misspelling ('anyway' for 'anyone'), kept failing on purpose: no spelling correction"}
