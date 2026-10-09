@@ -2485,8 +2485,10 @@ def retrieve(
 
     # Fleet Type Submarine manual series (global) – 1946 Navy engineering
     # prose, kept as a primary source.  Lowest weight of any corpus.
-    add_hits(FLEETSUB_MANUAL, "fleetsub_manual",
-             weight=FLEETSUB_MANUAL_WEIGHT, compartment_filter=False)
+    # Never for a one- or two-word question: see SHORT_QUERY_WORDS.
+    if not (SHORT_QUERY_NO_MANUAL and _is_short_query(question_text)):
+        add_hits(FLEETSUB_MANUAL, "fleetsub_manual",
+                 weight=FLEETSUB_MANUAL_WEIGHT, compartment_filter=False)
 
     # United States Submarine Losses, WWII (global) — memorial/historical
     # primary source: dedication, introduction, notes, and lost-sub list.
@@ -2593,6 +2595,21 @@ def _lead_word(text: str) -> str:
     """The question word a question or title opens with, if any."""
     words = re.findall(r"[a-z']+", (text or "").lower())
     return words[0] if words and words[0] in _LEAD_WORDS else ""
+
+
+# One- and two-word questions ("dirty", "deck", "uss razorback").  In the
+# 6 October visitor log, 13 of the 22 that were answered got the wrong record:
+# covering one word is no evidence of answering the question.  A short query is
+# never answered from the 1946 manual (SHORT_QUERY_NO_MANUAL), whose eight
+# answers to single words in that log were all about something else ("floor"
+# was a vent pipe).
+SHORT_QUERY_WORDS = int(os.getenv("SHORT_QUERY_WORDS", "2"))
+SHORT_QUERY_NO_MANUAL = _env_flag("SHORT_QUERY_NO_MANUAL", "1")
+
+
+def _is_short_query(question_text: str) -> bool:
+    words = re.findall(r"[A-Za-z0-9]+", question_text or "")
+    return 0 < len(words) <= SHORT_QUERY_WORDS
 
 
 def _record_phrasings(ch: Dict[str, Any]) -> List[str]:
