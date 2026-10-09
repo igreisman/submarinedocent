@@ -2241,6 +2241,12 @@ MUSEUM_BOOST = float(os.getenv("MUSEUM_BOOST", "2.0"))
 # synonyms narrowed): sweep and battery unchanged, typed boat questions 9 -> 15
 # of 19.
 BOAT_BOOST = float(os.getenv("BOAT_BOOST", "5.0"))
+# The boost lifts a record about the named boat only if the record also covers
+# this share of the question's other words.  Without it, "How many torpedoes
+# does the Pampanito carry?" (6 October visitor log) went to "When was the
+# Pampanito built?": the two share only the boat's name, and 5x lifted a raw
+# match of 6.6 to 59.
+BOAT_BOOST_MIN_COVERAGE = float(os.getenv("BOAT_BOOST_MIN_COVERAGE", "0.5"))
 
 
 def _title_covers_question(q_tokens: List[str], title_text: str) -> bool:
@@ -2308,6 +2314,21 @@ def retrieve(
         return ""
 
     boats_named = _boats_named(question_text) if BOAT_BOOST != 1.0 else set()
+    boat_words: set = set()
+    for hull in boats_named:
+        boat_words |= set(tokenize(re.sub(r"(?i)^uss\s+", "", str((BOATS.get(hull) or {}).get("name") or ""))))
+        boat_words |= {"uss", re.sub(r"\D", "", hull)}
+    other_words = [t for t in dict.fromkeys(q_tokens) if t not in boat_words]
+    other_weight = sum(_idf(t) for t in other_words)
+
+    def _boat_boost_earned(ch: Dict[str, Any]) -> bool:
+        """The record covers enough of the question beyond the boat's name."""
+        if BOAT_BOOST_MIN_COVERAGE <= 0 or not other_weight:
+            return True
+        rec = set(tokenize(" ".join([ch.get("title") or "", ch.get("text") or ""] + _record_phrasings(ch))))
+        got = sum(_idf(t) for t in other_words
+                  if t in rec or any(s in rec for s in QUERY_SYNONYMS.get(t, [])))
+        return got / other_weight >= BOAT_BOOST_MIN_COVERAGE
 
     normalized_question = re.sub(r"[^a-z0-9\s]", " ", (question_text or "").lower()).split()
     normalized_question_text = " ".join(normalized_question)
@@ -2417,7 +2438,8 @@ def retrieve(
                 effective_weight *= MUSEUM_BOOST
 
             # The question names this record's boat: see BOAT_BOOST.
-            if boats_named and str(ch.get("boat") or "").strip() in boats_named:
+            if (boats_named and str(ch.get("boat") or "").strip() in boats_named
+                    and _boat_boost_earned(ch)):
                 effective_weight *= BOAT_BOOST
 
             # For comparison queries, strongly boost chunks that discuss both sides
