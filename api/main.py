@@ -2607,7 +2607,9 @@ def _lead_word(text: str) -> str:
 SHORT_QUERY_WORDS = int(os.getenv("SHORT_QUERY_WORDS", "2"))
 SHORT_QUERY_PROMPT = _env_flag("SHORT_QUERY_PROMPT", "1")
 SHORT_QUERY_NO_MANUAL = _env_flag("SHORT_QUERY_NO_MANUAL", "1")
-SHORT_QUERY_ANSWER = "Please ask that as a full question. Here are some you could try."
+# Neutral about where the suggestions appear: above the answer on Ask the
+# Docent, below it on museum pages (Irving, 9 October 2026).
+SHORT_QUERY_ANSWER = "Please ask that as a full question, or try one of these."
 SHORT_QUERY_ANSWER_ALONE = "Please ask that as a full question."
 
 
