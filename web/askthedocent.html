@@ -2168,6 +2168,16 @@
       { q: 'How did Pampanito rescue POWs?',      faq: 'faq_1288' },
     ];
 
+    // Suggestions from the server for a one- or two-word question: the records
+    // its words best match, each pinned to its record like a balloon.
+    function showSuggestionList(list) {
+      const row = document.getElementById('suggestionsRow');
+      const attr = v => esc(String(v)).replace(/"/g, '&quot;');
+      row.innerHTML = list.map(s =>
+        `<button class="sugChip" data-q="${attr(s.q)}" data-faq="${attr(s.faq)}">${esc(String(s.q))}</button>`
+      ).join('');
+    }
+
     function showSuggestions() {
       const row = document.getElementById('suggestionsRow');
       const shuffled = DEFAULT_SUGGESTIONS.slice().sort(() => Math.random() - 0.5);
@@ -2199,6 +2209,16 @@
 
       try {
         const data = await askQuestion(question, faqId);
+
+        // ── One or two words: ask for a full question, with suggestions ──────
+        if (data.refusal && data.refusal.reason === 'short_query') {
+          renderAnswer(data);
+          askStatus.textContent = '';
+          showAskBtn();
+          if (data.suggestions && data.suggestions.length) showSuggestionList(data.suggestions);
+          else showSuggestions();
+          return;
+        }
 
         // ── Fallback: the answer asks whether to pass the question on ────────
         if (data.refusal && data.refusal.reason === 'fallback') {

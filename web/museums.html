@@ -1129,6 +1129,20 @@
         // The site's fallback offers to pass the question to historians, but
         // who receives museum-page questions is not decided (Track D), so
         // this page makes no offer.
+        // One or two words: the site asks for a full question and suggests
+        // records; they are offered here as this page's own question chips.
+        if (data.refusal && data.refusal.reason === 'short_query') {
+          const sug = data.suggestions || [];
+          out.innerHTML = `<div>${esc(data.answer_short || '')}</div>` + (sug.length
+            ? `<div class="museum-chips">${sug.map(x => `<button type="button" class="museum-chip" data-ask="${esc(x.q)}" data-faq="${esc(x.faq)}">${esc(x.q)}</button>`).join('')}</div>`
+            : '');
+          out.querySelectorAll('.museum-chip').forEach(chip => chip.addEventListener('click', () => {
+            const input = document.getElementById('museum-ask-input');
+            if (input) input.value = chip.dataset.ask;
+            askForMuseum(museumId, chip.dataset.ask, chip.dataset.faq);
+          }));
+          return;
+        }
         const answer = (data.refusal && data.refusal.reason === 'fallback')
           ? MUSEUM_FALLBACK_ANSWER
           : (data.answer_short || '').trim();

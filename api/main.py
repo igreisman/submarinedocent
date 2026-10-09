@@ -2599,12 +2599,16 @@ def _lead_word(text: str) -> str:
 
 # One- and two-word questions ("dirty", "deck", "uss razorback").  In the
 # 6 October visitor log, 13 of the 22 that were answered got the wrong record:
-# covering one word is no evidence of answering the question.  A short query is
-# never answered from the 1946 manual (SHORT_QUERY_NO_MANUAL), whose eight
-# answers to single words in that log were all about something else ("floor"
-# was a vent pipe).
+# covering one word is no evidence of answering the question.  A short query
+# gets a prompt to ask in full, with the records its words best match as
+# suggestions (SHORT_QUERY_PROMPT), and is never answered from the 1946 manual
+# (SHORT_QUERY_NO_MANUAL), whose eight answers to single words in that log were
+# all about something else ("floor" was a vent pipe).
 SHORT_QUERY_WORDS = int(os.getenv("SHORT_QUERY_WORDS", "2"))
+SHORT_QUERY_PROMPT = _env_flag("SHORT_QUERY_PROMPT", "1")
 SHORT_QUERY_NO_MANUAL = _env_flag("SHORT_QUERY_NO_MANUAL", "1")
+SHORT_QUERY_ANSWER = "Please ask that as a full question. Here are some you could try."
+SHORT_QUERY_ANSWER_ALONE = "Please ask that as a full question."
 
 
 def _is_short_query(question_text: str) -> bool:
@@ -6197,6 +6201,29 @@ def ask(request: Request, payload: dict):
     # answerable record (deleted, or a draft) falls back to an ordinary search.
     faq_id = str(payload.get("faq_id") or "").strip()
     pinned = next((c for c in FAQ if c.get("chunk_id") == faq_id), None) if faq_id else None
+    # One or two words: ask for a full question, offering the records those
+    # words best match.  Each suggestion names its record, like a balloon.
+    if pinned is None and SHORT_QUERY_PROMPT and _is_short_query(question):
+        hits = retrieve(question_text=question, compartment_id=compartment,
+                        playhead_time_ms=playhead_time_ms, top_k=8, museum_id=museum_id)
+        suggestions = []
+        for _, ch, _ in hits:
+            cid = str(ch.get("chunk_id") or "")
+            if cid.startswith(("faq_", "fix_")) and ch.get("title") and len(suggestions) < 3:
+                suggestions.append({"q": ch["title"], "faq": cid})
+        if request.headers.get("x-subdocent-test") != "1":
+            _append_ask_log(question, "short_query", museum_id)
+        return {
+            "answer_mode": payload.get("answer_mode", "standard") or "standard",
+            "answer_short": SHORT_QUERY_ANSWER if suggestions else SHORT_QUERY_ANSWER_ALONE,
+            "answer_deep": None,
+            "what_you_are_seeing": None,
+            "citations": [],
+            "followups": [],
+            "suggestions": suggestions,
+            "refusal": {"is_refusal": False, "reason": "short_query"},
+        }
+
     diag: Dict[str, Any] = {}
     if pinned is not None:
         hits = [(1.0, pinned, "dieselsubs_faq")]

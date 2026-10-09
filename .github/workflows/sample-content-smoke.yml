@@ -140,6 +140,11 @@ jobs:
         env:
           CONTENT_ROOT: corpora
 
+      - name: Short queries, manual and boat boost
+        run: python3 _test/test_short_queries.py
+        env:
+          CONTENT_ROOT: corpora
+
       - name: Stop app
         if: always()
         run: |
