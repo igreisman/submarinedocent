@@ -1,6 +1,115 @@
 {
   "entries": [
     {
+      "week_ending": "2026-10-09",
+      "from": "2026-10-02",
+      "to": "2026-10-09",
+      "generated": "2026-10-09T02:14:38-07:00",
+      "commits_total": 33,
+      "commits_listed": 13,
+      "totals": [
+        {
+          "label": "Answers",
+          "was": 383,
+          "now": 376
+        },
+        {
+          "label": "Videos",
+          "was": 108,
+          "now": 108
+        },
+        {
+          "label": "Museums listed",
+          "was": 20,
+          "now": 20
+        },
+        {
+          "label": "Museum pages",
+          "was": 2,
+          "now": 2
+        }
+      ],
+      "groups": [
+        {
+          "area": "Answers",
+          "changes": [
+            {
+              "sha": "ba0ae87",
+              "summary": "Seed refreshed from production"
+            },
+            {
+              "sha": "76b3cae",
+              "summary": "Seed refreshed from production"
+            },
+            {
+              "sha": "0bbefef",
+              "summary": "faq_1361: broom is on the periscope shears; retitle so periscope questions reach it"
+            }
+          ]
+        },
+        {
+          "area": "Ask the Docent",
+          "changes": [
+            {
+              "sha": "0591a7c",
+              "summary": "Ask the Docent: post-Send line matches the spoken promise"
+            },
+            {
+              "sha": "10b9725",
+              "summary": "Ask the Docent: Yes / No buttons under the fallback answer"
+            },
+            {
+              "sha": "fe206ea",
+              "summary": "Suggested-question balloons answer from their own record"
+            }
+          ]
+        },
+        {
+          "area": "Museum pages",
+          "changes": [
+            {
+              "sha": "241bb0b",
+              "summary": "Museum pages: the fallback makes no offer"
+            }
+          ]
+        },
+        {
+          "area": "Reference material",
+          "changes": [
+            {
+              "sha": "3ab6178",
+              "summary": "Remove the Pampanito war patrol pages, their index and their editor"
+            },
+            {
+              "sha": "a96b26b",
+              "summary": "Remove the Pampanito hub; link the war patrols from her boat section"
+            },
+            {
+              "sha": "a5fa4ea",
+              "summary": "Boat field: what a record is about, separate from museum_id"
+            },
+            {
+              "sha": "012c11d",
+              "summary": "Em dash cleanup: Ask the Docent messages and the losses report"
+            },
+            {
+              "sha": "80caa40",
+              "summary": "Shorts text: em dashes replaced, spoken words unchanged"
+            }
+          ]
+        },
+        {
+          "area": "Pages and layout",
+          "changes": [
+            {
+              "sha": "451e3c9",
+              "summary": "Phrasings: other wordings of a record's question"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "week_ending": "2026-10-02",
       "from": "2026-09-25",
       "to": "2026-10-02",

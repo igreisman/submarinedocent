@@ -1,6 +1,313 @@
 {
   "entries": [
     {
+      "week_ending": "2026-10-09",
+      "from": "2026-10-02",
+      "to": "2026-10-09",
+      "generated": "2026-10-09T02:14:38-07:00",
+      "commits_total": 33,
+      "commits_listed": 13,
+      "commits": [
+        {
+          "sha": "f31be47",
+          "summary": "\"When\" questions find \"When\" records, and \"where\" the \"Where\"",
+          "date": "2026-10-06T18:23:43-07:00",
+          "area": "",
+          "files": 3,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "451e3c9",
+          "summary": "Phrasings: other wordings of a record's question",
+          "date": "2026-10-06T18:23:43-07:00",
+          "area": "Pages and layout",
+          "files": 5,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "382f158",
+          "summary": "FAQ editor: saving a record no longer clears its boat",
+          "date": "2026-10-06T18:21:07-07:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "69bc18f",
+          "summary": "Unpunctuated questions start at their last what, how, why or who",
+          "date": "2026-10-06T17:16:31-07:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "8e3aae8",
+          "summary": "Golden battery: four visitor questions the floor had refused",
+          "date": "2026-10-06T17:08:30-07:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "8e6e5d3",
+          "summary": "CLAUDE.md: synonym entries are as narrow as their question allows",
+          "date": "2026-10-06T17:08:30-07:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "ee70003",
+          "summary": "Navy terms and three visitor words find their records",
+          "date": "2026-10-06T17:08:30-07:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "afa1c26",
+          "summary": "Ignore corpora/tts_cache/",
+          "date": "2026-10-06T15:36:05-07:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "0591a7c",
+          "summary": "Ask the Docent: post-Send line matches the spoken promise",
+          "date": "2026-10-06T15:36:05-07:00",
+          "area": "Ask the Docent",
+          "files": 1,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "10b9725",
+          "summary": "Ask the Docent: Yes / No buttons under the fallback answer",
+          "date": "2026-10-06T14:36:26-07:00",
+          "area": "Ask the Docent",
+          "files": 2,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "241bb0b",
+          "summary": "Museum pages: the fallback makes no offer",
+          "date": "2026-10-06T14:36:26-07:00",
+          "area": "Museum pages",
+          "files": 1,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "b6c96ef",
+          "summary": "Fallback text says what the no-answer recording says",
+          "date": "2026-10-06T14:25:49-07:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "dbee1d3",
+          "summary": "Visitor log: an answer from the manual is not a refusal",
+          "date": "2026-10-06T14:25:49-07:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "006b319",
+          "summary": "Questions no record answers get an honest fallback",
+          "date": "2026-10-06T12:20:44-07:00",
+          "area": "",
+          "files": 3,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "69ccce2",
+          "summary": "Golden battery: accept three answers that do answer their questions",
+          "date": "2026-10-06T11:10:10-07:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "cc9e99f",
+          "summary": "Questions that name a boat rank that boat's records first",
+          "date": "2026-10-06T10:30:50-07:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "ba0ae87",
+          "summary": "Seed refreshed from production",
+          "date": "2026-10-06T10:25:55-07:00",
+          "area": "Answers",
+          "files": 4,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "f797dd7",
+          "summary": "Put web/test.html behind the admin login",
+          "date": "2026-10-05T09:36:42-04:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "fe206ea",
+          "summary": "Suggested-question balloons answer from their own record",
+          "date": "2026-10-05T09:28:58-04:00",
+          "area": "Ask the Docent",
+          "files": 5,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "a5dcb8f",
+          "summary": "Uploads cannot carry script that runs as the site",
+          "date": "2026-10-03T12:40:54-04:00",
+          "area": "",
+          "files": 3,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "3ab6178",
+          "summary": "Remove the Pampanito war patrol pages, their index and their editor",
+          "date": "2026-10-03T11:01:07-04:00",
+          "area": "Reference material",
+          "files": 9,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "a96b26b",
+          "summary": "Remove the Pampanito hub; link the war patrols from her boat section",
+          "date": "2026-10-03T10:24:04-04:00",
+          "area": "Reference material",
+          "files": 6,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "a5fa4ea",
+          "summary": "Boat field: what a record is about, separate from museum_id",
+          "date": "2026-10-03T10:01:26-04:00",
+          "area": "Reference material",
+          "files": 7,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "012c11d",
+          "summary": "Em dash cleanup: Ask the Docent messages and the losses report",
+          "date": "2026-10-02T16:33:04-04:00",
+          "area": "Reference material",
+          "files": 3,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "76b3cae",
+          "summary": "Seed refreshed from production",
+          "date": "2026-10-02T16:14:37-04:00",
+          "area": "Answers",
+          "files": 2,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "1e32246",
+          "summary": "Battery floor 60 after removing seven pam_-derived fix_ records",
+          "date": "2026-10-02T16:14:37-04:00",
+          "area": "",
+          "files": 2,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "42e0aec",
+          "summary": "Backup filenames carry seconds",
+          "date": "2026-10-02T16:07:45-04:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "80caa40",
+          "summary": "Shorts text: em dashes replaced, spoken words unchanged",
+          "date": "2026-10-02T16:07:45-04:00",
+          "area": "Reference material",
+          "files": 1,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "a41ba1b",
+          "summary": "CLAUDE.md: em dash rule covers edited text and the ordered cleanup",
+          "date": "2026-10-02T15:20:59-04:00",
+          "area": "",
+          "files": 1,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "d3eeba6",
+          "summary": "\"Why\" check keeps a faq_/fix_ top hit instead of swapping in a neighbour",
+          "date": "2026-10-02T15:20:48-04:00",
+          "area": "",
+          "files": 3,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "6824f22",
+          "summary": "FAQ Source line follows the title: \"SubmarineDocent FAQ: <title>\"",
+          "date": "2026-10-02T15:09:23-04:00",
+          "area": "",
+          "files": 3,
+          "public": false,
+          "reason": "changed nothing a visitor loads"
+        },
+        {
+          "sha": "0bbefef",
+          "summary": "faq_1361: broom is on the periscope shears; retitle so periscope questions reach it",
+          "date": "2026-10-02T14:07:28-04:00",
+          "area": "Answers",
+          "files": 1,
+          "public": true,
+          "reason": ""
+        },
+        {
+          "sha": "976596a",
+          "summary": "What's New: week ending 2026-10-02",
+          "date": "2026-10-02T09:11:35Z",
+          "area": "Pages and layout",
+          "files": 2,
+          "public": false,
+          "reason": "an editing screen, not a visitor page"
+        }
+      ]
+    },
+    {
       "week_ending": "2026-10-02",
       "from": "2026-09-25",
       "to": "2026-10-02",
